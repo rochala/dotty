@@ -1121,6 +1121,7 @@ class CompletionTest {
            |  val x = Bar.`fo${m1}"""
              .withSource.completion(m1, expected)
   }
+   
 
   @Test def backticksImported: Unit = {
     val expected = Set(
