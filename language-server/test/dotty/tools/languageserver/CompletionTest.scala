@@ -1122,6 +1122,15 @@ class CompletionTest {
              .withSource.completion(m1, expected)
   }
 
+  @Test def backticksImported: Unit = {
+    val expected = Set(
+      ("`scalaUtilChainingOps`", Method, "[A](a: A): scala.util.ChainingOps[A]"),
+      ("`synchronized`", Method, "[X0](x$0: X0): X0")
+    )
+    code"""import scala.util.chaining.`s${m1}"""
+             .withSource.completion(m1, expected)
+  }
+
   @Test def matchTypeCompletions: Unit = {
     val expected = Set(
       ("fooTest", Method, "(y: Int): Int"),
