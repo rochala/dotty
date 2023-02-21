@@ -3,6 +3,7 @@ package dotc
 
 import core._
 import Contexts._
+import Comments.Comment
 import SymDenotations.ClassDenotation
 import Symbols._
 import util.{FreshNameCreator, SourceFile, NoSource}
@@ -41,6 +42,9 @@ class CompilationUnit protected (val source: SourceFile) {
    *  see https://github.com/scala/scala/commit/f50ec3c866263448d803139e119b33afb04ec2bc
    */
   val freshNames: FreshNameCreator = new FreshNameCreator.Default
+
+  /** List of all comments present in this compilation unit */
+  var comments: List[Comment] = Nil
 
   /** Will be set to `true` if there are inline call that must be inlined after typer.
    *  The information is used in phase `Inlining` in order to avoid traversing trees that need no transformations.
