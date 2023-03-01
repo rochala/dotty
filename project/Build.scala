@@ -361,7 +361,7 @@ object Build {
   // Settings used when compiling dotty with a non-bootstrapped dotty
   lazy val commonBootstrappedSettings = commonDottySettings ++ NoBloopExport.settings ++ Seq(
     // To enable support of scaladoc and language-server projects you need to change this to true and use sbt as your build server
-    bspEnabled := false,
+    bspEnabled := true,
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src-bootstrapped",
 
     version := dottyVersion,
@@ -1064,6 +1064,67 @@ object Build {
       Test / scalaSource := baseDirectory.value,
       Test / javaSource := baseDirectory.value,
       libraryDependencies += ("org.scala-sbt" %% "zinc-apiinfo" % "1.8.0" % Test).cross(CrossVersion.for3Use2_13)
+    )
+
+  lazy val `scala3-presentation-compiler` = project.in(file("presentation-compiler")).
+    dependsOn(dottyCompiler(Bootstrapped)).
+    settings(commonBootstrappedSettings).
+    settings(
+      bspEnabled := true,
+      moduleName := "scala3-presentation-compiler",
+      libraryDependencies ++= Seq(
+        "org.lz4" % "lz4-java" % "1.8.0",
+        "io.get-coursier" % "interface" % "1.0.13",
+        "org.scalameta" % "mtags-interfaces" % "0.11.11-SNAPSHOT"
+      ),
+      ivyConfigurations += SourceDeps.hide,
+      transitiveClassifiers := Seq("sources"),
+      resolvers += Resolver.mavenLocal,
+      libraryDependencies += "org.scalameta" % "mtags-shared_3" % "0.11.11-SNAPSHOT" % "sourcedeps",
+      (Compile / sourceGenerators) += Def.task {
+        val s = streams.value
+        val cacheDir = s.cacheDirectory
+        val targetDir = (Compile/sourceManaged).value / "mtags-shared"
+
+        val report = updateClassifiers.value
+
+        val mtagsSharedSourceJar = report.select(
+          configuration = configurationFilter("sourcedeps"),
+          module = (_: ModuleID).name.startsWith("mtags-shared_"),
+          artifact = artifactFilter(`type` = "src")).headOption.getOrElse {
+            sys.error(s"Could not fetch mtags-shared sources")
+
+          }
+        FileFunction.cached(cacheDir / s"fetchMtagsSharedSource",
+            FilesInfo.lastModified, FilesInfo.exists) { dependencies =>
+          s.log.info(s"Unpacking mtags-shared sources to $targetDir...")
+          if (targetDir.exists)
+            IO.delete(targetDir)
+          IO.createDirectory(targetDir)
+          IO.unzip(mtagsSharedSourceJar, targetDir)
+
+          val mtagsSharedSources = (targetDir ** "*.scala").get.toSet
+          mtagsSharedSources.foreach(f => {
+            val lines = IO.readLines(f)
+            IO.writeLines(f, insertUnsafeNullsImport(lines))
+          })
+          mtagsSharedSources
+        } (Set(mtagsSharedSourceJar)).toSeq
+      }.taskValue,
+      ideTestsDependencyClasspath := {
+        val scala3Lib= (`scala3-library-bootstrapped` / Compile / classDirectory).value
+        val scalaLib =
+          (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
+            .value
+            .map(_.data)
+            .filter(_.getName.matches("scala-library.*\\.jar"))
+            .toList
+        scala3Lib :: scalaLib
+      },
+      Compile / buildInfoKeys := Seq[BuildInfoKey](scalaVersion, ideTestsDependencyClasspath),
+      Compile / buildInfoPackage := "dotty.tools.pc.util",
+      BuildInfoPlugin.buildInfoScopedSettings(Compile),
+      BuildInfoPlugin.buildInfoDefaultSettings
     )
 
   lazy val `scala3-language-server` = project.in(file("language-server")).
