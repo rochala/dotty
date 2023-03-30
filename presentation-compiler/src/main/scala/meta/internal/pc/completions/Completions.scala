@@ -7,23 +7,21 @@ import java.nio.file.Paths
 import scala.collection.mutable
 
 import scala.meta.internal.metals.Fuzzy
-import scala.meta.internal.mtags.BuildInfo
+import scala.meta.internal.metals.ReportContext
+import scala.meta.internal.mtags.CoursierComplete
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.internal.pc.AutoImports.AutoImportsGenerator
-import scala.meta.internal.pc.IdentifierComparator
-import scala.meta.internal.pc.completions.KeywordsCompletions
 import scala.meta.internal.pc.completions.OverrideCompletions.OverrideExtractor
 import scala.meta.internal.semver.SemVer
 import scala.meta.pc.*
 
 import dotty.tools.dotc.ast.tpd.*
-import dotty.tools.dotc.ast.untpd
 import dotty.tools.dotc.core.Constants.Constant
 import dotty.tools.dotc.core.Contexts.*
-import dotty.tools.dotc.core.Denotations.*
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.NameOps.*
+import dotty.tools.pc.util.BuildInfo
 import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.core.StdNames
 import dotty.tools.dotc.core.StdNames.*
@@ -31,13 +29,11 @@ import dotty.tools.dotc.core.Symbols.*
 import dotty.tools.dotc.core.Types.*
 import dotty.tools.dotc.interactive.Completion
 import dotty.tools.dotc.transform.SymUtils.*
-import dotty.tools.dotc.util.NameTransformer
-import dotty.tools.dotc.util.NoSourcePosition
 import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.dotc.util.Spans
 import dotty.tools.dotc.util.Spans.Span
 import dotty.tools.dotc.util.SrcPos
-import scala.meta.internal.mtags.CoursierComplete
+import dotty.tools.dotc.core.Comments.Comment
 
 class Completions(
     pos: SourcePosition,
@@ -51,16 +47,17 @@ class Completions(
     config: PresentationCompilerConfig,
     workspace: Option[Path],
     autoImports: AutoImportsGenerator,
+    comments: List[Comment],
     options: List[String],
-):
+)(using ReportContext):
 
   implicit val context: Context = ctx
 
-  val coursierComplete = new CoursierComplete(BuildInfo.scalaCompilerVersion)
+  val coursierComplete = new CoursierComplete(BuildInfo.scalaVersion)
 
   // versions prior to 3.1.0 sometimes didn't manage to detect properly Java objects
   val canDetectJavaObjectsCorrectly =
-    SemVer.isLaterVersion("3.1.0", BuildInfo.scalaCompilerVersion)
+    SemVer.isLaterVersion("3.1.0", BuildInfo.scalaVersion)
 
   private lazy val shouldAddSnippet =
     path match
@@ -193,7 +190,7 @@ class Completions(
     val (all, result) =
       if exclusive then (advanced, SymbolSearch.Result.COMPLETE)
       else
-        val keywords = KeywordsCompletions.contribute(path, completionPos)
+        val keywords = KeywordsCompletions.contribute(path, completionPos, comments)
         val allAdvanced = advanced ++ keywords
         path match
           // should not show completions for toplevel
@@ -310,18 +307,12 @@ class Completions(
       toCompletionValue: (String, Symbol, CompletionSuffix) => CompletionValue,
   ): List[CompletionValue] =
     // workaround for earlier versions that force correctly detecting Java flags
-    def isJavaDefined = if canDetectJavaObjectsCorrectly then
-      sym.is(Flags.JavaDefined)
-    else
-      sym.info
-      sym.is(Flags.JavaDefined)
 
     def companionSynthetic = sym.companion.exists && sym.companion.is(Synthetic)
     // find the apply completion that would need a snippet
     val methodSymbols =
       if shouldAddSnippet &&
-        (sym.is(Flags.Module) || sym.isClass && !sym.is(Flags.Trait)) &&
-        !isJavaDefined
+        (sym.is(Flags.Module) || sym.isClass && !sym.is(Flags.Trait)) && !sym.is(Flags.JavaDefined)
       then
         val info =
           /* Companion will be added even for normal classes now,
@@ -562,10 +553,6 @@ class Completions(
           ivy.decoded == "$dep")
       case _ => false
 
-  private def description(sym: Symbol): String =
-    if sym.isType then sym.showFullName
-    else sym.info.widenTermRefExpr.show
-
   private def enrichWithSymbolSearch(
       visit: CompletionValue => Boolean,
       qualType: Type = ctx.definitions.AnyType,
@@ -583,33 +570,29 @@ class Completions(
         }
         Some(SymbolSearch.Result.INCOMPLETE)
       case CompletionKind.Scope =>
-        val visitor = new CompilerSearchVisitor(
-          query,
-          sym =>
-            indexedContext.lookupSym(sym) match
-              case IndexedContext.Result.InScope =>
-                visit(CompletionValue.scope(sym.decodedName, sym))
-              case _ =>
-                completionsWithSuffix(
-                  sym,
-                  sym.decodedName,
-                  CompletionValue.Workspace(_, _, _, sym),
-                ).map(visit).forall(_ == true),
-        )
-        Some(search.search(query, buildTargetIdentifier, visitor))
-      case CompletionKind.Members if query.nonEmpty =>
-        val visitor = new CompilerSearchVisitor(
-          query,
-          sym =>
-            if sym.is(ExtensionMethod) &&
-              qualType.widenDealias <:< sym.extensionParam.info.widenDealias
-            then
+        val visitor = new CompilerSearchVisitor(sym =>
+          indexedContext.lookupSym(sym) match
+            case IndexedContext.Result.InScope =>
+              visit(CompletionValue.scope(sym.decodedName, sym))
+            case _ =>
               completionsWithSuffix(
                 sym,
                 sym.decodedName,
-                CompletionValue.Extension(_, _, _),
-              ).map(visit).forall(_ == true)
-            else false,
+                CompletionValue.Workspace(_, _, _, sym),
+              ).map(visit).forall(_ == true),
+        )
+        Some(search.search(query, buildTargetIdentifier, visitor))
+      case CompletionKind.Members if query.nonEmpty =>
+        val visitor = new CompilerSearchVisitor(sym =>
+          if sym.is(ExtensionMethod) &&
+            qualType.widenDealias <:< sym.extensionParam.info.widenDealias
+          then
+            completionsWithSuffix(
+              sym,
+              sym.decodedName,
+              CompletionValue.Extension(_, _, _),
+            ).map(visit).forall(_ == true)
+          else false,
         )
         Some(search.searchMethods(query, buildTargetIdentifier, visitor))
       case CompletionKind.Members => // query.isEmpry
@@ -814,7 +797,7 @@ class Completions(
         def postProcess(items: List[CompletionValue]): List[CompletionValue] =
           items.map {
             case CompletionValue.Compiler(label, sym, suffix)
-                if sym.info.paramNamess.nonEmpty && isMember(sym) =>
+                if isMember(sym) =>
               CompletionValue.Compiler(
                 label,
                 substituteTypeVars(sym),

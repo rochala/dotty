@@ -1,19 +1,14 @@
 package scala.meta.internal.pc
 
-import java.net.URI
 import java.nio.file.Paths
 
-import scala.annotation.nowarn
-import scala.annotation.tailrec
 import scala.meta as m
 
-import scala.meta.Import.apply
 import scala.meta.internal.metals.CompilerOffsetParams
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.pc.OffsetParams
 import scala.meta.pc.VirtualFileParams
 
-import dotty.tools.dotc.ast.NavigateAST
 import dotty.tools.dotc.ast.Positioned
 import dotty.tools.dotc.ast.tpd
 import dotty.tools.dotc.ast.tpd.*
@@ -75,25 +70,39 @@ abstract class PcCollector[T](
       parent: Option[Tree]
   )(tree: Tree, pos: SourcePosition, symbol: Option[Symbol]): T
 
+  /**
+   * @return (adjusted position, should strip backticks)
+   */
   def adjust(
-      pos0: SourcePosition,
+      pos1: SourcePosition,
       forRename: Boolean = false,
   ): (SourcePosition, Boolean) =
+    if !pos1.span.isCorrect then (pos1, false)
+    else
+      val pos0 =
+        val span = pos1.span
+        if span.exists && span.point > span.end then
+          pos1.withSpan(
+            span
+              .withStart(span.point)
+              .withEnd(span.point + (span.end - span.start))
+          )
+        else pos1
 
-    val pos =
-      if sourceText(pos0.`end` - 1) == ',' then pos0.withEnd(pos0.`end` - 1)
-      else pos0
-    val isBackticked =
-      sourceText(pos.start) == '`' && sourceText(pos.end - 1) == '`'
-    // when the old name contains backticks, the position is incorrect
-    val isOldNameBackticked = sourceText(pos.start) != '`' &&
-      sourceText(pos.start - 1) == '`' &&
-      sourceText(pos.end) == '`'
-    if isBackticked && forRename then
-      (pos.withStart(pos.start + 1).withEnd(pos.`end` - 1), true)
-    else if isOldNameBackticked then
-      (pos.withStart(pos.start - 1).withEnd(pos.`end` + 1), false)
-    else (pos, false)
+      val pos =
+        if sourceText(pos0.`end` - 1) == ',' then pos0.withEnd(pos0.`end` - 1)
+        else pos0
+      val isBackticked =
+        sourceText(pos.start) == '`' && sourceText(pos.end - 1) == '`'
+      // when the old name contains backticks, the position is incorrect
+      val isOldNameBackticked = sourceText(pos.start) != '`' &&
+        sourceText(pos.start - 1) == '`' &&
+        sourceText(pos.end) == '`'
+      if isBackticked && forRename then
+        (pos.withStart(pos.start + 1).withEnd(pos.`end` - 1), true)
+      else if isOldNameBackticked then
+        (pos.withStart(pos.start - 1).withEnd(pos.`end` + 1), false)
+      else (pos, false)
   end adjust
 
   def symbolAlternatives(sym: Symbol) =
@@ -348,8 +357,8 @@ abstract class PcCollector[T](
          * etc.
          */
         case df: NamedDefTree
-            if df.span.isCorrect && filter(df) &&
-              !isGeneratedGiven(df) =>
+            if df.span.isCorrect && df.nameSpan.isCorrect &&
+              filter(df) && !isGeneratedGiven(df) =>
           val annots = collectTrees(df.mods.annotations)
           val traverser =
             new PcCollector.DeepFolderWithParent[Set[T]](
@@ -392,7 +401,9 @@ abstract class PcCollector[T](
               arg,
               pos
                 .withSpan(
-                  arg.span.withEnd(arg.span.start + realName.length)
+                  arg.span
+                    .withEnd(arg.span.start + realName.length)
+                    .withPoint(arg.span.start)
                 ),
               sym,
             )
@@ -469,7 +480,7 @@ abstract class PcCollector[T](
   // NOTE: Connected to https://github.com/lampepfl/dotty/issues/16771
   // `sel.nameSpan` is calculated incorrectly in (1 + 2).toString
   // See test DocumentHighlightSuite.select-parentheses
-  private def selectNameSpan(sel: Select)(using Context): Span =
+  private def selectNameSpan(sel: Select): Span =
     val span = sel.span
     if span.exists then
       val point = span.point

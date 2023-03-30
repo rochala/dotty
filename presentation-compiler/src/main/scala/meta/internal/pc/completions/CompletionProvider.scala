@@ -3,14 +3,13 @@ package completions
 
 import java.nio.file.Path
 
-import scala.annotation.tailrec
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters._
 
+import scala.meta.internal.metals.ReportContext
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.internal.pc.AutoImports.AutoImportEdits
 import scala.meta.internal.pc.AutoImports.AutoImportsGenerator
 import scala.meta.internal.pc.printer.MetalsPrinter
-import scala.meta.internal.tokenizers.Chars
 import scala.meta.pc.OffsetParams
 import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.SymbolSearch
@@ -38,7 +37,7 @@ class CompletionProvider(
     config: PresentationCompilerConfig,
     buildTargetIdentifier: String,
     workspace: Option[Path],
-):
+)(using reports: ReportContext):
   def completions(): CompletionList =
     val uri = params.uri
 
@@ -67,6 +66,7 @@ class CompletionProvider(
           completionPos.sourcePos,
           params.text,
           unit.tpdTree,
+          unit.comments,
           indexedCtx,
           config,
         )
@@ -83,6 +83,7 @@ class CompletionProvider(
             config,
             workspace,
             autoImportsGen,
+            unit.comments,
             driver.settings,
           ).completions()
 
@@ -221,7 +222,6 @@ class CompletionProvider(
           CompletionValue.Interpolator
     ) =
       val sym = v.symbol
-      val suffix = v.snippetSuffix
       path match
         case (_: Ident) :: (_: Import) :: _ =>
           mkItem(sym.fullNameBackticked)

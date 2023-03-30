@@ -4,12 +4,9 @@ import scala.collection.mutable
 
 import scala.meta.internal.jdk.CollectionConverters.*
 import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.internal.pc.AutoImports.AutoImport
-import scala.meta.internal.pc.AutoImports.AutoImportsGenerator
 import scala.meta.internal.pc.IndexedContext
 import scala.meta.internal.pc.Params
 import scala.meta.internal.pc.printer.ShortenedNames.ShortName
-import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.SymbolDocumentation
 import scala.meta.pc.SymbolSearch
 
@@ -24,9 +21,6 @@ import dotty.tools.dotc.core.Symbols.NoSymbol
 import dotty.tools.dotc.core.Symbols.Symbol
 import dotty.tools.dotc.core.Types.Type
 import dotty.tools.dotc.core.Types.*
-import dotty.tools.dotc.printing.Printer
-import dotty.tools.dotc.printing.RefinedPrinter
-import dotty.tools.dotc.printing.Texts.Text
 
 class MetalsPrinter(
     names: ShortenedNames,
@@ -52,8 +46,6 @@ class MetalsPrinter(
       AbsOverride,
       Lazy,
     )
-
-  private val defaultWidth = 1000
 
   def shortenedNames: List[ShortName] = names.namesToImport
 
@@ -105,7 +97,7 @@ class MetalsPrinter(
           if sym.is(Flags.Implicit) then List("implicit") else Nil
         val finalKeyword = if sym.is(Flags.Final) then List("final") else Nil
         val keyOrEmpty = dotcPrinter.keywords(sym)
-        val keyword = if keyOrEmpty.nonEmpty then List(keyOrEmpty) else Nil
+        val keyword = if keyOrEmpty.iterator.nonEmpty then List(keyOrEmpty) else Nil
         (implicitKeyword ::: finalKeyword ::: keyword ::: (s"$name:" :: shortTypeString :: Nil))
           .mkString(" ")
     end match
@@ -300,18 +292,18 @@ class MetalsPrinter(
       .zipAll(paramss, Nil, Nil)
       .map { case (params, syms) =>
         Params.paramsKind(syms) match
-          case Params.Kind.TypeParameter if params.nonEmpty =>
-            params.mkString("[", ", ", "]")
+          case Params.Kind.TypeParameter if params.iterator.nonEmpty =>
+            params.iterator.mkString("[", ", ", "]")
           case Params.Kind.Normal =>
-            params.mkString("(", ", ", ")")
-          case Params.Kind.Using if params.nonEmpty =>
-            params.mkString(
+            params.iterator.mkString("(", ", ", ")")
+          case Params.Kind.Using if params.iterator.nonEmpty =>
+            params.iterator.mkString(
               "(using ",
               ", ",
               ")",
             )
-          case Params.Kind.Implicit if params.nonEmpty =>
-            params.mkString(
+          case Params.Kind.Implicit if params.iterator.nonEmpty =>
+            params.iterator.mkString(
               "(implicit ",
               ", ",
               ")",

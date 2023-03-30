@@ -3,7 +3,7 @@ package scala.meta.internal.pc
 import java.nio.file.Paths
 import java.{util as ju}
 
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters._
 
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.pc.OffsetParams

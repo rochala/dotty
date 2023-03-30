@@ -1,20 +1,16 @@
 package scala.meta.internal.pc.printer
 
 import scala.meta.internal.pc.IndexedContext
-import scala.meta.internal.pc.printer.DotcPrinter.ForInferredType
 import scala.meta.internal.pc.printer.ShortenedNames.PrettyType
 
-import dotty.tools.dotc.core.Constants
-import dotty.tools.dotc.core.Constants.Constant
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.NameOps.*
 import dotty.tools.dotc.core.Names.Name
 import dotty.tools.dotc.core.Symbols.Symbol
 import dotty.tools.dotc.core.Types.*
-import dotty.tools.dotc.printing.RefinedPrinter
-import dotty.tools.dotc.printing.Texts.Closed
 import dotty.tools.dotc.printing.Texts.Text
+import dotty.tools.dotc.printing.RefinedPrinter
 
 /**
  * A limited subset of function that we use from compiler's printer
@@ -30,7 +26,7 @@ object DotcPrinter:
   private val defaultWidth = 1000
 
   class Std(using ctx: Context)
-      extends RefinedDotcPrinter(ctx)
+      extends RefinedPrinter(ctx)
       with DotcPrinter:
 
     override def nameString(name: Name): String =

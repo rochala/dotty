@@ -1075,12 +1075,13 @@ object Build {
       libraryDependencies ++= Seq(
         "org.lz4" % "lz4-java" % "1.8.0",
         "io.get-coursier" % "interface" % "1.0.13",
-        "org.scalameta" % "mtags-interfaces" % "0.11.11-SNAPSHOT"
+        "org.scalameta" % "mtags-interfaces" % "0.11.12-SNAPSHOT"
       ),
       ivyConfigurations += SourceDeps.hide,
       transitiveClassifiers := Seq("sources"),
       resolvers += Resolver.mavenLocal,
-      libraryDependencies += "org.scalameta" % "mtags-shared_3" % "0.11.11-SNAPSHOT" % "sourcedeps",
+      libraryDependencies += ("org.scalameta" %% "mtags-shared" % "0.11.12-SNAPSHOT" % "sourcedeps")
+        .cross(CrossVersion.for3Use2_13),
       (Compile / sourceGenerators) += Def.task {
         val s = streams.value
         val cacheDir = s.cacheDirectory

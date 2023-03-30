@@ -1,8 +1,7 @@
 package scala.meta.internal.pc
 
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters._
 
-import scala.meta.internal.mtags.BuildInfo
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.internal.semver.SemVer
 import scala.meta.pc.OffsetParams
@@ -12,6 +11,7 @@ import scala.meta.pc.SymbolSearch
 import dotty.tools.dotc.ast.Trees.AppliedTypeTree
 import dotty.tools.dotc.ast.Trees.TypeApply
 import dotty.tools.dotc.ast.tpd
+import dotty.tools.pc.util.BuildInfo
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Symbols.*
@@ -27,7 +27,7 @@ object SignatureHelpProvider:
   private val versionSupportsTypeParams =
     SemVer.isCompatibleVersion(
       "3.2.1-RC1-bin-20220628-65a86ae-NIGHTLY",
-      BuildInfo.scalaCompilerVersion,
+      BuildInfo.scalaVersion,
     )
 
   def signatureHelp(
@@ -47,10 +47,15 @@ object SignatureHelpProvider:
     val path =
       Interactive.pathTo(trees, pos).dropWhile(t => notCurrentApply(t, pos))
 
-    val (paramN, callableN, alternativeSignatures) =
-      MetalsSignatures.signatures(path, pos)
+    val (paramN, callableN, alternatives) =
+      Signatures.signatureHelp(path, pos.span)
+    val infos = alternatives.flatMap { signature =>
+      signature.denot.map {
+        (signature, _)
+      }
+    }
 
-    val signatureInfos = alternativeSignatures.map { case (signature, denot) =>
+    val signatureInfos = infos.map { case (signature, denot) =>
       search.symbolDocumentation(denot.symbol) match
         case Some(doc) =>
           withDocumentation(
@@ -65,16 +70,10 @@ object SignatureHelpProvider:
     /* Versions prior to 3.2.1 did not support type parameters
      * so we need to skip them.
      */
-    val adjustedParamN =
-      if versionSupportsTypeParams then paramN
-      else
-        val adjusted =
-          signatureInfos.lift(callableN).map(_.tparams.size).getOrElse(0)
-        paramN + adjusted
     new l.SignatureHelp(
       signatureInfos.map(signatureToSignatureInformation).asJava,
       callableN,
-      adjustedParamN,
+      paramN,
     )
   end signatureHelp
 

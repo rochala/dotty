@@ -2,89 +2,92 @@ package scala.meta.internal.pc.completions
 
 import scala.meta.internal.mtags.MtagsEnrichments.given
 import scala.meta.internal.pc.Keyword
-import scala.meta.tokenizers.XtensionTokenizeInputLike
-import scala.meta.tokens.Token
 
 import dotty.tools.dotc.ast.tpd.*
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.util.SourcePosition
-import org.eclipse.{lsp4j as l}
+import dotty.tools.dotc.core.Comments
+import dotty.tools.dotc.core.Comments.Comment
 
 object KeywordsCompletions:
 
   def contribute(
       path: List[Tree],
       completionPos: CompletionPos,
+      comments: List[Comment]
   )(using ctx: Context): List[CompletionValue] =
-    lazy val notInComment = checkIfNotInComment(completionPos.cursorPos, path)
-    path match
-      case Nil if completionPos.query.isEmpty =>
-        Keyword.all.collect {
-          // topelevel definitions are allowed in Scala 3
-          case kw if (kw.isPackage || kw.isTemplate) && notInComment =>
-            CompletionValue.keyword(kw.name, kw.insertText)
-        }
-      case _ =>
-        val isExpression = this.isExpression(path)
-        val isBlock = this.isBlock(path)
-        val isDefinition =
-          this.isDefinition(path, completionPos.query, completionPos.cursorPos)
-        val isMethodBody = this.isMethodBody(path)
-        val isTemplate = this.isTemplate(path)
-        val isPackage = this.isPackage(path)
-        val isParam = this.isParam(path)
-        val isSelect = this.isSelect(path)
-        val isImport = this.isImport(path)
-        lazy val text = completionPos.cursorPos.source.content.mkString
-        lazy val reverseTokens: Array[Token] =
-          // Try not to tokenize the whole file
-          // Maybe we should re-use the tokenize result with `notInComment`
-          val lineStart =
-            if completionPos.cursorPos.line > 0 then
-              completionPos.sourcePos.source.lineToOffset(
-                completionPos.cursorPos.line - 1
-              )
-            else 0
-          text
-            .substring(lineStart, completionPos.cursorPos.start)
-            .tokenize
-            .toOption match
-            case Some(toks) => toks.tokens.reverse
-            case None => Array.empty[Token]
-        end reverseTokens
-        Keyword.all.collect {
-          case kw
-              if kw.matchesPosition(
-                completionPos.query,
-                isExpression = isExpression,
-                isBlock = isBlock,
-                isDefinition = isDefinition,
-                isMethodBody = isMethodBody,
-                isTemplate = isTemplate,
-                isPackage = isPackage,
-                isParam = isParam,
-                isScala3 = true,
-                isSelect = isSelect,
-                isImport = isImport,
-                allowToplevel = true,
-                leadingReverseTokens = reverseTokens,
-              ) && notInComment =>
-            CompletionValue.keyword(kw.name, kw.insertText)
-        }
-    end match
-  end contribute
+    Nil
+    // lazy val notInComment = checkIfNotInComment(completionPos.cursorPos, path)
+    // path match
+    //   case Nil if completionPos.query.isEmpty =>
+    //     Keyword.all.collect {
+    //       // topelevel definitions are allowed in Scala 3
+    //       case kw if (kw.isPackage || kw.isTemplate) && notInComment =>
+    //         CompletionValue.keyword(kw.name, kw.insertText)
+    //     }
+    //   case _ =>
+    //     val isExpression = this.isExpression(path)
+    //     val isBlock = this.isBlock(path)
+    //     val isDefinition =
+    //       this.isDefinition(path, completionPos.query, completionPos.cursorPos)
+    //     val isMethodBody = this.isMethodBody(path)
+    //     val isTemplate = this.isTemplate(path)
+    //     val isPackage = this.isPackage(path)
+    //     val isParam = this.isParam(path)
+    //     val isSelect = this.isSelect(path)
+    //     val isImport = this.isImport(path)
+    //     lazy val text = completionPos.cursorPos.source.content.mkString
+    //     lazy val reverseTokens: Array[Token] =
+    //       // Try not to tokenize the whole file
+    //       // Maybe we should re-use the tokenize result with `notInComment`
+    //       val lineStart =
+    //         if completionPos.cursorPos.line > 0 then
+    //           completionPos.sourcePos.source.lineToOffset(
+    //             completionPos.cursorPos.line - 1
+    //           )
+    //         else 0
+    //       text
+    //         .substring(lineStart, completionPos.cursorPos.start)
+    //         .tokenize
+    //         .toOption match
+    //         case Some(toks) => toks.tokens.reverse
+    //         case None => Array.empty[Token]
+    //     end reverseTokens
+
+    //     val canBeExtended = KeywordCompletionsUtils.canBeExtended(reverseTokens)
+    //     val canDerive = KeywordCompletionsUtils.canDerive(reverseTokens)
+    //     val hasExtend = KeywordCompletionsUtils.hasExtend(reverseTokens)
+
+    //     Keyword.all.collect {
+    //       case kw
+    //           if kw.matchesPosition(
+    //             completionPos.query,
+    //             isExpression = isExpression,
+    //             isBlock = isBlock,
+    //             isDefinition = isDefinition,
+    //             isMethodBody = isMethodBody,
+    //             isTemplate = isTemplate,
+    //             isPackage = isPackage,
+    //             isParam = isParam,
+    //             isScala3 = true,
+    //             isSelect = isSelect,
+    //             isImport = isImport,
+    //             allowToplevel = true,
+    //             canBeExtended = canBeExtended,
+    //             canDerive = canDerive,
+    //             hasExtend = hasExtend,
+    //           ) && notInComment =>
+    //         CompletionValue.keyword(kw.name, kw.insertText)
+    //     }
+    // end match
+  // end contribute
 
   private def checkIfNotInComment(
-      pos: SourcePosition,
-      path: List[Tree],
+    pos: SourcePosition,
+    path: List[Tree],
+    comments: List[Comment]
   ): Boolean =
-    val text = pos.source.content
-    val (treeStart, treeEnd) = path.headOption
-      .map(t => (t.span.start, t.span.end))
-      .getOrElse((0, text.size))
-    val offset = pos.start
-    text.mkString.checkIfNotInComment(treeStart, treeEnd, offset)
-  end checkIfNotInComment
+    comments.exists(_.span.contains(pos.span))
 
   private def isPackage(enclosing: List[Tree]): Boolean =
     enclosing match

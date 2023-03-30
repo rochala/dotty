@@ -3,38 +3,28 @@ package scala.meta.internal.pc
 import java.io.File
 import java.net.URI
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledExecutorService
 import java.{util as ju}
 
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 
 import scala.meta.internal.metals.EmptyCancelToken
-import scala.meta.internal.mtags.BuildInfo
-import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.internal.pc.AutoImports.*
-import scala.meta.internal.pc.CompilerAccess
-import scala.meta.internal.pc.DefinitionResultImpl
+import scala.meta.internal.metals.EmptyReportContext
+import scala.meta.internal.metals.ReportContext
+import scala.meta.internal.metals.StdReportContext
 import scala.meta.internal.pc.completions.CompletionProvider
 import scala.meta.internal.pc.completions.OverrideCompletions
 import scala.meta.pc.*
 
-import dotty.tools.dotc.ast.tpd
-import dotty.tools.dotc.ast.tpd.*
-import dotty.tools.dotc.core.Contexts.*
-import dotty.tools.dotc.interactive.Interactive
-import dotty.tools.dotc.interactive.InteractiveDriver
 import dotty.tools.dotc.reporting.StoreReporter
-import dotty.tools.dotc.util.*
+import dotty.tools.pc.util.BuildInfo
 import org.eclipse.lsp4j.DocumentHighlight
-import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.TextEdit
-import org.eclipse.lsp4j.jsonrpc.{messages as jm}
 import org.eclipse.{lsp4j as l}
 
 case class ScalaPresentationCompiler(
@@ -50,12 +40,12 @@ case class ScalaPresentationCompiler(
 
   def this() = this("", Nil, Nil)
 
-  import InteractiveDriver.*
-
-  val scalaVersion = BuildInfo.scalaCompilerVersion
+  val scalaVersion = BuildInfo.scalaVersion
 
   private val forbiddenOptions = Set("-print-lines", "-print-tasty")
   private val forbiddenDoubleOptions = Set("-release")
+  given ReportContext =
+    workspace.map(StdReportContext(_)).getOrElse(EmptyReportContext)
 
   val compilerAccess: CompilerAccess[StoreReporter, MetalsDriver] =
     Scala3CompilerAccess(
@@ -244,9 +234,7 @@ case class ScalaPresentationCompiler(
     val empty: Either[String, List[l.TextEdit]] = Right(List())
     (compilerAccess
       .withInterruptableCompiler(empty, params.token) { pc =>
-        new InlineValueProvider(
-          new PcValReferenceProviderImpl(pc.compiler(), params)
-        )
+        new PcInlineValueProviderImpl(pc.compiler(), params)
           .getInlineTextEdits()
       })
       .thenApply {

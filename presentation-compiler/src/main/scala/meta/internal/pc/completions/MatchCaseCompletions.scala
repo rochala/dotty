@@ -2,19 +2,15 @@ package scala.meta.internal.pc
 package completions
 
 import java.net.URI
-import java.{util as ju}
 
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.internal.pc.AutoImports.AutoImport
 import scala.meta.internal.pc.AutoImports.AutoImportsGenerator
 import scala.meta.internal.pc.AutoImports.SymbolImport
-import scala.meta.internal.pc.IndexedContext.Result
 import scala.meta.internal.pc.MetalsInteractive.*
-import scala.meta.internal.pc.printer.ShortenedNames
 import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.SymbolSearch
 
@@ -24,7 +20,6 @@ import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.core.Definitions
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Flags.*
-import dotty.tools.dotc.core.Names.Name
 import dotty.tools.dotc.core.Symbols.NoSymbol
 import dotty.tools.dotc.core.Symbols.Symbol
 import dotty.tools.dotc.core.Types.AndType
@@ -33,10 +28,9 @@ import dotty.tools.dotc.core.Types.NoType
 import dotty.tools.dotc.core.Types.OrType
 import dotty.tools.dotc.core.Types.Type
 import dotty.tools.dotc.core.Types.TypeRef
-import dotty.tools.dotc.interactive.Interactive
-import dotty.tools.dotc.interactive.InteractiveDriver
 import dotty.tools.dotc.util.SourcePosition
 import org.eclipse.{lsp4j as l}
+import dotty.tools.dotc.core.StdNames.tpnme
 
 object CaseKeywordCompletion:
 
@@ -71,7 +65,6 @@ object CaseKeywordCompletion:
     val definitions = indexedContext.ctx.definitions
     val clientSupportsSnippets = config.isCompletionSnippetsEnabled()
     val completionGenerator = CompletionValueGenerator(
-      indexedContext,
       completionPos,
       clientSupportsSnippets,
       patternOnly,
@@ -89,7 +82,6 @@ object CaseKeywordCompletion:
               if definitions.isFunctionType(head) || head.isRef(
                 definitions.PartialFunctionClass
               ) =>
-            val dealiased = head.widenDealias
             val argTypes =
               head.argTypes.init
             new Parents(argTypes, definitions)
@@ -156,7 +148,7 @@ object CaseKeywordCompletion:
         && (sym.isPublic || sym.isAccessibleFrom(selectorSym.info))
       indexedContext.scopeSymbols
         .foreach(s =>
-          val ts = s.info.dealias.typeSymbol
+          val ts = s.info.metalsDealias.typeSymbol
           if (isValid(ts)) then visit(autoImportsGen.inferSymbolImport(ts))
         )
       // Step 2: walk through known subclasses of sealed types.
@@ -245,7 +237,6 @@ object CaseKeywordCompletion:
     val clientSupportsSnippets = config.isCompletionSnippetsEnabled()
 
     val completionGenerator = CompletionValueGenerator(
-      indexedContext,
       completionPos,
       clientSupportsSnippets,
     )
@@ -323,6 +314,13 @@ object CaseKeywordCompletion:
         defnSymbols.getOrElse(semancticName, -1)
       }
 
+  private def sealedStrictDescendants(sym: Symbol)(using Context): List[Symbol] =
+    sym.sealedStrictDescendants.filter(child =>
+      !(child.is(Sealed) && (child.is(Abstract) || child.is(Trait)))
+        && (child.isPublic || child.isAccessibleFrom(sym.info)) &&
+        child.name != tpnme.LOCAL_CHILD
+    )
+
   def subclassesForType(tpe: Type)(using Context): List[Symbol] =
     /**
      * Split type made of & and | types to a list of simple types.
@@ -356,7 +354,7 @@ object CaseKeywordCompletion:
     parents.toList.map { parent =>
       // There is an issue in Dotty, `sealedStrictDescendants` ends in an exception for java enums. https://github.com/lampepfl/dotty/issues/15908
       if parent.isAllOf(JavaEnumTrait) then parent.children
-      else MetalsSealedDesc.sealedStrictDescendants(parent)
+      else sealedStrictDescendants(parent)
     } match
       case Nil => Nil
       case subcls :: Nil => subcls
@@ -397,7 +395,6 @@ class Parents(val selector: Type, definitions: Definitions)(using Context):
 end Parents
 
 class CompletionValueGenerator(
-    indexedContext: IndexedContext,
     completionPos: CompletionPos,
     clientSupportsSnippets: Boolean,
     patternOnly: Option[String] = None,
@@ -459,7 +456,7 @@ class CompletionValueGenerator(
       sym: Symbol,
       label: String,
       autoImport: Option[l.TextEdit],
-  )(using Context): CompletionValue.CaseKeyword =
+  ): CompletionValue.CaseKeyword =
     val cursorSuffix =
       (if patternOnly.nonEmpty then "" else " ") +
         (if clientSupportsSnippets then "$0" else "")

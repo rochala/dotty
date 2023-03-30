@@ -2,33 +2,23 @@ package scala.meta.internal.pc
 
 import java.{util as ju}
 
-import scala.util.control.NonFatal
-
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.internal.pc.printer.MetalsPrinter
 import scala.meta.pc.HoverSignature
 import scala.meta.pc.OffsetParams
-import scala.meta.pc.ParentSymbols
-import scala.meta.pc.SymbolDocumentation
 import scala.meta.pc.SymbolSearch
 
 import dotty.tools.dotc.ast.tpd.*
 import dotty.tools.dotc.core.Constants.*
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.core.Flags.*
-import dotty.tools.dotc.core.NameKinds.*
-import dotty.tools.dotc.core.NameOps.*
 import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.core.StdNames.*
-import dotty.tools.dotc.core.SymDenotations.*
 import dotty.tools.dotc.core.Symbols.*
 import dotty.tools.dotc.core.Types.*
 import dotty.tools.dotc.interactive.Interactive
 import dotty.tools.dotc.interactive.InteractiveDriver
-import dotty.tools.dotc.interactive.SourceTree
-import dotty.tools.dotc.util.ParsedComment
 import dotty.tools.dotc.util.SourcePosition
-import org.eclipse.lsp4j.Hover
 
 object HoverProvider:
 
@@ -44,7 +34,6 @@ object HoverProvider:
     given ctx: Context = driver.currentCtx
     val pos = driver.sourcePosition(params)
     val trees = driver.openedTrees(uri)
-    val source = driver.openedFiles.get(uri)
     val indexedContext = IndexedContext(ctx)
 
     def typeFromPath(path: List[Tree]) =
@@ -82,9 +71,11 @@ object HoverProvider:
       ) match
         case Nil =>
           fallbackToDynamics(path, printer)
+        case (symbol, tpe) :: _
+            if symbol.name == nme.selectDynamic || symbol.name == nme.applyDynamic =>
+          fallbackToDynamics(path, printer)
         case symbolTpes @ ((symbol, tpe) :: _) =>
-          val exprTpw = tpe.widenTermRefExpr.dealias
-
+          val exprTpw = tpe.widenTermRefExpr.metalsDealias
           val hoverString =
             tpw match
               // https://github.com/lampepfl/dotty/issues/8891
@@ -138,10 +129,7 @@ object HoverProvider:
       path: List[Tree],
       printer: MetalsPrinter,
   )(using Context): ju.Optional[HoverSignature] = path match
-    case Apply(
-          Select(sel, n),
-          List(Literal(Constant(name: String))),
-        ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
+    case SelectDynamicExtractor(sel, n, name) =>
       def findRefinement(tp: Type): ju.Optional[HoverSignature] =
         tp match
           case RefinedType(info, refName, tpe) if name == refName.toString() =>
@@ -163,3 +151,19 @@ object HoverProvider:
       ju.Optional.empty()
 
 end HoverProvider
+
+object SelectDynamicExtractor:
+  def unapply(path: List[Tree]) =
+    path match
+      case Apply(
+            Select(sel, n),
+            List(Literal(Constant(name: String))),
+          ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
+        Some(sel, n, name)
+      case Select(_, _) :: Apply(
+            Select(sel, n),
+            List(Literal(Constant(name: String))),
+          ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
+        Some(sel, n, name)
+      case _ => None
+end SelectDynamicExtractor

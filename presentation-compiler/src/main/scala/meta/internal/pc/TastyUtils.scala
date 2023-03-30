@@ -1,22 +1,12 @@
 package scala.meta.internal.pc
 
 import java.net.URI
-import java.nio.charset.StandardCharsets
-import java.nio.file.Path
-import java.util.Optional
 
-import scala.meta.internal.io.FileIO
-import scala.meta.internal.io.PathIO
-import scala.meta.internal.jdk.CollectionConverters.*
 import scala.meta.internal.metals.HtmlBuilder
-import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.io.AbsolutePath
 
-import com.google.gson.JsonPrimitive
-import dotty.tools.dotc.core.tasty.TastyAnsiiPrinter
 import dotty.tools.dotc.core.tasty.TastyHTMLPrinter
 import dotty.tools.dotc.core.tasty.TastyPrinter
-import org.eclipse.{lsp4j as l}
+import java.nio.file.{Files, Paths}
 
 object TastyUtils:
   def getTasty(
@@ -30,7 +20,7 @@ object TastyUtils:
     htmlTasty(tastyURI, List(standaloneHtmlStyles))
 
   private def normalTasty(tastyURI: URI): String =
-    val tastyBytes = AbsolutePath.fromAbsoluteUri(tastyURI).readAllBytes
+    val tastyBytes = Files.readAllBytes(Paths.get(tastyURI))
     new TastyPrinter(tastyBytes).showContents()
 
   private def htmlTasty(
@@ -39,7 +29,7 @@ object TastyUtils:
       bodyAttributes: String = "",
   ): String =
     val title = tastyHtmlPageTitle(tastyURI)
-    val tastyBytes = AbsolutePath.fromAbsoluteUri(tastyURI).readAllBytes
+    val tastyBytes = Files.readAllBytes(Paths.get(tastyURI))
     val tastyHtml = new TastyHTMLPrinter(tastyBytes).showContents()
     HtmlBuilder()
       .page(title, htmlStyles :: headElems, bodyAttributes) { builder =>
@@ -50,7 +40,7 @@ object TastyUtils:
   end htmlTasty
 
   private def tastyHtmlPageTitle(file: URI) =
-    val filename = PathIO.basename(AbsolutePath.fromAbsoluteUri(file).toString)
+    val filename = Paths.get(file).getFileName.toString
     s"TASTy for $filename"
 
   private val standaloneHtmlStyles =

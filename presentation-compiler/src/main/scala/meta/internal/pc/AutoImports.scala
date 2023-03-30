@@ -5,20 +5,18 @@ import scala.jdk.CollectionConverters.*
 
 import scala.meta.internal.mtags.KeywordWrapper
 import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.internal.pc.AutoImports.AutoImportEdits
 import scala.meta.internal.pc.printer.ShortenedNames.ShortName
 import scala.meta.pc.PresentationCompilerConfig
 
 import dotty.tools.dotc.ast.tpd.*
 import dotty.tools.dotc.core.Contexts.*
-import dotty.tools.dotc.core.Denotations.*
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.core.Symbols.*
-import dotty.tools.dotc.interactive.Interactive
 import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.dotc.util.Spans
 import org.eclipse.{lsp4j as l}
+import dotty.tools.dotc.core.Comments.Comment
 
 object AutoImports extends AutoImportsBackticks:
 
@@ -93,13 +91,14 @@ object AutoImports extends AutoImportsBackticks:
       pos: SourcePosition,
       text: String,
       tree: Tree,
+      comments: List[Comment],
       indexedContext: IndexedContext,
       config: PresentationCompilerConfig,
   ): AutoImportsGenerator =
 
     import indexedContext.ctx
 
-    val importPos = autoImportPosition(pos, text, tree)
+    val importPos = autoImportPosition(pos, text, tree, comments)
     val renameConfig: Map[Symbol, String] = AutoImport.renameConfigMap(config)
 
     val renames =
@@ -291,6 +290,7 @@ object AutoImports extends AutoImportsBackticks:
       pos: SourcePosition,
       text: String,
       tree: Tree,
+      comments: List[Comment]
   )(using Context): AutoImportPosition =
 
     @tailrec
@@ -317,6 +317,12 @@ object AutoImports extends AutoImportsBackticks:
           }.headOption
         case _ => None
 
+    def skipUsingDirectivesOffset =
+      comments
+        .takeWhile(comment => comment.span.end < tree.span.start)
+        .lastOption
+        .fold(0)(_.span.end)
+
     def forScalaSource: Option[AutoImportPosition] =
       lastPackageDef(None, tree).map { pkg =>
         val lastImportStatement =
@@ -324,8 +330,7 @@ object AutoImports extends AutoImportsBackticks:
         val (lineNumber, padTop) = lastImportStatement match
           case Some(stm) => (stm.endPos.line + 1, false)
           case None if pkg.pid.symbol.isEmptyPackage =>
-            val offset =
-              ScriptFirstImportPosition.skipUsingDirectivesOffset(text)
+            val offset = skipUsingDirectivesOffset
             (pos.source.offsetToLine(offset), false)
           case None =>
             val pos = pkg.pid.endPos
@@ -347,10 +352,10 @@ object AutoImports extends AutoImportsBackticks:
             val offset = pos.source.lineToOffset(stm.endPos.line + 1)
             offset
           case None =>
-            val scriptOffset =
-              if isAmmonite then
-                ScriptFirstImportPosition.ammoniteScStartOffset(text)
-              else ScriptFirstImportPosition.scalaCliScStartOffset(text)
+            val scriptOffset = Some(0)
+              // if isAmmonite then
+              //   ScriptFirstImportPosition.ammoniteScStartOffset(text)
+              // else ScriptFirstImportPosition.scalaCliScStartOffset(text)
 
             scriptOffset.getOrElse(
               pos.source.lineToOffset(tmpl.self.srcPos.line)
@@ -363,7 +368,7 @@ object AutoImports extends AutoImportsBackticks:
 
     def fileStart =
       AutoImportPosition(
-        ScriptFirstImportPosition.skipUsingDirectivesOffset(text),
+        skipUsingDirectivesOffset,
         0,
         padTop = false,
       )

@@ -2,28 +2,21 @@ package scala.meta.internal.pc.completions
 
 import scala.collection.mutable.ListBuffer
 
-import scala.meta.internal.metals.Fuzzy
+import scala.meta.internal.metals.ReportContext
 import scala.meta.internal.mtags.MtagsEnrichments.*
-import scala.meta.internal.mtags.MtagsEnrichments.given
-import scala.meta.internal.pc.AutoImports.AutoImport
 import scala.meta.internal.pc.CompilerSearchVisitor
 import scala.meta.internal.pc.CompletionFuzzy
 import scala.meta.internal.pc.IndexedContext
 import scala.meta.internal.pc.InterpolationSplice
-import scala.meta.internal.pc.printer.MetalsPrinter
 import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.SymbolSearch
 
 import dotty.tools.dotc.ast.tpd.*
-import dotty.tools.dotc.core.Constants.Constant
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Flags.*
-import dotty.tools.dotc.core.Names.TermName
 import dotty.tools.dotc.core.Symbols.Symbol
 import dotty.tools.dotc.core.Types.Type
-import dotty.tools.dotc.interactive.Completion
-import dotty.tools.dotc.interactive.Interactive
 import dotty.tools.dotc.util.SourcePosition
 import org.eclipse.{lsp4j as l}
 
@@ -41,14 +34,13 @@ object InterpolatorCompletions:
       search: SymbolSearch,
       config: PresentationCompilerConfig,
       buildTargetIdentifier: String,
-  )(using Context) =
+  )(using Context, ReportContext) =
     InterpolationSplice(pos.span.point, text.toCharArray(), text) match
       case Some(interpolator) =>
         InterpolatorCompletions.contributeScope(
           text,
           lit,
           pos,
-          completionPos,
           interpolator,
           indexedContext,
           completions,
@@ -56,7 +48,6 @@ object InterpolatorCompletions:
           hasStringInterpolator =
             path.tail.headOption.exists(_.isInstanceOf[SeqLiteral]),
           search,
-          config,
           buildTargetIdentifier,
         )
       case None =>
@@ -122,7 +113,7 @@ object InterpolatorCompletions:
       areSnippetsSupported: Boolean,
       search: SymbolSearch,
       buildTargetIdentifier: String,
-  )(using Context): List[CompletionValue] =
+  )(using Context, ReportContext): List[CompletionValue] =
     def newText(
         name: String,
         suffix: Option[String],
@@ -143,15 +134,13 @@ object InterpolatorCompletions:
 
     def extensionMethods(qualType: Type) =
       val buffer = ListBuffer.empty[Symbol]
-      val visitor = new CompilerSearchVisitor(
-        completionPos.query,
-        sym =>
-          if sym.is(ExtensionMethod) &&
-            qualType.widenDealias <:< sym.extensionParam.info.widenDealias
-          then
-            buffer.append(sym)
-            true
-          else false,
+      val visitor = new CompilerSearchVisitor(sym =>
+        if sym.is(ExtensionMethod) &&
+          qualType.widenDealias <:< sym.extensionParam.info.widenDealias
+        then
+          buffer.append(sym)
+          true
+        else false,
       )
       search.searchMethods(completionPos.query, buildTargetIdentifier, visitor)
       buffer.toList
@@ -232,16 +221,14 @@ object InterpolatorCompletions:
       text: String,
       lit: Literal,
       position: SourcePosition,
-      completionPos: CompletionPos,
       interpolator: InterpolationSplice,
       indexedContext: IndexedContext,
       completions: Completions,
       areSnippetsSupported: Boolean,
       hasStringInterpolator: Boolean,
       search: SymbolSearch,
-      config: PresentationCompilerConfig,
       buildTargetIdentifier: String,
-  )(using ctx: Context): List[CompletionValue] =
+  )(using ctx: Context, reportsContext: ReportContext): List[CompletionValue] =
     val litStartPos = lit.span.start
     val litEndPos = lit.span.end - Cursor.value.length()
     val span = position.span
@@ -282,14 +269,12 @@ object InterpolatorCompletions:
     end newText
 
     val workspaceSymbols = ListBuffer.empty[Symbol]
-    val visitor = new CompilerSearchVisitor(
-      interpolator.name,
-      sym =>
-        indexedContext.lookupSym(sym) match
-          case IndexedContext.Result.InScope => false
-          case _ =>
-            if sym.is(Flags.Module) then workspaceSymbols += sym
-            true,
+    val visitor = new CompilerSearchVisitor(sym =>
+      indexedContext.lookupSym(sym) match
+        case IndexedContext.Result.InScope => false
+        case _ =>
+          if sym.is(Flags.Module) then workspaceSymbols += sym
+          true,
     )
     if interpolator.name.nonEmpty then
       search.search(interpolator.name, buildTargetIdentifier, visitor)
