@@ -1528,4 +1528,13 @@ class CompletionTest {
         )
       )
   }
+
+  @Test def testTestTest: Unit = {
+    code"""
+          |class Foo ext$m1
+          """
+      .completion(m1, Set(
+        ("Foo", Class, "Foo")
+      ))
+  }
 }

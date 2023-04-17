@@ -922,6 +922,11 @@ object Build {
       javaOptions := (`scala3-compiler-bootstrapped` / javaOptions).value
     )
 
+
+  /** Java std library compiled by dotty using the local version of java */
+  lazy val `stdjavalib-bootstrapped` = project.in(file("stdjavalib-bootstrapped"))
+
+
   /** Scala library compiled by dotty using the latest published sources of the library */
   lazy val `stdlib-bootstrapped` = project.in(file("stdlib-bootstrapped")).
     withCommonSettings(Bootstrapped).
@@ -929,6 +934,7 @@ object Build {
     dependsOn(`scala3-tasty-inspector` % "test->test").
     settings(commonBootstrappedSettings).
     settings(
+      bspEnabled := false,
       moduleName := "scala-library",
       javaOptions := (`scala3-compiler-bootstrapped` / javaOptions).value,
       Compile/scalacOptions += "-Yerased-terms",
@@ -1079,7 +1085,7 @@ object Build {
       ),
       ivyConfigurations += SourceDeps.hide,
       transitiveClassifiers := Seq("sources"),
-      resolvers += Resolver.mavenLocal,
+      resolvers += Resolver.defaultLocal,
       libraryDependencies += ("org.scalameta" %% "mtags-shared" % "0.11.12-SNAPSHOT" % "sourcedeps")
         .cross(CrossVersion.for3Use2_13),
       (Compile / sourceGenerators) += Def.task {
@@ -1088,7 +1094,6 @@ object Build {
         val targetDir = (Compile/sourceManaged).value / "mtags-shared"
 
         val report = updateClassifiers.value
-
         val mtagsSharedSourceJar = report.select(
           configuration = configurationFilter("sourcedeps"),
           module = (_: ModuleID).name.startsWith("mtags-shared_"),
@@ -1113,14 +1118,14 @@ object Build {
         } (Set(mtagsSharedSourceJar)).toSeq
       }.taskValue,
       ideTestsDependencyClasspath := {
-        val scala3Lib= (`scala3-library-bootstrapped` / Compile / classDirectory).value
-        val scalaLib =
-          (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
-            .value
-            .map(_.data)
-            .filter(_.getName.matches("scala-library.*\\.jar"))
-            .toList
-        scala3Lib :: scalaLib
+        val scala3Lib = (`scala3-library-bootstrapped` / Compile / classDirectory).value
+        val scalaLib  = (`stdlib-bootstrapped` / Compile / classDirectory).value
+          // (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
+          //   .value
+          //   .map(_.data)
+          //   .filter(_.getName.matches("scala-library.*\\.jar"))
+          //   .toList
+        List(scala3Lib, scalaLib)
       },
       Compile / buildInfoKeys := Seq[BuildInfoKey](scalaVersion, ideTestsDependencyClasspath),
       Compile / buildInfoPackage := "dotty.tools.pc.util",

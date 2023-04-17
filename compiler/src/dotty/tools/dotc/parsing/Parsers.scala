@@ -172,7 +172,6 @@ object Parsers {
   class Parser(source: SourceFile)(using Context) extends ParserCommon(source) {
 
     val in: Scanner = new Scanner(source, profile = Profile.current)
-    ctx.compilationUnit.comments = in.comments
     // in.debugTokenStream = true    // uncomment to see the token stream of the standard scanner, but not syntax highlighting
 
     /** This is the general parse entry point.
@@ -349,7 +348,9 @@ object Parsers {
           val statFollows = mustStartStatTokens.contains(found)
           syntaxError(
             if noPrevStat then IllegalStartOfStatement(what, isModifier, statFollows)
-            else em"end of $what expected but ${showToken(found)} found")
+            else
+              // includeErrorSpanInLastStat(stats)
+              em"end of $what expected but ${showToken(found)} found")
           if mustStartStatTokens.contains(found) then
             false // it's a statement that might be legal in an outer context
           else
@@ -360,6 +361,12 @@ object Parsers {
       in.observeOutdented()
       recur(false, false)
     end statSepOrEnd
+
+    // def includeErrorSpanInLastStat[T <: Tree](stats: ListBuffer[T]) =
+    //   if stats.nonEmpty then
+    //     val lastStat = stats.last
+    //     val adjustedLastStat = lastStat.withSpan(lastStat.span.withEnd(in.charOffset))
+    //     stats.update(stats.length - 1, adjustedLastStat)
 
     def rewriteNotice(version: SourceVersion = `3.0-migration`, additionalOption: String = "") =
       Message.rewriteNotice("This construct", version, additionalOption)

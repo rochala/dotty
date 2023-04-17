@@ -1060,7 +1060,7 @@ object Scanners {
       else if (ch == '*') { nextChar(); skipComment(); finishComment() }
       else {
         // This was not a comment, remove the `/` from the buffer
-        commentBuf.clear()
+        currentCommentBuf.clear()
         false
       }
     }

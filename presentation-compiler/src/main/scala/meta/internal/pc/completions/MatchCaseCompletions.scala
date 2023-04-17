@@ -31,6 +31,8 @@ import dotty.tools.dotc.core.Types.TypeRef
 import dotty.tools.dotc.util.SourcePosition
 import org.eclipse.{lsp4j as l}
 import dotty.tools.dotc.core.StdNames.tpnme
+import com.sourcegraph.semanticdb_javac.SemanticdbBuilders
+import dotty.tools.dotc.semanticdb.SemanticSymbolBuilder
 
 object CaseKeywordCompletion:
 
