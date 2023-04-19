@@ -27,13 +27,13 @@ object SignatureHelpProvider:
   private val versionSupportsTypeParams =
     SemVer.isCompatibleVersion(
       "3.2.1-RC1-bin-20220628-65a86ae-NIGHTLY",
-      BuildInfo.scalaVersion,
+      BuildInfo.scalaVersion
     )
 
   def signatureHelp(
       driver: InteractiveDriver,
       params: OffsetParams,
-      search: SymbolSearch,
+      search: SymbolSearch
   ) =
     val uri = params.uri
     val sourceFile = CompilerInterfaces.toSource(params.uri, params.text)
@@ -61,7 +61,7 @@ object SignatureHelpProvider:
           withDocumentation(
             doc,
             signature,
-            denot.symbol.is(Flags.JavaDefined),
+            denot.symbol.is(Flags.JavaDefined)
           ).getOrElse(signature)
         case _ => signature
 
@@ -73,7 +73,7 @@ object SignatureHelpProvider:
     new l.SignatureHelp(
       signatureInfos.map(signatureToSignatureInformation).asJava,
       callableN,
-      paramN,
+      paramN
     )
   end signatureHelp
 
@@ -84,7 +84,7 @@ object SignatureHelpProvider:
 
   private def notCurrentApply(
       tree: tpd.Tree,
-      pos: SourcePosition,
+      pos: SourcePosition
   )(using Context): Boolean =
     tree match
       case unapply: tpd.UnApply =>
@@ -106,12 +106,12 @@ object SignatureHelpProvider:
   private def withDocumentation(
       info: SymbolDocumentation,
       signature: Signatures.Signature,
-      isJavaSymbol: Boolean,
+      isJavaSymbol: Boolean
   ): Option[Signature] =
     val allParams = info.parameters.asScala
     def updateParams(
         params: List[Signatures.Param],
-        index: Int,
+        index: Int
     ): List[Signatures.Param] =
       params match
         case Nil => Nil
@@ -120,18 +120,17 @@ object SignatureHelpProvider:
           allParams.lift(index) match
             case Some(paramDoc) =>
               val newName =
-                if isJavaSymbol && head.name.startsWith("x$") then
-                  paramDoc.displayName
+                if isJavaSymbol && head.name.startsWith("x$") then paramDoc.displayName
                 else head.name
               head.copy(
                 doc = Some(paramDoc.docstring),
-                name = newName,
+                name = newName
               ) :: rest
             case _ => head :: rest
 
     def updateParamss(
         params: List[List[Signatures.Param]],
-        index: Int,
+        index: Int
     ): List[List[Signatures.Param]] =
       params match
         case Nil => Nil

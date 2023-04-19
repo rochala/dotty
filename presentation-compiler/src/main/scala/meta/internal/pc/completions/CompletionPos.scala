@@ -24,7 +24,7 @@ case class CompletionPos(
     end: Int,
     query: String,
     cursorPos: SourcePosition,
-    sourceUri: URI,
+    sourceUri: URI
 ):
 
   def sourcePos: SourcePosition = cursorPos.withSpan(Spans.Span(start, end))
@@ -39,7 +39,7 @@ object CompletionPos:
   def infer(
       cursorPos: SourcePosition,
       offsetParams: OffsetParams,
-      treePath: List[Tree],
+      treePath: List[Tree]
   )(using Context): CompletionPos =
     infer(cursorPos, offsetParams.uri, offsetParams.text, treePath)
 
@@ -47,7 +47,7 @@ object CompletionPos:
       cursorPos: SourcePosition,
       uri: URI,
       text: String,
-      treePath: List[Tree],
+      treePath: List[Tree]
   )(using Context): CompletionPos =
     val start = inferIdentStart(cursorPos, text, treePath)
     val end = inferIdentEnd(cursorPos, text)
@@ -65,7 +65,7 @@ object CompletionPos:
       end,
       query,
       cursorPos,
-      uri,
+      uri
     )
   end infer
 
@@ -76,7 +76,7 @@ object CompletionPos:
    */
   private[completions] def inferIndent(
       lineOffset: Int,
-      text: String,
+      text: String
   ): (Int, Boolean) =
     var i = 0
     var tabIndented = false
@@ -97,7 +97,7 @@ object CompletionPos:
   private def inferIdentStart(
       pos: SourcePosition,
       text: String,
-      path: List[Tree],
+      path: List[Tree]
   )(using Context): Int =
     def fallback: Int =
       var i = pos.point - 1
@@ -118,8 +118,7 @@ object CompletionPos:
               case Import(_, sel) =>
                 sel
                   .collectFirst {
-                    case ImportSelector(imported, renamed, _)
-                        if imported.sourcePos.contains(pos) =>
+                    case ImportSelector(imported, renamed, _) if imported.sourcePos.contains(pos) =>
                       imported.sourcePos.point
                   }
                   .getOrElse(fallback)

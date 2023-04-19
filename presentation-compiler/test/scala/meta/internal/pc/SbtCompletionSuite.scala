@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class CompletionSbtLibSuite extends BaseCompletionSuite {
+class CompletionSbtLibSuite extends BaseCompletionSuite:
 
   @Test def `source` =
     check(
@@ -11,7 +10,7 @@ class CompletionSbtLibSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|io.circe
          |""".stripMargin,
-      filename = "A.sbt",
+      filename = "A.sbt"
     )
 
   @Test def `single-percent` =
@@ -22,7 +21,7 @@ class CompletionSbtLibSuite extends BaseCompletionSuite {
          |circe-core_native0.4_2.13
          |circe-core_native0.4_3
          |""".stripMargin,
-      filename = "A.sbt",
+      filename = "A.sbt"
     )
 
   @Test def `double-percent` =
@@ -35,7 +34,7 @@ class CompletionSbtLibSuite extends BaseCompletionSuite {
          |circe-core_sjs1
          |circe-core_sjs1.0-RC2
          |""".stripMargin,
-      filename = "A.sbt",
+      filename = "A.sbt"
     )
 
   @Test def `version` =
@@ -44,7 +43,7 @@ class CompletionSbtLibSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|0.13.0
          |""".stripMargin,
-      filename = "A.sbt",
+      filename = "A.sbt"
     )
 
   @Test def `double-percent-edit` =
@@ -53,6 +52,5 @@ class CompletionSbtLibSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|val dependency = "io.circe" %% "circe-core_native0.4"
          |""".stripMargin,
-      filename = "A.sbt",
+      filename = "A.sbt"
     )
-}

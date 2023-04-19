@@ -18,7 +18,7 @@ import org.eclipse.{lsp4j as l}
 
 final class PcInlineValueProviderImpl(
     val driver: InteractiveDriver,
-    val params: OffsetParams,
+    val params: OffsetParams
 ) extends PcCollector[Occurence](driver, params)
     with InlineValueProvider:
 
@@ -29,7 +29,7 @@ final class PcInlineValueProviderImpl(
   override def collect(parent: Option[Tree])(
       tree: Tree,
       pos: SourcePosition,
-      sym: Option[Symbol],
+      sym: Option[Symbol]
   ): Occurence =
     val (adjustedPos, _) = adjust(pos)
     Occurence(tree, parent, adjustedPos)
@@ -54,7 +54,7 @@ final class PcInlineValueProviderImpl(
         adjustRhs(definition.tree.rhs.sourcePos),
         RangeOffset(defPos.start, defPos.end),
         definitionRequiresBrackets(definition.tree.rhs)(using newctx),
-        deleteDefinition,
+        deleteDefinition
       )
 
       (defEdit, refsEdits)
@@ -108,11 +108,10 @@ final class PcInlineValueProviderImpl(
   ): List[Symbol] =
     def collectNames(
         symbols: List[Symbol],
-        tree: Tree,
+        tree: Tree
     ): List[Symbol] =
       tree match
-        case id: (Ident | Select)
-            if !id.symbol.is(Synthetic) && !id.symbol.is(Implicit) =>
+        case id: (Ident | Select) if !id.symbol.is(Synthetic) && !id.symbol.is(Implicit) =>
           tree.symbol :: symbols
         case _ => symbols
 
@@ -123,7 +122,7 @@ final class PcInlineValueProviderImpl(
   private def getReferencesToInline(
       definition: DefinitionTree,
       allOccurences: List[Occurence],
-      symbols: List[Symbol],
+      symbols: List[Symbol]
   ): Either[String, (Boolean, List[Reference])] =
     val defIsLocal = definition.tree.symbol.ownersIterator
       .drop(1)
@@ -148,7 +147,7 @@ final class PcInlineValueProviderImpl(
 
   private def makeRefsEdits(
       refs: List[Occurence],
-      symbols: List[Symbol],
+      symbols: List[Symbol]
   ): Either[String, List[Reference]] =
     val newctx = driver.currentCtx.fresh.setCompilationUnit(unit)
     def buildRef(occurence: Occurence): Either[String, Reference] =
@@ -169,12 +168,10 @@ final class PcInlineValueProviderImpl(
         Right(
           Reference(
             occurence.pos.toLsp,
-            occurence.parent.map(p =>
-              RangeOffset(p.sourcePos.start, p.sourcePos.end)
-            ),
+            occurence.parent.map(p => RangeOffset(p.sourcePos.start, p.sourcePos.end)),
             occurence.parent
               .map(p => referenceRequiresBrackets(p)(using newctx))
-              .getOrElse(false),
+              .getOrElse(false)
           )
         )
       else Left(Errors.variablesAreShadowed(conflictingSymbols.mkString(", ")))

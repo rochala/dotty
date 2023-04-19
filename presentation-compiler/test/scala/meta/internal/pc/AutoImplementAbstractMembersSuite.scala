@@ -9,7 +9,7 @@ import org.eclipse.{lsp4j => l}
 import org.junit.Test
 import scala.runtime.Scala3RunTime.assertFailed
 
-class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
+class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite:
 
   @Test def `classdef` =
     checkEdit(
@@ -39,7 +39,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef-tparam` =
@@ -69,7 +69,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `empty-lines-between-members` =
@@ -131,7 +131,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `overload` =
@@ -162,7 +162,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |    override def foo(x: Int): Int = x
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `braces` =
@@ -192,7 +192,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `object-creation` =
@@ -210,7 +210,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
         |
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `context-bound` =
@@ -235,7 +235,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
         |
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `generics-inheritance` =
@@ -260,7 +260,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
         |
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `ignore-non-abstract` =
@@ -289,7 +289,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
         |
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `import` =
@@ -317,7 +317,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `nested-inheritance` =
@@ -348,7 +348,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `jutil` =
@@ -368,7 +368,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def foo: ju.List[Int] = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `jutil-conflict` =
@@ -394,7 +394,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  val java = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `val` =
@@ -413,7 +413,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override val baz: String = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `indent-def` =
@@ -446,7 +446,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |       override def foo(x: Int): Int = x
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `indent-val` =
@@ -481,7 +481,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |           val test = 1
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `indent-type` =
@@ -516,7 +516,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |           type T = Int
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `indent-object-creation` =
@@ -547,7 +547,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |          def bar(x: String): Int = x
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `infer-indent-constructor` =
@@ -578,7 +578,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `infer-indent-auxiliary-constructor` =
@@ -611,7 +611,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |      def this() = { this(4) }
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `indent-closing-brace` =
@@ -637,7 +637,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |      }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `complete-braces-moduledef` =
@@ -659,7 +659,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def foo(x: Int): Int = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `access-modifiers` =
@@ -701,7 +701,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |   }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `complete-braces-indent` =
@@ -727,7 +727,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |   }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `selftype` =
@@ -758,7 +758,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `selftype-arrow` =
@@ -791,7 +791,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tab-indented1` =
@@ -822,7 +822,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |	}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tab-indented2` =
@@ -852,7 +852,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |	}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `braceless-basic` =
@@ -883,7 +883,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |    def foo(x: Int): Int = x
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `braceless-selftype` =
@@ -914,7 +914,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |    def foo(x: Int): Int = x
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tab-indented-braceless` =
@@ -940,7 +940,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |
          |	def foo(x: Int): Int = x
          |
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-methods` =
@@ -968,7 +968,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  extension (x: Int) override def bar: String = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-methods-tparam` =
@@ -996,7 +996,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  extension (x: Int) override def bar: String = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `given-object-creation` =
@@ -1021,7 +1021,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def bar(x: String): String = ???
          |
          |  def foo(x: Int): Int = x
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `given-object-creation-braces` =
@@ -1047,7 +1047,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def bar(x: String): String = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `given-object-with` =
@@ -1071,7 +1071,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def foo(x: Int): Int = ???
          |
          |  override def bar(x: String): String = ???
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type-alias` =
@@ -1097,7 +1097,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def method(node: N): String = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `higher-kind-type` =
@@ -1129,7 +1129,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  extension (node: N) override def rightChild: F[Option[N]] = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `path-dependent-type-arg` =
@@ -1152,7 +1152,7 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def foo[A](using mirror: ProductOf[A])(ordering: Ordering[mirror.MirroredElemTypes]): Unit = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `case-class` =
@@ -1176,12 +1176,12 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
          |  override def implementMe: Int = ???
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   def checkEdit(
       original: String,
-      expected: String,
+      expected: String
   ): Unit =
     val edits = getAutoImplement(original)
     assertNonEmpty(edits, "Obtained no edits.")
@@ -1191,8 +1191,8 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
 
   def getAutoImplement(
       original: String,
-      filename: String = "A.scala",
-  ): List[l.TextEdit] = {
+      filename: String = "A.scala"
+  ): List[l.TextEdit] =
     val (code, _, offset) = params(original)
     val result = presentationCompiler
       .implementAbstractMembers(
@@ -1200,6 +1200,3 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite {
       )
       .get()
     result.asScala.toList
-  }
-
-}

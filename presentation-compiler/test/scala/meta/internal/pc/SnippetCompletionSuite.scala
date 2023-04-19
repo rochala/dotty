@@ -1,9 +1,8 @@
 package scala.meta.internal.pc
 
-
 import org.junit.Test
 
-class SnippetCompletionSuite extends BaseCompletionSuite {
+class SnippetCompletionSuite extends BaseCompletionSuite:
 
   @Test def `member` =
     checkSnippet(
@@ -13,7 +12,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|apply($0)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `scope` =
@@ -26,7 +25,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|println()
          |println($0)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `nullary` =
@@ -38,7 +37,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|head
          |headOption
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `nilary` =
@@ -53,7 +52,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       """|now()
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `java-nullary` =
@@ -69,8 +68,8 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       // even if `Foo.toString` is nullary, it overrides `Object.toString()`
       // which is a Java non-nullary method with an empty parameter list.
-    """|toString
-       |""".stripMargin
+      """|toString
+         |""".stripMargin
     )
 
   // Dotty does not currently support fuzzy completions. Please take a look at
@@ -84,7 +83,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|MyType
-         |""".stripMargin,
+         |""".stripMargin
     )
 
     // Dotty does not currently support fuzzy completions. Please take a look at
@@ -99,7 +98,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|MyType
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type` =
@@ -110,8 +109,8 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       // It's expected to have two separate results, one for `object IndexedSeq` (which should not
       // expand snipppet) and one for `type IndexedSeq[T]`.
-       """|IndexedSeq[$0]
-          |""".stripMargin
+      """|IndexedSeq[$0]
+         |""".stripMargin
     )
 
   @Test def `empty-params-with-implicit` =
@@ -121,7 +120,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  val bar = doSomethi@@
           |}
           |""".stripMargin,
-      "doSomething($0)",
+      "doSomething($0)"
     )
 
   @Test def `type2` =
@@ -134,7 +133,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       """|IndexedSeq
          |IndexedSeq[$0] {}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type3` =
@@ -143,11 +142,11 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  def foo(param: ArrayDeque@@)
           |}
           |""".stripMargin,
-        // ArrayDeque upper is for java, the lower for scala
-       """|ArrayDeque[$0]
-          |ArrayDeque[$0]
-          |ArrayDequeOps[$0]
-          |""".stripMargin,
+      // ArrayDeque upper is for java, the lower for scala
+      """|ArrayDeque[$0]
+         |ArrayDeque[$0]
+         |ArrayDequeOps[$0]
+         |""".stripMargin
     )
 
   @Test def `type4` =
@@ -157,7 +156,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|SimpleFileVisitor[$0]
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type5` =
@@ -166,9 +165,9 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  new scala.Iterabl@@
           |}
           |""".stripMargin,
-       """|Iterable[$0] {}
-          |IterableOnce[$0] {}
-          |""".stripMargin,
+      """|Iterable[$0] {}
+         |IterableOnce[$0] {}
+         |""".stripMargin
     )
 
   @Test def `type6` =
@@ -177,9 +176,9 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  def foo: scala.Iterable@@
           |}
           |""".stripMargin,
-       """|Iterable[$0]
-          |IterableOnce[$0]
-          |""".stripMargin,
+      """|Iterable[$0]
+         |IterableOnce[$0]
+         |""".stripMargin
     )
 
   @Test def `type7` =
@@ -188,9 +187,9 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  def foo(param: List[scala.Iterable@@])
           |}
           |""".stripMargin,
-       """|Iterable[$0]
-          |IterableOnce[$0]
-          |""".stripMargin,
+      """|Iterable[$0]
+         |IterableOnce[$0]
+         |""".stripMargin
     )
 
   @Test def `type8` =
@@ -205,7 +204,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|Upper
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `trailing-paren` =
@@ -216,7 +215,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "trailing@@()",
-      "trailing()",
+      "trailing()"
     )
 
   @Test def `trailing-brace` =
@@ -227,7 +226,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "trailing@@ { }",
-      "trailing { }",
+      "trailing { }"
     )
 
   @Test def `trailing-brace1` =
@@ -238,11 +237,11 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "trailing@@{ }",
-      "trailing{ }",
+      "trailing{ }"
     )
 
   @Test def `trailing-eta` =
-  // only works if we have the full function name type =
+    // only works if we have the full function name type =
     checkEditLine(
       s"""|object Main {
           |  def trailing(a: Int) = ()
@@ -250,7 +249,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "trailing@@ _",
-      "trailing _",
+      "trailing _"
     )
 
   @Test def `implicit` =
@@ -260,7 +259,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "List(1).flatte@@",
-      "List(1).flatten",
+      "List(1).flatten"
     )
 
   // no completions are suggested if we already have full typ =
@@ -271,7 +270,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "scala.util.Try@@(1)",
-      "scala.util.Try(1)",
+      "scala.util.Try(1)"
     )
 
   @Test def `case-class` =
@@ -282,7 +281,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       "scala.util.Tr@@(1)",
       "scala.util.Try(1)",
-      filter = str => str.contains("Try"),
+      filter = str => str.contains("Try")
     )
 
   @Test def `case-class2` =
@@ -291,9 +290,9 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  scala.util.Tr@@
           |}
           |""".stripMargin,
-       """|Try
-          |Try($0)
-          |""".stripMargin,
+      """|Try
+         |Try($0)
+         |""".stripMargin
     )
 
   @Test def `case-class3` =
@@ -302,12 +301,12 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  Try@@
           |}
           |""".stripMargin,
-        // Note: the class and trait items in here are invalid. So
-        // they are filtered out.
-       """|Try
-          |Try($0)
-          |TryMethods
-          |""".stripMargin
+      // Note: the class and trait items in here are invalid. So
+      // they are filtered out.
+      """|Try
+         |Try($0)
+         |TryMethods
+         |""".stripMargin
     )
 
   @Test def `symbol` =
@@ -319,7 +318,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       "out.+@@=('a')",
       "out.++==('a')",
-      filter = _.contains("++=(s: String)"),
+      filter = _.contains("++=(s: String)")
     )
 
   @Test def `multiple-apply` =
@@ -335,12 +334,12 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  Wi@@
           |}
           |""".stripMargin,
-       """|Widget -  example
-          |Widget($0) - (name: String): Widget
-          |Widget($0) - (age: Int): Widget
-          |Widget($0) - (name: String, age: Int): Widget
-          |""".stripMargin,
-      includeDetail = true,
+      """|Widget -  example
+         |Widget($0) - (name: String): Widget
+         |Widget($0) - (age: Int): Widget
+         |Widget($0) - (name: String, age: Int): Widget
+         |""".stripMargin,
+      includeDetail = true
     )
 
   @Test def `no-apply` =
@@ -353,7 +352,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "Widget -  example",
-      includeDetail = true,
+      includeDetail = true
     )
 
   // https://github.com/scalameta/metals/issues/4004
@@ -370,7 +369,7 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  extension (s: String)
           |    def bar = 0
           |  val bar = "abc".bar
-      """.stripMargin,
+      """.stripMargin
     )
 
   // https://github.com/scalameta/metals/issues/4004
@@ -387,7 +386,5 @@ class SnippetCompletionSuite extends BaseCompletionSuite {
           |  extension (s: String)
           |    def bar() = 0
           |  val bar = "abc".bar()
-      """.stripMargin,
+      """.stripMargin
     )
-
-}

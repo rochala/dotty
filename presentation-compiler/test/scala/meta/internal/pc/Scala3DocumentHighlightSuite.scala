@@ -2,23 +2,22 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
+class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite:
 
   @Test def `enum1` =
     check(
       """|enum FooEnum:
-         | case <<Ba@@r>>, Baz
+         |  case <<Ba@@r>>, Baz
          |val bar = FooEnum.<<Bar>>
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `enum2` =
     check(
       """|enum FooEnum:
-         | case <<Bar>>, Baz
+         |  case <<Bar>>, Baz
          |val bar = FooEnum.<<Ba@@r>>
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `transparent1` =
@@ -29,7 +28,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |transparent inline def <<foo>>(i: Int): Foo = new Bar
          |val iii = 123
          |val bar = <<f@@oo>>(iii)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `transparent2` =
@@ -40,7 +39,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |transparent inline def <<f@@oo>>(i: Int): Foo = new Bar
          |val iii = 123
          |val bar = <<foo>>(iii)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `transparent3` =
@@ -51,7 +50,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |transparent inline def foo(i: Int): Foo = new Bar
          |val <<ii@@i>> = 123
          |val bar = foo(<<iii>>)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `transparent4` =
@@ -62,7 +61,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |transparent inline def foo(i: Int): Foo = new Bar
          |val <<iii>> = 123
          |val bar = foo(<<i@@ii>>)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `recursive-inline1` =
@@ -73,7 +72,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  else
          |    val y = <<power>>(x, n / 2)
          |    if n % 2 == 0 then y * y else y * y * x
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `recursive-inline2` =
@@ -84,7 +83,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  else
          |    val y = <<po@@wer>>(x, n / 2)
          |    if n % 2 == 0 then y * y else y * y * x
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-params` =
@@ -93,7 +92,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  def double = <<sbd>> + <<sbd>>
          |  def double2 = <<sbd>> + <<sbd>>
          |end extension
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-params-ref` =
@@ -102,7 +101,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  def double = <<sb@@d>> + <<sbd>>
          |  def double2 = <<sbd>> + <<sbd>>
          |end extension
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-type-param` =
@@ -111,7 +110,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  def double = <<xs>> ++ <<xs>>
          |  def double2 = <<xs>> ++ <<xs>>
          |end extension
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-type-param-ref` =
@@ -120,7 +119,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  def double = <<xs>> ++ <<xs>>
          |  def double2 = <<xs>> ++ <<x@@s>>
          |end extension
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-with-type` =
@@ -131,7 +130,7 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |
          |  val x = 1.<<foo@@bar>>()
          |  val y = (1: Int).<<foobar>>()
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-complex` =
@@ -151,43 +150,41 @@ class Scala3DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |      map.get(key) match
          |        case None        => Left(s"Missing ${key} in }")
          |        case Some(value) => Right(value)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `given-synthetic1` =
     check(
       """|given (usi@@ng i: Int): Double = 4.0
-         |val a = given_Double""".stripMargin,
+         |val a = given_Double""".stripMargin
     )
 
   @Test def `given-synthetic2` =
     check(
       """|given (using i: Int): Double = 4.0
-         |val a = <<given_Doub@@le>>""".stripMargin,
+         |val a = <<given_Doub@@le>>""".stripMargin
     )
 
   @Test def `given-synthetic3` =
     check(
       """|given Int = 10
-         |val a = <<giv@@en_Int>>""".stripMargin,
+         |val a = <<giv@@en_Int>>""".stripMargin
     )
 
   @Test def `given-synthetic4` =
     check(
       """|given <<I@@nt>> = 10
-         |val a = given_Int""".stripMargin,
+         |val a = given_Int""".stripMargin
     )
 
   @Test def `given-not-synthetic1` =
     check(
       """|given <<`giv@@en_D`>>: Double = 4.0
-         |val a = <<`given_D`>>""".stripMargin,
+         |val a = <<`given_D`>>""".stripMargin
     )
 
   @Test def `given-not-synthetic2` =
     check(
       """|given <<`given_D`>>:Double = 4.0
-         |val a = <<`giv@@en_D`>>""".stripMargin,
+         |val a = <<`giv@@en_D`>>""".stripMargin
     )
-
-}

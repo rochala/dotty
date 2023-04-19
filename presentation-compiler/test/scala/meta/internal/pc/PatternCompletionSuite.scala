@@ -4,8 +4,7 @@ import scala.meta.internal.pc.PresentationCompilerConfigImpl
 import scala.meta.pc.PresentationCompilerConfig
 import org.junit.Test
 
-
-class PatternCompletionSuite extends BaseCompletionSuite {
+class PatternCompletionSuite extends BaseCompletionSuite:
 
   def paramHint: Option[String] = Some("param-hint")
 
@@ -28,7 +27,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |    case Some(value)$0 =>
         |  }
         |}""".stripMargin,
-      filter = _.contains("Some(value)"),
+      filter = _.contains("Some(value)")
     )
 
   @Test def `ident` =
@@ -41,7 +40,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|Some(value) scala
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `bind` =
@@ -52,7 +51,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |    case ma@@
         |  }
         |}""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `bind2` =
@@ -66,7 +65,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
       """|None scala
          |Some(value) scala
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `bind-ident` =
@@ -79,7 +78,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|Some(value) scala
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `wildcard` =
@@ -90,9 +89,9 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |    case _: @@ =>
         |  }
         |}""".stripMargin,
-          """|Some[?] scala
-             |""".stripMargin,
-      topLines = Some(1),
+      """|Some[?] scala
+         |""".stripMargin,
+      topLines = Some(1)
     )
 
   @Test def `wildcard-ident` =
@@ -105,7 +104,7 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|Some[_] scala
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `typed-bind` =
@@ -116,9 +115,9 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |    case ab: @@ =>
         |  }
         |}""".stripMargin,
-    """|Some[_] scala
-       |""".stripMargin,
-      topLines = Some(1),
+      """|Some[_] scala
+         |""".stripMargin,
+      topLines = Some(1)
     )
 
   @Test def `typed-bind-ident` =
@@ -131,6 +130,5 @@ class PatternCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|Some[_] scala
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
-}

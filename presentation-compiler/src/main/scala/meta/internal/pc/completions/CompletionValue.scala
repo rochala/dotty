@@ -51,7 +51,7 @@ object CompletionValue:
         CompletionItemData(
           SemanticdbSymbols.symbolName(symbol),
           buildTargetIdentifier,
-          kind = completionItemDataKind,
+          kind = completionItemDataKind
         )
       )
     def importSymbol: Symbol = symbol
@@ -88,14 +88,14 @@ object CompletionValue:
   case class Compiler(
       label: String,
       symbol: Symbol,
-      override val snippetSuffix: CompletionSuffix,
+      override val snippetSuffix: CompletionSuffix
   ) extends Symbolic
   case class Scope(label: String, symbol: Symbol) extends Symbolic
   case class Workspace(
       label: String,
       symbol: Symbol,
       override val snippetSuffix: CompletionSuffix,
-      override val importSymbol: Symbol,
+      override val importSymbol: Symbol
   ) extends Symbolic:
     override def isFromWorkspace: Boolean = true
 
@@ -105,7 +105,7 @@ object CompletionValue:
   case class Extension(
       label: String,
       symbol: Symbol,
-      override val snippetSuffix: CompletionSuffix,
+      override val snippetSuffix: CompletionSuffix
   ) extends Symbolic:
     override def completionItemKind(using Context): CompletionItemKind =
       CompletionItemKind.Method
@@ -126,7 +126,7 @@ object CompletionValue:
       symbol: Symbol,
       override val additionalEdits: List[TextEdit],
       override val filterText: Option[String],
-      override val range: Option[Range],
+      override val range: Option[Range]
   ) extends Symbolic:
     override def insertText: Option[String] = Some(value)
     override def completionItemDataKind: Integer =
@@ -141,7 +141,7 @@ object CompletionValue:
   case class NamedArg(
       label: String,
       tpe: Type,
-      symbol: Symbol,
+      symbol: Symbol
   ) extends Symbolic:
     override def insertText: Option[String] = Some(label.replace("$", "$$"))
     override def completionItemKind(using Context): CompletionItemKind =
@@ -170,7 +170,7 @@ object CompletionValue:
   case class FileSystemMember(
       filename: String,
       override val range: Option[Range],
-      isDirectory: Boolean,
+      isDirectory: Boolean
   ) extends CompletionValue:
     override def label: String = filename
     override def insertText: Option[String] = Some(filename.stripSuffix(".sc"))
@@ -180,7 +180,7 @@ object CompletionValue:
   case class IvyImport(
       label: String,
       override val insertText: Option[String],
-      override val range: Option[Range],
+      override val range: Option[Range]
   ) extends CompletionValue:
     override val filterText: Option[String] = insertText
     override def completionItemKind(using Context): CompletionItemKind =
@@ -195,7 +195,7 @@ object CompletionValue:
       override val filterText: Option[String],
       override val importSymbol: Symbol,
       isWorkspace: Boolean = false,
-      isExtension: Boolean = false,
+      isExtension: Boolean = false
   ) extends Symbolic:
     override def description(printer: MetalsPrinter)(using Context): String =
       if isExtension then s"${printer.completionSymbol(symbol)} (extension)"
@@ -206,7 +206,7 @@ object CompletionValue:
       label: String,
       override val insertText: Option[String],
       override val additionalEdits: List[TextEdit],
-      desc: String,
+      desc: String
   ) extends CompletionValue:
     override def completionItemKind(using Context): CompletionItemKind =
       CompletionItemKind.Enum
@@ -219,7 +219,7 @@ object CompletionValue:
       override val insertText: Option[String],
       override val additionalEdits: List[TextEdit],
       override val range: Option[Range] = None,
-      override val command: Option[String] = None,
+      override val command: Option[String] = None
   ) extends Symbolic:
     override def completionItemKind(using Context): CompletionItemKind =
       CompletionItemKind.Method
@@ -229,8 +229,7 @@ object CompletionValue:
     ): String = label
   end CaseKeyword
 
-  case class Document(label: String, doc: String, description: String)
-      extends CompletionValue:
+  case class Document(label: String, doc: String, description: String) extends CompletionValue:
     override def filterText: Option[String] = Some(description)
 
     override def insertText: Option[String] = Some(doc)
@@ -252,7 +251,7 @@ object CompletionValue:
   def document(
       label: String,
       insertText: String,
-      description: String,
+      description: String
   ): CompletionValue =
     Document(label, insertText, description)
 

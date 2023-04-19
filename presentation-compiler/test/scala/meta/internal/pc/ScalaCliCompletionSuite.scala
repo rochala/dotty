@@ -2,15 +2,14 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class CompletionScalaCliSuite extends BaseCompletionSuite {
+class CompletionScalaCliSuite extends BaseCompletionSuite:
 
   @Test def `simple` =
     check(
       """|//> using lib "io.cir@@
          |package A
          |""".stripMargin,
-      "io.circe",
+      "io.circe"
     )
 
   @Test def `multiple-deps` =
@@ -26,7 +25,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
          |// //> using lib ???
          |//> using lib io.circe::circe-core_native0.4
          |package A
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `single-colon` =
@@ -37,7 +36,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|circe-core_native0.4_2.12
          |circe-core_native0.4_2.13
          |circe-core_native0.4_3
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `version` =
@@ -45,7 +44,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using lib "io.circe::circe-core_sjs1:0.14.1@@"
          |package A
          |""".stripMargin,
-      "0.14.1",
+      "0.14.1"
     )
 
   @Test def `multiple-libs` =
@@ -53,7 +52,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using lib "io.circe::circe-core:0.14.0", "io.circe::circe-core_na@@"
          |package A
          |""".stripMargin,
-      "circe-core_native0.4",
+      "circe-core_native0.4"
     )
 
   @Test def `script` =
@@ -62,14 +61,14 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
         """|//> using lib "io.circe:circe-core_na@@
            |
            |""".stripMargin,
-        "script.sc.scala",
+        "script.sc.scala"
       ),
       """|circe-core_native0.4_2.12
          |circe-core_native0.4_2.13
          |circe-core_native0.4_3
          |""".stripMargin,
       filename = "script.sc.scala",
-      enablePackageWrap = false,
+      enablePackageWrap = false
     )
 
   @Test def `closing-quote` =
@@ -77,7 +76,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using lib "io.circe::circe-core:0.14.0"@@
          |package A
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `whitespace` =
@@ -85,16 +84,16 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using lib "io.circe::circe-co @@
          |package A
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `plugin` =
     check(
-    """|//> using plugin "org.polyvariant:::@@
-       |package A
-       |""".stripMargin,
-    "better-tostring",
-  )
+      """|//> using plugin "org.polyvariant:::@@
+         |package A
+         |""".stripMargin,
+      "better-tostring"
+    )
 
   @Test def `alternative-sorting` =
     checkEdit(
@@ -104,7 +103,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using lib "co.fs2::fs2-core:3.4.0"
          |package A
          |""".stripMargin,
-      filter = _.startsWith("3.4"),
+      filter = _.startsWith("3.4")
     )
 
   @Test def `dep` =
@@ -112,7 +111,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using dep "io.cir@@
          |package A
          |""".stripMargin,
-      "io.circe",
+      "io.circe"
     )
 
   @Test def `multiple-deps2` =
@@ -120,7 +119,7 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
       """|//> using libs "io.circe::circe-core:0.14.0", "io.circe::circe-core_na@@"
          |package A
          |""".stripMargin,
-      "circe-core_native0.4",
+      "circe-core_native0.4"
     )
 
   private def scriptWrapper(code: String, filename: String): String =
@@ -131,5 +130,3 @@ class CompletionScalaCliSuite extends BaseCompletionSuite {
         |/*<script>*/${code}
         |}
         |""".stripMargin
-
-}

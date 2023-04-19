@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class CompletionOverrideAllSuite extends BaseCompletionSuite {
+class CompletionOverrideAllSuite extends BaseCompletionSuite:
 
   override def requiresJdkSources: Boolean = true
 
@@ -23,7 +22,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (2 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `simple-edit` =
@@ -55,7 +54,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `simple-three` =
@@ -75,7 +74,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (3 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `simple-three-edit` =
@@ -112,7 +111,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
         |  }
         |}
         |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `two-left` =
@@ -133,7 +132,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (2 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `two-left-edit` =
@@ -169,7 +168,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `none-with-one` =
@@ -186,7 +185,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "",
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `same-scope` =
@@ -206,7 +205,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (2 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `same-scope-edit` =
@@ -240,7 +239,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `include-val-var` =
@@ -260,7 +259,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (3 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `include-val-var-edit` =
@@ -296,7 +295,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `mixed-partial` =
@@ -322,7 +321,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Implement all members (3 total)
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `mixed-partial-edit` =
@@ -370,7 +369,7 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
 
   @Test def `java` =
@@ -396,6 +395,5 @@ class CompletionOverrideAllSuite extends BaseCompletionSuite {
          |
          |}
          |""".stripMargin,
-      filter = _.contains("Implement"),
+      filter = _.contains("Implement")
     )
-}

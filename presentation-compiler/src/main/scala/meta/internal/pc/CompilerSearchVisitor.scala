@@ -19,21 +19,20 @@ class CompilerSearchVisitor(
 
   val logger: Logger = Logger.getLogger(classOf[CompilerSearchVisitor].getName)
 
-  private def isAccessible(sym: Symbol): Boolean = try
-    sym != NoSymbol && sym.isPublic
+  private def isAccessible(sym: Symbol): Boolean = try sym != NoSymbol && sym.isPublic
   catch
     case NonFatal(e) =>
       reports.incognito.createReport(
         "is_public",
         s"""Symbol: $sym""".stripMargin,
-        e,
+        e
       )
       logger.log(Level.SEVERE, e.getMessage(), e)
       false
 
   private def toSymbols(
       pkg: String,
-      parts: List[String],
+      parts: List[String]
   ): List[Symbol] =
     def loop(owners: List[Symbol], parts: List[String]): List[Symbol] =
       parts match
@@ -69,7 +68,7 @@ class CompilerSearchVisitor(
       path: java.nio.file.Path,
       symbol: String,
       kind: org.eclipse.lsp4j.SymbolKind,
-      range: org.eclipse.lsp4j.Range,
+      range: org.eclipse.lsp4j.Range
   ): Int =
     val gsym = SemanticdbSymbols.inverseSemanticdbSymbol(symbol).headOption
     gsym

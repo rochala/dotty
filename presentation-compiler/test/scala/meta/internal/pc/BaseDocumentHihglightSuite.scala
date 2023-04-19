@@ -8,10 +8,10 @@ import scala.meta.internal.metals.EmptyCancelToken
 
 import org.eclipse.lsp4j.DocumentHighlight
 
-class BaseDocumentHighlightSuite extends BasePCSuite with RangeReplace {
+class BaseDocumentHighlightSuite extends BasePCSuite with RangeReplace:
 
   def check(
-      original: String,
+      original: String
   ): Unit =
     val edit = original.replaceAll("(<<|>>)", "")
     val expected = original.replaceAll("@@", "")
@@ -24,7 +24,7 @@ class BaseDocumentHighlightSuite extends BasePCSuite with RangeReplace {
           URI.create("file:/Highlight.scala"),
           code,
           offset,
-          EmptyCancelToken,
+          EmptyCancelToken
         )
       )
       .get()
@@ -33,14 +33,11 @@ class BaseDocumentHighlightSuite extends BasePCSuite with RangeReplace {
       .sortWith(compareHighlights)
       .reverse
 
-
     val obtained = renderHighlightsAsString(base, highlights)
     assertNoDiff(expected, obtained)
 
-  private def compareHighlights(h1: DocumentHighlight, h2: DocumentHighlight) = {
+  private def compareHighlights(h1: DocumentHighlight, h2: DocumentHighlight) =
     val r1 = h1.getRange().getStart()
     val r2 = h2.getRange().getStart()
     r1.getLine() < r2.getLine() || (r1.getLine() == r2.getLine() && r1
       .getCharacter() < r2.getCharacter())
-  }
-}

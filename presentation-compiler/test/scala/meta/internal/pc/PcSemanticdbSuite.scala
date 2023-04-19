@@ -4,8 +4,7 @@ import java.net.URI
 import dotty.tools.dotc.semanticdb.TextDocument
 import org.junit.Test
 
-
-class PcSemanticdbSuite extends BasePCSuite {
+class PcSemanticdbSuite extends BasePCSuite:
 
   override def requiresJdkSources: Boolean = true
 
@@ -25,7 +24,7 @@ class PcSemanticdbSuite extends BasePCSuite {
          |  val a/*a.O.a.*/ = 123
          |  val b/*a.O.b.*/ = a/*a.O.a.*/ +/*scala.Int#`+`(+4).*/ 1
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `worksheet` =
@@ -44,19 +43,17 @@ class PcSemanticdbSuite extends BasePCSuite {
          |  val b/*_empty_.O.b.*/ = a/*_empty_.O.a.*/ +/*scala.Int#`+`(+4).*/ 1
          |}
          |""".stripMargin,
-      filename = "A.worksheet.sc",
+      filename = "A.worksheet.sc"
     )
 
   def check(
       original: String,
       expected: String,
-      filename: String = "A.scala",
-  ): Unit = {
+      filename: String = "A.scala"
+  ): Unit =
     val uri = new URI(s"file:///$filename")
     val doc = presentationCompiler.semanticdbTextDocument(uri, original)
 
     val document = TextDocument.parseFrom(doc.get())
     val obtained = document.withText(original).toString
     assertNoDiff(expected, obtained)
-  }
-}

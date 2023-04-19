@@ -1,11 +1,10 @@
 package scala.meta.internal.pc
 
-
 import scala.meta.internal.pc.PresentationCompilerConfigImpl
 import scala.meta.pc.PresentationCompilerConfig
 import org.junit.Test
 
-class ParameterHintCompletionSuite extends BaseCompletionSuite {
+class ParameterHintCompletionSuite extends BaseCompletionSuite:
 
   override def config: PresentationCompilerConfig =
     PresentationCompilerConfigImpl(
@@ -21,7 +20,7 @@ class ParameterHintCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       { case Seq(item) =>
         item.getCommand.getCommand == "hello"
-      },
+      }
     )
 
   @Test def `command2` =
@@ -34,6 +33,5 @@ class ParameterHintCompletionSuite extends BaseCompletionSuite {
       { case Seq(item1, item2) =>
         item1.getCommand == null &&
         item2.getCommand.getCommand == "hello"
-      },
+      }
     )
-}

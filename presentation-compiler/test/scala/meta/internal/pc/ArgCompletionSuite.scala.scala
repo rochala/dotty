@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class ArgCompletionSuite extends BaseCompletionSuite {
+class ArgCompletionSuite extends BaseCompletionSuite:
 
   // In scala3, we get NoSymbol for `assert`, so we get no completions here.
   // This might be because the `assert` method has multiple overloaded methods, and that's why we can't retrieve a specfic symbol.
@@ -17,7 +17,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|assertion = : Boolean
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   @Test def `arg-newline` =
@@ -32,7 +32,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|apple = : String
          |banana = : String
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   @Test def `arg1` =
@@ -44,7 +44,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|message = : => Any
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   @Test def `arg-edit` =
@@ -56,7 +56,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|object Main {
          |  assert(assertion = true, message = )
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `arg2` =
@@ -68,7 +68,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|message = : => Any
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   def user: String =
@@ -93,7 +93,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |Main test
          |User test
          |""".stripMargin,
-      topLines = Option(4),
+      topLines = Option(4)
     )
 
   // We should get NamedArg `address` from args in scala3, and remove `address` from completion, but it doesn't appear.
@@ -111,7 +111,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |followers = : Int
          |Main test
          |""".stripMargin,
-      topLines = Option(3),
+      topLines = Option(3)
     )
 
   @Test def `arg5` =
@@ -127,7 +127,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |Main test
          |User test
          |""".stripMargin,
-      topLines = Option(4),
+      topLines = Option(4)
     )
 
   @Test def `arg6` =
@@ -142,7 +142,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |age = : Int
          |followers = : Int
          |""".stripMargin,
-      topLines = Option(3),
+      topLines = Option(3)
     )
 
   @Test def `arg7` =
@@ -155,7 +155,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|x = : A
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   @Test def `arg8` =
@@ -168,7 +168,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|suffix = : String
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   // In scala3, we get NoSymbol for `until`, so we get no completions here.
@@ -187,7 +187,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
       """|`end` = : Int
          |Main test
          |""".stripMargin,
-      topLines = Option(2),
+      topLines = Option(2)
     )
 
   @Test def `arg10` =
@@ -199,7 +199,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       """|address = : String
          |""".stripMargin,
-      topLines = Option(1),
+      topLines = Option(1)
     )
 
   @Test def `arg11` =
@@ -210,7 +210,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|banana = : Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `arg12` =
@@ -220,7 +220,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |  curry(bana@@)
           |}
           |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `arg13` =
@@ -230,7 +230,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       // assert that `evidence$1` is excluded.
-      "",
+      ""
     )
 
   // @Test def `explicit-dollar` =
@@ -276,7 +276,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       """|isResourceFile = : Boolean
          |isResourceFile = isLargeBanana : Boolean
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `priority` =
@@ -291,7 +291,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |argument = : Int
          |argument = argument : Int
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def `priority-2` =
@@ -306,7 +306,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |argument = : Int
          |argument = argument : Int
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def `named-multiple` =
@@ -326,7 +326,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |argument = number4 : Int
          |argument = number8 : Int
          |""".stripMargin,
-      topLines = Some(5),
+      topLines = Some(5)
     )
 
   @Test def `named-backticked` =
@@ -342,7 +342,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |`type` = number : Int
          |`type` = number2 : Int
          |""".stripMargin,
-      topLines = Some(5),
+      topLines = Some(5)
     )
 
   @Test def `auto-no-show` =
@@ -356,7 +356,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "foo(rele@@)",
-      "foo(relevant)",
+      "foo(relevant)"
     )
 
   @Test def `auto` =
@@ -369,7 +369,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "foo(auto@@)",
-      "foo(argument = ${1:number}, other = ${2:hello})",
+      "foo(argument = ${1:number}, other = ${2:hello})"
     )
 
   @Test def `auto-inheritance` =
@@ -387,7 +387,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "foo(auto@@)",
-      "foo(animal = ${1:dog}, furniture = ${2:chair})",
+      "foo(animal = ${1:dog}, furniture = ${2:chair})"
     )
 
   @Test def `auto-multiple-type` =
@@ -401,7 +401,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "foo(auto@@)",
-      "foo(argument = ${1|???,argument,number|}, other = ${2:hello})",
+      "foo(argument = ${1|???,argument,number|}, other = ${2:hello})"
     )
 
   @Test def `auto-not-found` =
@@ -415,7 +415,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       "foo(auto@@)",
-      "foo(argument = ${1:number}, other = ${2:???}, isTrue = ${3:???}, opt = ${4:???})",
+      "foo(argument = ${1:number}, other = ${2:???}, isTrue = ${3:???}, opt = ${4:???})"
     )
 
   @Test def `auto-list` =
@@ -459,7 +459,7 @@ class ArgCompletionSuite extends BaseCompletionSuite {
          |argument2 = : Int
          |argument2 = x : Int
          |""".stripMargin,
-      topLines = Some(4),
+      topLines = Some(4)
     )
 
   @Test def `infix` =
@@ -470,6 +470,5 @@ class ArgCompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|x: Int
-         |""".stripMargin,
+         |""".stripMargin
     )
-}

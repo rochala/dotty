@@ -9,7 +9,7 @@ import dotty.tools.dotc.util.SourcePosition
 class ScalaCliCompletions(
     coursierComplete: CoursierComplete,
     pos: SourcePosition,
-    text: String,
+    text: String
 ):
   def unapply(path: List[Tree]) =
     def scalaCliDep = CoursierComplete.isScalaCliDep(
@@ -31,7 +31,7 @@ class ScalaCliCompletions(
         CompletionValue.IvyImport(
           insertText.stripPrefix(":"),
           Some(insertText),
-          Some(editRange),
+          Some(editRange)
         )
       )
   end contribute

@@ -3,7 +3,7 @@ package scala.meta.internal.pc
 import coursierapi._
 import org.junit.Test
 
-class HKSignatureHelpSuite extends BaseSignatureHelpSuite {
+class HKSignatureHelpSuite extends BaseSignatureHelpSuite:
 
   // override def extraDependencies(scalaVersion: String): Seq[Dependency] = {
   //   val binaryVersion = createBinaryVersion(scalaVersion)
@@ -19,9 +19,9 @@ class HKSignatureHelpSuite extends BaseSignatureHelpSuite {
         |  Foldable[Option].foldMap(a @@)
         |}
         |""".stripMargin,
-     """|foldMap[A, B](fa: Option[A])(f: A => B)(using B: cats.kernel.Monoid[B]): B
-        |              ^^^^^^^^^^^^^
-        |""".stripMargin
+      """|foldMap[A, B](fa: Option[A])(f: A => B)(using B: cats.kernel.Monoid[B]): B
+         |              ^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   // https://github.com/scalameta/metals/issues/5055
@@ -60,7 +60,5 @@ class HKSignatureHelpSuite extends BaseSignatureHelpSuite {
          |                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
          |  @param <redactHeadersWhen test description
          |""".stripMargin,
-      includeDocs = true,
+      includeDocs = true
     )
-
-}

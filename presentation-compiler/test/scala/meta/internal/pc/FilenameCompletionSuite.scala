@@ -2,17 +2,16 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
+class FilenameCompletionSuit extends BaseCompletionSuite:
 
-class FilenameCompletionSuit extends BaseCompletionSuite {
-
- @Test def `class` =
-   check(
-     """|
-        |class M@@
-        |""".stripMargin,
-     "class Main",
-     filename = "Main.scala",
-     )
+  @Test def `class` =
+    check(
+      """|
+         |class M@@
+         |""".stripMargin,
+      "class Main",
+      filename = "Main.scala"
+    )
 
   @Test def `companion-class` =
     check(
@@ -20,7 +19,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |class M@@
          |""".stripMargin,
       "class Main",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `companion-trait` =
@@ -29,7 +28,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |trait M@@
          |""".stripMargin,
       "trait Main",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `companion-object` =
@@ -38,7 +37,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |object M@@
          |""".stripMargin,
       "object Main",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `companion-object2` =
@@ -47,7 +46,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |object M@@
          |""".stripMargin,
       "object Main",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `duplicate` =
@@ -57,7 +56,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |class M@@
          |""".stripMargin,
       "",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `inner` =
@@ -67,7 +66,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "",
-      filename = "Main.scala",
+      filename = "Main.scala"
     )
 
   @Test def `fuzzy` =
@@ -76,7 +75,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |class MDataSer@@
          |""".stripMargin,
       "class MyDatabaseService",
-      filename = "MyDatabaseService.scala",
+      filename = "MyDatabaseService.scala"
     )
 
   @Test def `path` =
@@ -85,7 +84,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |class Us@@
          |""".stripMargin,
       "class User",
-      filename = "foo/User.scala",
+      filename = "foo/User.scala"
     )
 
   @Test def `object` =
@@ -94,7 +93,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |object Us@@
          |""".stripMargin,
       "object User",
-      filename = "User.scala",
+      filename = "User.scala"
     )
 
   @Test def `trait` =
@@ -103,7 +102,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |trait Us@@
          |""".stripMargin,
       "trait User",
-      filename = "User.scala",
+      filename = "User.scala"
     )
 
   @Test def `type-duplicate` =
@@ -113,7 +112,7 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |trait Us@@
          |""".stripMargin,
       "",
-      filename = "User.scala",
+      filename = "User.scala"
     )
 
   @Test def `term-duplicate` =
@@ -123,13 +122,12 @@ class FilenameCompletionSuit extends BaseCompletionSuite {
          |object Us@@
          |""".stripMargin,
       "",
-      filename = "User.scala",
+      filename = "User.scala"
     )
 
   @Test def `end-of-file` =
     check(
       "object Use@@",
       "object User",
-      filename = "User.scala",
+      filename = "User.scala"
     )
-}

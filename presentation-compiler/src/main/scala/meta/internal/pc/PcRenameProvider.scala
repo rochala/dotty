@@ -14,7 +14,7 @@ import org.eclipse.{lsp4j as l}
 final class PcRenameProvider(
     driver: InteractiveDriver,
     params: OffsetParams,
-    name: Option[String],
+    name: Option[String]
 ) extends PcCollector[l.TextEdit](driver, params):
   private val forbiddenMethods =
     Set("equals", "hashCode", "unapply", "unary_!", "!")
@@ -37,7 +37,7 @@ final class PcRenameProvider(
     val (pos, stripBackticks) = adjust(toAdjust, forRename = true)
     l.TextEdit(
       pos.toLsp,
-      if stripBackticks then newName.stripBackticks else newName,
+      if stripBackticks then newName.stripBackticks else newName
     )
   end collect
 

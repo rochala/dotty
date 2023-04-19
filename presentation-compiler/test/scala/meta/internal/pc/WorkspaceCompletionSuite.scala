@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class WorkspaceCompletionSuite extends BaseCompletionSuite {
+class WorkspaceCompletionSuite extends BaseCompletionSuite:
 
   @Test def files =
     checkEdit(
@@ -18,7 +17,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |object Main {
          |  val x = Files
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import` =
@@ -30,7 +29,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       "import Files@@",
       "import java.nio.file.Files",
-      filterText = "Files",
+      filterText = "Files"
     )
 
   @Test def `import-escape` =
@@ -47,7 +46,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "import Banana@@",
-      "import pkg.`type`.Banana",
+      "import pkg.`type`.Banana"
     )
 
   @Test def `conflict` =
@@ -60,7 +59,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |trait Serializable
         |object Main extends java.io.Serializable
         |""".stripMargin,
-      filter = _ == "Serializable - java.io",
+      filter = _ == "Serializable - java.io"
     )
 
   @Test def `import-conflict` =
@@ -79,7 +78,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  val x = Files
          |}
          |""".stripMargin,
-      filter = _ == "Files - java.nio.file",
+      filter = _ == "Files - java.nio.file"
     )
 
   @Test def `import-conflict2` =
@@ -98,7 +97,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  val x = Files
          |}
          |""".stripMargin,
-      filter = _ == "Files - java.nio.file",
+      filter = _ == "Files - java.nio.file"
     )
 
   @Test def `import-conflict3` =
@@ -115,7 +114,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  name: scala.concurrent.Future[$0]
          |)
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `import-conflict4` =
@@ -132,7 +131,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  name: scala.concurrent.Future[$0]
          |)
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `import-no-conflict` =
@@ -150,7 +149,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  name: Future[$0]
          |)
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `imported-names-check1` =
@@ -168,7 +167,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  Await
          |}
          |""".stripMargin,
-      filter = _ == "Await - scala.concurrent",
+      filter = _ == "Await - scala.concurrent"
     )
 
   @Test def `extends` =
@@ -180,7 +179,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |
         |import java.util.concurrent.CompletableFuture
         |object Main extends CompletableFuture[$0]
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `replace` =
@@ -192,7 +191,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |
         |import java.util.concurrent.CompletableFuture
         |object Main extends CompletableFuture[$0]
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `block1` =
@@ -209,7 +208,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    Files
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `block2` =
@@ -228,7 +227,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    Files
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `block3` =
@@ -247,7 +246,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    println("".substring(Files))
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `match` =
@@ -266,7 +265,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |      Files
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `case-if` =
@@ -287,7 +286,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |     } =>
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // Ignore for Scala 3, since we don't provide completions for null
@@ -306,7 +305,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("java.util"),
+      filter = _.contains("java.util")
     )
 
   @Test def `type` =
@@ -324,7 +323,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      filter = _.contains("scala.util"),
+      filter = _.contains("scala.util")
     )
 
   @Test def `partial-function` =
@@ -346,7 +345,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |      Files
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for` =
@@ -372,7 +371,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    _ = Files
          |  } yield x
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for2` =
@@ -400,7 +399,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    }
          |  } yield x
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for3` =
@@ -428,7 +427,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |    }
          |  } yield x
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `backtick` =
@@ -443,7 +442,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "def backtick@@",
-      "def backtick: `type`.Foo = ${0:???}",
+      "def backtick: `type`.Foo = ${0:???}"
     )
 
   @Test def `annotation-def-with-middle-space` =
@@ -461,7 +460,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  def foo: ArrayBuffer [Int] = ???
          |}
          |""".stripMargin,
-      filter = _ == "ArrayBuffer - scala.collection.mutable",
+      filter = _ == "ArrayBuffer - scala.collection.mutable"
     )
 
   @Test def `annotation-class` =
@@ -480,7 +479,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  class Foo extends ArrayBuffer[Int]
          |}
          |""".stripMargin,
-      filter = _ == "ArrayBuffer - scala.collection.mutable",
+      filter = _ == "ArrayBuffer - scala.collection.mutable"
     )
 
   @Test def `annotation-trait` =
@@ -491,15 +490,15 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  trait Foo extends ArrayBuffer@@[Int]
          |}
          |""".stripMargin,
-          """|package annotationtrait
-             |
-             |import scala.collection.mutable.ArrayBuffer
-             |object Main {
-             |  @deprecated("", "")
-             |  trait Foo extends ArrayBuffer[Int]
-             |}
-             |""".stripMargin,
-      filter = _ == "ArrayBuffer - scala.collection.mutable",
+      """|package annotationtrait
+         |
+         |import scala.collection.mutable.ArrayBuffer
+         |object Main {
+         |  @deprecated("", "")
+         |  trait Foo extends ArrayBuffer[Int]
+         |}
+         |""".stripMargin,
+      filter = _ == "ArrayBuffer - scala.collection.mutable"
     )
 
   @Test def `class-param` =
@@ -509,14 +508,14 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  name: Future@@[String]
          |)
          |""".stripMargin,
-          """|package classparam
-             |
-             |import scala.concurrent.Future
-             |case class Foo(
-             |  name: Future[String]
-             |)
-             |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      """|package classparam
+         |
+         |import scala.concurrent.Future
+         |case class Foo(
+         |  name: Future[String]
+         |)
+         |""".stripMargin,
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `docstring` =
@@ -539,7 +538,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  val x = Future
          |}
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `docstring-import` =
@@ -563,7 +562,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  val x = Future
          |}
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `empty-pkg` =
@@ -579,7 +578,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  val x = Future
          |}
          |""".stripMargin,
-      filter = _ == "Future - scala.concurrent",
+      filter = _ == "Future - scala.concurrent"
     )
 
   @Test def `parent-object` =
@@ -588,12 +587,12 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  Implicits@@
          |}
          |""".stripMargin,
-          """|import scala.concurrent.ExecutionContext.Implicits
-             |object Main {
-             |  Implicits
-             |}
-             |""".stripMargin,
-      filter = _ == "Implicits - scala.concurrent.ExecutionContext",
+      """|import scala.concurrent.ExecutionContext.Implicits
+         |object Main {
+         |  Implicits
+         |}
+         |""".stripMargin,
+      filter = _ == "Implicits - scala.concurrent.ExecutionContext"
     )
 
   // this test was intended to check that import is rendered correctly - without `$` symbol
@@ -610,7 +609,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  Implicits
          |}
          |""".stripMargin,
-      filter = _ == "Implicits - scala.concurrent.ExecutionContext",
+      filter = _ == "Implicits - scala.concurrent.ExecutionContext"
     )
 
   @Test def `specify-owner` =
@@ -624,7 +623,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  mutable.Map
          |}
          |""".stripMargin,
-      filter = _ == "Map - scala.collection.mutable",
+      filter = _ == "Map - scala.collection.mutable"
     )
 
   @Test def `renamed-mutable` =
@@ -639,7 +638,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  mut.Map
          |}
          |""".stripMargin,
-      filter = _ == "Map - scala.collection.mutable",
+      filter = _ == "Map - scala.collection.mutable"
     )
 
   @Test def `ju-import` =
@@ -653,7 +652,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  ju.Map
          |}
          |""".stripMargin,
-      filter = _ == "Map - java.util",
+      filter = _ == "Map - java.util"
     )
 
   @Test def `ju-import-dup` =
@@ -668,7 +667,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  ju.Map
          |}
          |""".stripMargin,
-      filter = _ == "Map - java.util",
+      filter = _ == "Map - java.util"
     )
 
   @Test def `ordering-1` =
@@ -683,7 +682,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
       """|Future scala.concurrent
          |Future - java.util.concurrent
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `ordering-2` =
@@ -698,7 +697,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
       """|Future java.util.concurrent
          |Future - scala.concurrent
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `apply-method` =
@@ -710,7 +709,7 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |object Main {
          |  val a = ListBuffer($0)
          |}""".stripMargin,
-      filter = _.contains("[A]"),
+      filter = _.contains("[A]")
     )
 
   @Test def `type-import` =
@@ -741,5 +740,4 @@ class WorkspaceCompletionSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin
-   )
-}
+    )

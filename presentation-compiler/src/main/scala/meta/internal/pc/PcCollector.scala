@@ -30,7 +30,7 @@ import dotty.tools.dotc.util.Spans.Span
 
 abstract class PcCollector[T](
     driver: InteractiveDriver,
-    params: VirtualFileParams,
+    params: VirtualFileParams
 ):
   private val caseClassSynthetics: Set[Name] = Set(nme.apply, nme.copy)
   val uri = params.uri()
@@ -75,7 +75,7 @@ abstract class PcCollector[T](
    */
   def adjust(
       pos1: SourcePosition,
-      forRename: Boolean = false,
+      forRename: Boolean = false
   ): (SourcePosition, Boolean) =
     if !pos1.span.isCorrect then (pos1, false)
     else
@@ -98,21 +98,16 @@ abstract class PcCollector[T](
       val isOldNameBackticked = sourceText(pos.start) != '`' &&
         sourceText(pos.start - 1) == '`' &&
         sourceText(pos.end) == '`'
-      if isBackticked && forRename then
-        (pos.withStart(pos.start + 1).withEnd(pos.`end` - 1), true)
-      else if isOldNameBackticked then
-        (pos.withStart(pos.start - 1).withEnd(pos.`end` + 1), false)
+      if isBackticked && forRename then (pos.withStart(pos.start + 1).withEnd(pos.`end` - 1), true)
+      else if isOldNameBackticked then (pos.withStart(pos.start - 1).withEnd(pos.`end` + 1), false)
       else (pos, false)
   end adjust
 
   def symbolAlternatives(sym: Symbol) =
     val all =
-      if sym.is(Flags.ModuleClass) then
-        Set(sym, sym.companionModule, sym.companionModule.companion)
-      else if sym.isClass then
-        Set(sym, sym.companionModule, sym.companion.moduleClass)
-      else if sym.is(Flags.Module) then
-        Set(sym, sym.companionClass, sym.moduleClass)
+      if sym.is(Flags.ModuleClass) then Set(sym, sym.companionModule, sym.companionModule.companion)
+      else if sym.isClass then Set(sym, sym.companionModule, sym.companion.moduleClass)
+      else if sym.is(Flags.Module) then Set(sym, sym.companionClass, sym.moduleClass)
       else if sym.isTerm && (sym.owner.isClass || sym.owner.isConstructor)
       then
         val info =
@@ -120,7 +115,7 @@ abstract class PcCollector[T](
         Set(
           sym,
           info.member(sym.asTerm.name.setterName).symbol,
-          info.member(sym.asTerm.name.getterName).symbol,
+          info.member(sym.asTerm.name.getterName).symbol
         ) ++ sym.allOverriddenSymbols.toSet
       else Set(sym)
     all.filter(s => s != NoSymbol && !s.isError)
@@ -130,7 +125,7 @@ abstract class PcCollector[T](
     val nameSpan = df.nameSpan
     df.symbol.is(Flags.Given) && sourceText.substring(
       nameSpan.start,
-      nameSpan.end,
+      nameSpan.end
     ) != df.name.toString()
 
   // First identify the symbol we are at, comments identify @@ as current cursor position
@@ -161,7 +156,7 @@ abstract class PcCollector[T](
                 Set(
                   s,
                   s.owner.owner.companion.info.member(s.name).symbol,
-                  s.owner.owner.info.member(s.name).symbol,
+                  s.owner.owner.info.member(s.name).symbol
                 )
                   .filter(_ != NoSymbol),
                 arg.sourcePos,
@@ -175,8 +170,7 @@ abstract class PcCollector[T](
        * class Fo@@o = ???
        * etc.
        */
-      case (df: NamedDefTree) :: _
-          if df.nameSpan.contains(pos.span) && !isGeneratedGiven(df) =>
+      case (df: NamedDefTree) :: _ if df.nameSpan.contains(pos.span) && !isGeneratedGiven(df) =>
         Some(symbolAlternatives(df.symbol), pos.withSpan(df.nameSpan))
       /**
        * For traversing annotations:
@@ -210,7 +204,7 @@ abstract class PcCollector[T](
         // Fallback check for extension method parameter
         def collectExtMethods(
             acc: Set[(Symbol, SourcePosition)],
-            tree: untpd.Tree,
+            tree: untpd.Tree
         ) =
           tree match
             case ExtMethods(paramss, _) =>
@@ -269,9 +263,7 @@ abstract class PcCollector[T](
               .Try(named.symbol.owner)
               .toOption
               .exists(_.isAnonymousFunction) &&
-            owners.exists(o =>
-              o.span.exists && o.span.point == named.symbol.owner.span.point
-            )
+            owners.exists(o => o.span.exists && o.span.point == named.symbol.owner.span.point)
 
         def soughtOrOverride(sym: Symbol) =
           sought(sym) || sym.allOverriddenSymbols.exists(sought(_))
@@ -293,8 +285,7 @@ abstract class PcCollector[T](
                   (extensionParam && isExtensionParam(ident.symbol))) =>
               true
             case sel: Select if soughtOrOverride(sel.symbol) => true
-            case df: NamedDefTree
-                if soughtOrOverride(df.symbol) && !df.symbol.isSetter =>
+            case df: NamedDefTree if soughtOrOverride(df.symbol) && !df.symbol.isSetter =>
               true
             case imp: Import if owners(imp.expr.symbol) => true
             case _ => false
@@ -312,17 +303,17 @@ abstract class PcCollector[T](
 
   def traverseSought(
       filter: Tree => Boolean,
-      soughtFilter: (Set[Symbol] => Boolean) => Boolean,
+      soughtFilter: (Set[Symbol] => Boolean) => Boolean
   ): Set[T] =
     def collectNamesWithParent(
         occurences: Set[T],
         tree: Tree,
-        parent: Option[Tree],
+        parent: Option[Tree]
     ): Set[T] =
       def collect(
           tree: Tree,
           pos: SourcePosition,
-          symbol: Option[Symbol] = None,
+          symbol: Option[Symbol] = None
       ) =
         this.collect(parent)(tree, pos, symbol)
 
@@ -333,13 +324,11 @@ abstract class PcCollector[T](
          */
         case ident: Ident if ident.span.isCorrect && filter(ident) =>
           // symbols will differ for params in different ext methods, but source pos will be the same
-          if soughtFilter(sought =>
-              sought.exists(_.sourcePos == ident.symbol.sourcePos)
-            )
+          if soughtFilter(sought => sought.exists(_.sourcePos == ident.symbol.sourcePos))
           then
             occurences + collect(
               ident,
-              ident.sourcePos,
+              ident.sourcePos
             )
           else occurences
         /**
@@ -349,7 +338,7 @@ abstract class PcCollector[T](
         case sel: Select if sel.span.isCorrect && filter(sel) =>
           occurences + collect(
             sel,
-            pos.withSpan(selectNameSpan(sel)),
+            pos.withSpan(selectNameSpan(sel))
           )
         /* all definitions:
          * def <<foo>> = ???
@@ -367,7 +356,7 @@ abstract class PcCollector[T](
           annots.foldLeft(
             occurences + collect(
               df,
-              pos.withSpan(df.nameSpan),
+              pos.withSpan(df.nameSpan)
             )
           ) { case (set, tree) =>
             traverser(set, tree)
@@ -405,7 +394,7 @@ abstract class PcCollector[T](
                     .withEnd(arg.span.start + realName.length)
                     .withPoint(arg.span.start)
                 ),
-              sym,
+              sym
             )
           }
           occurences ++ named
@@ -432,19 +421,16 @@ abstract class PcCollector[T](
           imp.selectors
             .collect {
               case sel: ImportSelector
-                  if soughtFilter(sought =>
-                    sought.exists(_.name == sel.name)
-                  ) =>
+                  if soughtFilter(sought => sought.exists(_.name == sel.name)) =>
                 // Show both rename and main together
                 val spans =
-                  if (!sel.renamed.isEmpty) then
-                    Set(sel.renamed.span, sel.imported.span)
+                  if (!sel.renamed.isEmpty) then Set(sel.renamed.span, sel.imported.span)
                   else Set(sel.imported.span)
                 spans.filter(_.isCorrect).map { span =>
                   collect(
                     imp,
                     pos.withSpan(span),
-                    Some(imp.expr.symbol.info.member(sel.name).symbol),
+                    Some(imp.expr.symbol.info.member(sel.name).symbol)
                   )
                 }
             }

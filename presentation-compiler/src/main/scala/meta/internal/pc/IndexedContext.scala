@@ -133,7 +133,7 @@ object IndexedContext:
 
   case class Names(
       symbols: Map[String, List[Symbol]],
-      renames: Map[Symbol, String],
+      renames: Map[Symbol, String]
   )
 
   private def extractNames(ctx: Context): Names =
@@ -141,9 +141,7 @@ object IndexedContext:
     def accessibleSymbols(site: Type, tpe: Type)(using
         Context
     ): List[Symbol] =
-      tpe.decls.toList.filter(sym =>
-        sym.isAccessibleFrom(site, superAccess = false)
-      )
+      tpe.decls.toList.filter(sym => sym.isAccessibleFrom(site, superAccess = false))
 
     def accesibleMembers(site: Type)(using Context): List[Symbol] =
       site.allMembers
@@ -158,7 +156,7 @@ object IndexedContext:
 
     def allAccessibleSymbols(
         tpe: Type,
-        filter: Symbol => Boolean = _ => true,
+        filter: Symbol => Boolean = _ => true
     )(using Context): List[Symbol] =
       val initial = accessibleSymbols(tpe, tpe).filter(filter)
       val fromPackageObjects =
@@ -180,15 +178,14 @@ object IndexedContext:
       if imp.isWildcardImport then
         allAccessibleSymbols(
           imp.site,
-          sym => !excludedNames.contains(sym.name.decoded),
+          sym => !excludedNames.contains(sym.name.decoded)
         ).map((_, None))
       else
         imp.forwardMapping.toList.flatMap { (name, rename) =>
           val isRename = name != rename
           if !isRename && !excludedNames.contains(name.decoded) then
             fromImport(imp.site, name).map((_, None))
-          else if isRename then
-            fromImport(imp.site, name).map((_, Some(rename)))
+          else if isRename then fromImport(imp.site, name).map((_, Some(rename)))
           else Nil
         }
       end if

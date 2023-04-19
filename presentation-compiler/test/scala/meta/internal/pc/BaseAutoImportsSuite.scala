@@ -6,13 +6,13 @@ import scala.meta.internal.jdk.CollectionConverters._
 import scala.meta.internal.metals.CompilerOffsetParams
 import scala.meta.pc.AutoImportsResult
 
-trait BaseAutoImportsSuite extends BaseCodeActionSuite {
+trait BaseAutoImportsSuite extends BaseCodeActionSuite:
 
   val isExtensionMethods: Boolean = false
 
   def check(
       original: String,
-      expected: String,
+      expected: String
   ): Unit =
     val imports = getAutoImports(original, "A.scala")
     val obtained = imports.map(_.packageName()).mkString("\n")
@@ -22,27 +22,27 @@ trait BaseAutoImportsSuite extends BaseCodeActionSuite {
       original: String,
       expected: String,
       selection: Int = 0,
-      filename: String = "A.scala",
+      filename: String = "A.scala"
   ): Unit =
     checkEditSelection(filename, original, expected, selection)
 
   def checkAmmoniteEdit(
       original: String,
       expected: String,
-      selection: Int = 0,
+      selection: Int = 0
   ): Unit =
     checkEditSelection(
       "script.amm.sc.scala",
       original,
       expected,
-      selection,
+      selection
     )
 
   def checkEditSelection(
       filename: String,
       original: String,
       expected: String,
-      selection: Int,
+      selection: Int
   ): Unit =
     val imports = getAutoImports(original, filename)
     if (imports.size <= selection) fail("Obtained no expected imports")
@@ -52,11 +52,10 @@ trait BaseAutoImportsSuite extends BaseCodeActionSuite {
 
     assertNoDiff(expected, obtained)
 
-
   def getAutoImports(
       original: String,
-      filename: String,
-  ): List[AutoImportsResult] = {
+      filename: String
+  ): List[AutoImportsResult] =
     val (code, symbol, offset) = params(original)
     val result = presentationCompiler
       .autoImports(
@@ -65,12 +64,9 @@ trait BaseAutoImportsSuite extends BaseCodeActionSuite {
           Paths.get(filename).toUri(),
           code,
           offset,
-          cancelToken,
+          cancelToken
         ),
-        isExtensionMethods,
+        isExtensionMethods
       )
       .get()
     result.asScala.toList
-  }
-
-}

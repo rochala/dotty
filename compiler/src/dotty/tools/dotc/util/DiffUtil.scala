@@ -4,6 +4,7 @@ import scala.language.unsafeNulls
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 object DiffUtil {
 
@@ -79,13 +80,6 @@ object DiffUtil {
   }
 
   def mkColoredLineDiff(expected: String, actual: String, expectedSize: Int): String = {
-    val (expectedDiff, actualDiff) = mkColoredLineDiffPair(expected, actual)
-    val pad = " " * 0.max(expectedSize - expected.length)
-
-    expectedDiff + pad + "  |  " + actualDiff
-  }
-
-  def mkColoredLineDiffPair(expected: String, actual: String): (String, String) = {
     lazy val diff = {
       val tokens = splitTokens(expected, Nil).toArray
       val lastTokens = splitTokens(actual, Nil).toArray
@@ -111,61 +105,49 @@ object DiffUtil {
       }.mkString
 
     (expectedDiff, actualDiff)
+    val pad = " " * 0.max(expectedSize - expected.length)
 
+    expectedDiff + pad + "  |  " + actualDiff
   }
 
-  def mkColoredHorizontalLineDiff(actual: String, expected: String): String = {
-    def getPrettyDiff(actual: String, expected: String): (String, String) =
+  def mkColoredHorizontalLineDiff(expected: String, actual: String): String = {
+    val indent = 2
+    val tab = " " * indent
+    val insertIndent = "+" ++ (" " * (indent - 1))
+    val deleteIndent = "-" ++ (" " * (indent - 1))
+
+    if actual.isEmpty then
+      (expected.linesIterator.map(line => added(insertIndent + line)).toList :+ deleted("--- EMPTY OUTPUT ---"))
+        .mkString(System.lineSeparator)
+    else
       lazy val diff = {
-        val tokens = splitTokens(expected, Nil).toArray
-        val lastTokens = splitTokens(actual, Nil).toArray
-        hirschberg(lastTokens, tokens)
+        val expectedTokens = expected.linesWithSeparators.toArray
+        val actualTokens = actual.linesWithSeparators.toArray
+        hirschberg(actualTokens, expectedTokens)
+      }.toList
+
+      val transformedDiff = diff.flatMap {
+        case Modified(original, str) => Seq(Inserted(original), Deleted(str))
+        case other => Seq(other)
       }
 
-      val expectedDiff =
-        if (expected eq EOF) eof()
-        else diff.collect {
-          case Unmodified(str) => str
-          case Inserted(str) => bgColored(str, Console.YELLOW)
-          case Modified(_, str) => bgColored(str, Console.YELLOW)
-          case Deleted(_) => ""
-        }.mkString
+      val zipped = transformedDiff zip transformedDiff.drop(1)
 
-      val actualDiff =
-        if (actual eq EOF) eof()
-        else diff.collect {
-          case Unmodified(str) => str
-          case Inserted(_) => ""
-          case Modified(str, _) => bgColored(str, Console.YELLOW)
-          case Deleted(str) => bgColored(str, Console.YELLOW)
-        }.mkString
+      val (acc, inserts, deletions) = zipped.foldLeft((Seq[Patch](), Seq[Inserted](), Seq[Deleted]())): (acc, patches) =>
+        val (currAcc, inserts, deletions) = acc
+        patches match
+          case (currentPatch: Inserted, nextPatch: Deleted) => (currAcc, inserts :+ currentPatch, deletions)
+          case (currentPatch: Deleted, nextPatch: Inserted) => (currAcc, inserts, deletions :+ currentPatch)
+          case (currentPatch, nextPatch) => (currAcc :++ inserts :++ deletions :+ currentPatch, Seq.empty, Seq.empty)
 
-      (expectedDiff, actualDiff)
+      val stackedDiff = acc :++ inserts :++ deletions :+ diff.last
 
-    val lines = (actual.linesIterator.toSeq zip expected.linesIterator.toSeq)
-      .map(getPrettyDiff)
+      stackedDiff.collect {
+        case Unmodified(str) => tab + str
+        case Inserted(str) => added(insertIndent + str)
+        case Deleted(str) => deleted(deleteIndent + str)
+      }.mkString
 
-    val builder = java.lang.StringBuilder()
-
-    def recursiveStrColoring(str: String, color: String) =
-      str.split("\\u001b\\[0m").map(bgColored(_, color)).mkString
-
-    def iterate(remainingLines: Seq[(String, String)], diffLine: Boolean): Unit =
-      val comparison: (String, String) => Boolean = if diffLine then _ != _ else _ == _
-      val splitLines = remainingLines.span(comparison(_, _))
-      splitLines match
-        case (different, rest) if diffLine =>
-          val (actualList, expectedList) = different.unzip
-          actualList.foreach( str => builder.append(recursiveStrColoring("+ " + str, Console.GREEN) + System.lineSeparator))
-          expectedList.foreach( str => builder.append(recursiveStrColoring("- " + str, Console.RED) + System.lineSeparator))
-        case (same, rest) =>
-          same.foreach((line, _) => builder.append("  " + line + (System.lineSeparator)))
-
-      if splitLines._2.nonEmpty then
-        iterate(splitLines._2, !diffLine)
-
-    iterate(lines, false)
-    builder.toString
   }
 
   def mkColoredCodeDiff(code: String, lastCode: String, printDiffDel: Boolean): String = {

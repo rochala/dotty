@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class HoverErrorSuite extends BaseHoverSuite {
+class HoverErrorSuite extends BaseHoverSuite:
   override def requiresJdkSources: Boolean = true
 
   @Test def `no-type` =
@@ -12,7 +11,7 @@ class HoverErrorSuite extends BaseHoverSuite {
          |  def hello(<<a@@aa>>) : Int = ""
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `error` =
@@ -27,7 +26,5 @@ class HoverErrorSuite extends BaseHoverSuite {
          |  def <<ap@@ply>>(org: String) = Dependency(org, None, None)
          |}
          |""".stripMargin,
-      "".stripMargin,
+      "".stripMargin
     )
-
-}

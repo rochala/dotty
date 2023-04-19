@@ -9,14 +9,14 @@ import scala.meta.pc.Node
 
 import org.eclipse.{lsp4j => l}
 
-object TestSemanticTokens {
+object TestSemanticTokens:
 
   def removeSemanticHighlightDecorations(contents: String): String =
     contents
       .replaceAll(raw"/\*[\w,]+\*/", "")
       .replaceAll(raw"\<\<|\>\>", "")
 
-  def decorationString(typeInd: Int, modInd: Int): String = {
+  def decorationString(typeInd: Int, modInd: Int): String =
     val buffer = ListBuffer.empty[String]
 
     // TokenType
@@ -39,20 +39,19 @@ object TestSemanticTokens {
 
     // return
     buffer.toList.mkString(",")
-  }
 
   // We can't always correctly determin which node will be used outside the compiler,
   // because we don't know about tokens, and some nodes contain synthetic symbols.
   // Here we try to pick the same node as `SemanticTokenProvider` will.
-  def pcSemanticString(fileContent: String, nodes: List[Node]): String = {
+  def pcSemanticString(fileContent: String, nodes: List[Node]): String =
     val wkStr = new StringBuilder
 
     // Scalameta tokenizer will drop anything anyway that doesn't match an existing identifier
     def isIdentifier(start: Int, end: Int) =
       (fileContent.slice(start, end).matches("^[\\d\\w`+-_!@]+$"))
 
-    def iter(nodes: List[Node], curr: Int): Int = {
-      nodes match {
+    def iter(nodes: List[Node], curr: Int): Int =
+      nodes match
         case head :: rest
             if (curr <= head.start && head.start() != head
               .end()) && isIdentifier(head.start(), head.end()) =>
@@ -66,12 +65,10 @@ object TestSemanticTokens {
             val candidates = head :: rest.takeWhile(nxt =>
               nxt.start() == head.start() && isIdentifier(
                 nxt.start(),
-                nxt.end(),
+                nxt.end()
               )
             )
-            val node = candidates.maxBy(node =>
-              SemanticTokens.getTypePriority(node.tokenType())
-            )
+            val node = candidates.maxBy(node => SemanticTokens.getTypePriority(node.tokenType()))
             val slice = fileContent.slice(curr, node.start)
             wkStr ++= slice
             wkStr ++= "<<"
@@ -80,18 +77,14 @@ object TestSemanticTokens {
             wkStr ++= decorationString(node.tokenType, node.tokenModifier)
             wkStr ++= "*/"
             iter(rest, node.end())
-          } else {
+          } else
             iter(rest, curr)
-          }
         case _ :: rest => iter(rest, curr)
         case Nil => curr
-      }
-    }
     val curr = iter(nodes, 0)
     wkStr ++= fileContent.slice(curr, fileContent.size)
     wkStr.mkString
-  }
-  def semanticString(fileContent: String, obtainedTokens: List[Int]): String = {
+  def semanticString(fileContent: String, obtainedTokens: List[Int]): String =
 
     /**
      * construct string from token type and mods to decorate codes.
@@ -106,7 +99,7 @@ object TestSemanticTokens {
               deltaStartChar,
               length,
               tokenType,
-              tokenModifier,
+              tokenModifier
             ) => // modifiers ignored for now
           (
             new l.Position(deltaLine, deltaStartChar),
@@ -121,9 +114,9 @@ object TestSemanticTokens {
     @tailrec
     def toAbsolutePositions(
         positions: List[(l.Position, Int, String)],
-        last: l.Position,
-    ): Unit = {
-      positions match {
+        last: l.Position
+    ): Unit =
+      positions match
         case (head, _, _) :: next =>
           if (head.getLine() != 0)
             head.setLine(last.getLine() + head.getLine())
@@ -135,8 +128,6 @@ object TestSemanticTokens {
           }
           toAbsolutePositions(next, head)
         case Nil =>
-      }
-    }
     toAbsolutePositions(allTokens, new l.Position(0, 0))
 
     // Build textEdits  e.g. which converts 'def'  to  '<<def>>/*keyword*/'
@@ -148,6 +139,3 @@ object TestSemanticTokens {
     }.flatten
 
     TextEdits.applyEdits(fileContent, edits)
-
-  }
-}

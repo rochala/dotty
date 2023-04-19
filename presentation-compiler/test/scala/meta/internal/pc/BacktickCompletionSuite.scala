@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class CompletionBacktickSuite extends BaseCompletionSuite {
+class CompletionBacktickSuite extends BaseCompletionSuite:
 
   @Test def `keyword` =
     check(
@@ -12,7 +12,7 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "type: Int",
-      filterText = "type",
+      filterText = "type"
     )
 
   @Test def `keyword-edit` =
@@ -27,7 +27,7 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
          |  Main.`type`
          |}
          |""".stripMargin,
-      filterText = "type",
+      filterText = "type"
     )
 
   @Test def `space` =
@@ -37,8 +37,8 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
           |  Main.hello@@
           |}
           |""".stripMargin,
-         "hello world: Int",
-      filterText = "hello world",
+      "hello world: Int",
+      filterText = "hello world"
     )
 
   @Test def `comment` =
@@ -48,8 +48,8 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
           |  Main./@@
           |}
           |""".stripMargin,
-        "///: Int",
-      filterText = "///",
+      "///: Int",
+      filterText = "///"
     )
 
   @Test def `named-arg` =
@@ -60,7 +60,7 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "",
-      filterText = "type",
+      filterText = "type"
     )
 
   @Test def `normal` =
@@ -74,7 +74,7 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
       // distinguish if the symbol was defined with backticks in source.
       """spaced: Int
         |""".stripMargin,
-      filterText = "",
+      filterText = ""
     )
 
   @Test def `negative` =
@@ -87,14 +87,25 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
       // NOTE(olafur) expected output is empty because the source does not tokenize due to unclosed identifier.
       // It would be nice to fix this limitation down the road.
       "",
-      filter = _.contains("`type`"),
+      filter = _.contains("`type`")
     )
 
   // https://dotty.epfl.ch/docs/internals/syntax.html#soft-keywords
-  List("infix", "inline", "opaque", "open", "transparent", "as", "derives",
-    "end", "extension", "throws", "using").foreach(softKeywordCheck)
+  @Test def `soft-keywords-check` =
+    List(
+      "infix",
+      "inline",
+      "opaque",
+      "open",
+      "transparent",
+      "as",
+      "derives",
+      "end",
+      "extension",
+      "throws",
+      "using"
+    ).foreach(softKeywordCheck)
 
-  @Test
   private def softKeywordCheck(keyword: String) =
     checkEdit(
       s"'$keyword'-keyword-named-method-edit",
@@ -108,7 +119,5 @@ class CompletionBacktickSuite extends BaseCompletionSuite {
           |  `$keyword`($$0)
           |}
           |""".stripMargin,
-      filter = _.contains("a: String"),
+      filter = _.contains("a: String")
     )
-
-}

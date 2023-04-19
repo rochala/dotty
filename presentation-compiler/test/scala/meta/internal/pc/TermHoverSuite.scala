@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class TermHoverSuite extends BaseHoverSuite {
+class TermHoverSuite extends BaseHoverSuite:
 
   @Test def `map` =
     check(
@@ -10,15 +10,15 @@ class TermHoverSuite extends BaseHoverSuite {
         |  <<List(1).ma@@p(x => x.toString)>>
         |}
         |""".stripMargin,
-    """|List[String]
-       |override final def map[B](f: Int => B): List[B]""".stripMargin.hover
+      """|List[String]
+         |override final def map[B](f: Int => B): List[B]""".stripMargin.hover
     )
 
   @Test def `app` =
     check(
       """|object Main extends <<Ap@@p>>{}
          |""".stripMargin,
-        "trait App: App".hover
+      "trait App: App".hover
     )
 
   @Test def `apply` =
@@ -27,8 +27,8 @@ class TermHoverSuite extends BaseHoverSuite {
         |  <<Li@@st(1)>>.map(x => x.toString)
         |}
         |""".stripMargin,
-          """|List[Int]
-             |def apply[A](elems: A*): List[A]""".stripMargin.hover,
+      """|List[Int]
+         |def apply[A](elems: A*): List[A]""".stripMargin.hover
     )
 
   @Test def `case-apply` =
@@ -39,7 +39,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def apply(name: String): Person
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `interpolator-arg` =
@@ -51,7 +51,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|val name: String
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `interpolator-name` =
@@ -63,7 +63,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def s(args: Any*): String
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `interpolator-macro` =
@@ -93,7 +93,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |""".stripMargin,
       """|Int
          |def apply[T](a: T)(implicit ev: Int): T
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `interpolator-unapply` =
@@ -124,7 +124,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def this(name: String, age: Int): Foo
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `new-tparam` =
@@ -148,7 +148,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |  <<new Fo@@o[Int]("", 42)>>
         |}
         |""".stripMargin,
-        "class Foo: Foo".hover
+      "class Foo: Foo".hover
     )
 
   @Test def `new-anon` =
@@ -161,7 +161,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |  }
         |}
         |""".stripMargin,
-        "def this(name: String, age: Int): Foo".hover
+      "def this(name: String, age: Int): Foo".hover
     )
 
   @Test def `for-guard` =
@@ -175,7 +175,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|x: Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `for-flatMap` =
@@ -205,9 +205,9 @@ class TermHoverSuite extends BaseHoverSuite {
         |  } yield x.toString>>
         |}
         |""".stripMargin,
-    """|Option[String]
-       |final def map[B](f: A => B): Option[B]
-       |""".stripMargin.hover
+      """|Option[String]
+         |final def map[B](f: A => B): Option[B]
+         |""".stripMargin.hover
     )
 
   @Test def `for-keyword` =
@@ -223,7 +223,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |""".stripMargin,
       """|Option[String]
          |def flatMap[B](f: Int => Option[B]): Option[B]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `for-yield-keyword` =
@@ -269,7 +269,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |""".stripMargin,
       """|Option[Int]
          |override def headOption: Option[A]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `object` =
@@ -280,8 +280,8 @@ class TermHoverSuite extends BaseHoverSuite {
         |  FileVisit@@Result.CONTINUE
         |}
         |""".stripMargin,
-    """|enum FileVisitResult: java.nio.file
-       |""".stripMargin.hover
+      """|enum FileVisitResult: java.nio.file
+         |""".stripMargin.hover
     )
 
   @Test def `object2` =
@@ -309,7 +309,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """|```scala
          |package java.nio
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import2` =
@@ -320,7 +320,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """|```scala
          |package java
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import3` =
@@ -331,7 +331,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """|```scala
          |package java.nio.file
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import4` =
@@ -339,7 +339,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """
         |import java.nio.file.{Fil@@es => File,Paths}
         |""".stripMargin,
-        "object Files: java.nio.file".hover
+      "object Files: java.nio.file".hover
     )
 
   @Test def `import5` =
@@ -347,7 +347,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """
         |import java.nio.file.{Files => File,P@@aths}
         |""".stripMargin,
-        "object Paths: java.nio.file".hover
+      "object Paths: java.nio.file".hover
     )
 
   @Test def `implicit-conv` =
@@ -358,7 +358,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def stripSuffix(suffix: String): String
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `implicit-conv2` =
@@ -375,7 +375,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|val number: Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `widen` =
@@ -385,7 +385,7 @@ class TermHoverSuite extends BaseHoverSuite {
         |  println(<<java.nio.file.FileVisitResult.CONTIN@@UE>>)
         |}
         |""".stripMargin,
-        "case CONTINUE: FileVisitResult".hover
+      "case CONTINUE: FileVisitResult".hover
     )
 
   @Test def `toplevel` =
@@ -393,7 +393,7 @@ class TermHoverSuite extends BaseHoverSuite {
       """|
          |val (first, <<se@@cond>>) = (1, false)
          |""".stripMargin,
-      "val second: Boolean".hover,
+      "val second: Boolean".hover
     )
 
   @Test def `annot` =
@@ -408,7 +408,5 @@ class TermHoverSuite extends BaseHoverSuite {
          |  }
          |}
          |""".stripMargin,
-      "def this(): tailrec".hover,
+      "def this(): tailrec".hover
     )
-
-}

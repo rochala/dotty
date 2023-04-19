@@ -51,7 +51,7 @@ object OverrideCompletions:
       search: SymbolSearch,
       config: PresentationCompilerConfig,
       autoImportsGen: AutoImportsGenerator,
-      fallbackName: Option[String],
+      fallbackName: Option[String]
   ): List[CompletionValue] =
     import indexedContext.ctx
     val clazz = td.symbol.asClass
@@ -97,7 +97,7 @@ object OverrideCompletions:
       .flatMap { parent =>
         parent.membersBasedOnFlags(
           flags,
-          Flags.Private,
+          Flags.Private
         )
       }
       .distinct
@@ -122,7 +122,7 @@ object OverrideCompletions:
           config,
           autoImportsGen,
           indexedContext.ctx.compilationUnit.source.content
-            .startsWith("o", start),
+            .startsWith("o", start)
         )
       )
       .toList
@@ -132,7 +132,7 @@ object OverrideCompletions:
       params: OffsetParams,
       driver: InteractiveDriver,
       search: SymbolSearch,
-      config: PresentationCompilerConfig,
+      config: PresentationCompilerConfig
   ): ju.List[l.TextEdit] =
     object FindTypeDef:
       def unapply(path: List[Tree])(using Context): Option[TypeDef] = path match
@@ -155,8 +155,7 @@ object OverrideCompletions:
         //   extension (x: T)
         //     ...
         // class <<Concrete>>[T] extends Base[Int]
-        case (dd: DefDef) :: (_: Template) :: (td: TypeDef) :: _
-            if dd.symbol.isConstructor =>
+        case (dd: DefDef) :: (_: Template) :: (td: TypeDef) :: _ if dd.symbol.isConstructor =>
           Some(td)
 
         // case class <<Foo>>(a: Int) extends ...
@@ -166,7 +165,7 @@ object OverrideCompletions:
             if dd.symbol.decodedName == "apply" =>
           fallbackFromParent(
             parent: Tree,
-            dd.symbol.owner.decodedName,
+            dd.symbol.owner.decodedName
           )
         case _ => None
     end FindTypeDef
@@ -174,7 +173,7 @@ object OverrideCompletions:
     val uri = params.uri
     driver.run(
       uri,
-      SourceFile.virtual(uri.toASCIIString, params.text),
+      SourceFile.virtual(uri.toASCIIString, params.text)
     )
     val unit = driver.currentCtx.run.units.head
     val pos = driver.sourcePosition(params)
@@ -198,14 +197,14 @@ object OverrideCompletions:
       unit.tpdTree,
       unit.comments,
       indexedContext,
-      config,
+      config
     )
     lazy val implementAll = implementAllFor(
       indexedContext,
       params.text,
       search,
       autoImportsGen,
-      config,
+      config
     )
     path match
       // given <<Foo>>
@@ -222,7 +221,7 @@ object OverrideCompletions:
       text: String,
       search: SymbolSearch,
       autoImports: AutoImportsGenerator,
-      config: PresentationCompilerConfig,
+      config: PresentationCompilerConfig
   )(
       defn: TargetDef
   )(using Context): List[l.TextEdit] =
@@ -231,7 +230,7 @@ object OverrideCompletions:
         decls: List[Symbol],
         source: SourceFile,
         text: String,
-        shouldCompleteBraces: Boolean,
+        shouldCompleteBraces: Boolean
     )(using Context): (String, String, String) =
       // For `FooImpl` in the below, the necessaryIndent will be 2
       // because there're 2 spaces before `class FooImpl`.
@@ -242,7 +241,7 @@ object OverrideCompletions:
       // ```
       val (necessaryIndent, tabIndented) = CompletionPos.inferIndent(
         source.lineToOffset(defn.sourcePos.line),
-        text,
+        text
       )
       // infer indent for implementations
       // If there's declaration in the class/object, follow its indent.
@@ -259,7 +258,7 @@ object OverrideCompletions:
           .map { decl =>
             CompletionPos.inferIndent(
               source.lineToOffset(decl.sourcePos.line),
-              text,
+              text
             )
           }
           .getOrElse({
@@ -296,7 +295,7 @@ object OverrideCompletions:
           shouldMoveCursor = false,
           config,
           autoImports,
-          shouldAddOverrideKwd = true,
+          shouldAddOverrideKwd = true
         )
       )
       .toList
@@ -345,17 +344,15 @@ object OverrideCompletions:
       val (start, last) =
         val (startNL, lastNL) =
           if posFromDecls.nonEmpty then ("\n", "\n\n") else ("\n\n", "\n")
-        if shouldCompleteWith then
-          (s" with$startNL$indent", s"$lastNL$lastIndent")
-        else if shouldCompleteBraces then
-          (s" {$startNL$indent", s"$lastNL$lastIndent}")
+        if shouldCompleteWith then (s" with$startNL$indent", s"$lastNL$lastIndent")
+        else if shouldCompleteBraces then (s" {$startNL$indent", s"$lastNL$lastIndent}")
         else (s"$startNL$indent", s"$lastNL$lastIndent")
 
       val newEdit =
         edits.mkString(start, s"\n\n$indent", last)
       val implementAll = new l.TextEdit(
         editPos.toLsp,
-        newEdit,
+        newEdit
       )
       implementAll +: imports.toList
     end if
@@ -380,7 +377,7 @@ object OverrideCompletions:
     Set[Name](
       StdNames.nme.hashCode_,
       StdNames.nme.toString_,
-      StdNames.nme.equals_,
+      StdNames.nme.equals_
     )
 
   private def toCompletionValue(
@@ -392,14 +389,14 @@ object OverrideCompletions:
       shouldMoveCursor: Boolean,
       config: PresentationCompilerConfig,
       autoImportsGen: AutoImportsGenerator,
-      shouldAddOverrideKwd: Boolean,
+      shouldAddOverrideKwd: Boolean
   )(using Context): CompletionValue.Override =
     val renames = AutoImport.renameConfigMap(config)
     val printer = MetalsPrinter.standard(
       indexedContext,
       search,
       includeDefaultParam = MetalsPrinter.IncludeDefaultParam.Never,
-      renames,
+      renames
     )
     val overrideKeyword: String =
       // if the overriding method is not an abstract member, add `override` keyword
@@ -418,23 +415,20 @@ object OverrideCompletions:
       // should be completed as `def iterator: Iterator[Int]` instead of `Iterator[A]`.
       val seenFrom =
         val memInfo = defn.tpe.memberInfo(sym.symbol)
-        if memInfo.isErroneous || memInfo.finalResultType.isAny then
-          sym.info.widenTermRefExpr
+        if memInfo.isErroneous || memInfo.finalResultType.isAny then sym.info.widenTermRefExpr
         else memInfo
 
       if sym.is(Method) then
         printer.defaultMethodSignature(
           sym.symbol,
           seenFrom,
-          additionalMods =
-            if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil,
+          additionalMods = if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil
         )
       else
         printer.defaultValueSignature(
           sym.symbol,
           seenFrom,
-          additionalMods =
-            if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil,
+          additionalMods = if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil
         )
       end if
     end signature
@@ -455,7 +449,7 @@ object OverrideCompletions:
       sym.symbol,
       additionalEdits,
       Some(signature),
-      Some(autoImportsGen.pos.withStart(start).toLsp),
+      Some(autoImportsGen.pos.withStart(start).toLsp)
     )
   end toCompletionValue
 
@@ -516,8 +510,7 @@ object OverrideCompletions:
       path match
         // class FooImpl extends Foo:
         //   def x|
-        case (dd: (DefDef | ValDef)) :: (t: Template) :: (td: TypeDef) :: _
-            if t.parents.nonEmpty =>
+        case (dd: (DefDef | ValDef)) :: (t: Template) :: (td: TypeDef) :: _ if t.parents.nonEmpty =>
           val completing =
             if dd.symbol.name == StdNames.nme.ERROR then None
             else Some(dd.symbol)
@@ -552,7 +545,7 @@ object OverrideCompletions:
         case (id: Ident) :: (t: Template) :: (td: TypeDef) :: _
             if t.parents.nonEmpty && id.name.decoded.replace(
               Cursor.value,
-              "",
+              ""
             ) == "def" =>
           Some(
             (
@@ -565,8 +558,7 @@ object OverrideCompletions:
           )
         // class Main extends Val:
         //    he@@
-        case (id: Ident) :: (t: Template) :: (td: TypeDef) :: _
-            if t.parents.nonEmpty =>
+        case (id: Ident) :: (t: Template) :: (td: TypeDef) :: _ if t.parents.nonEmpty =>
           Some(
             (
               td,

@@ -12,7 +12,7 @@ import org.eclipse.lsp4j.DocumentHighlightKind
 
 final class PcDocumentHighlightProvider(
     driver: InteractiveDriver,
-    params: OffsetParams,
+    params: OffsetParams
 ) extends PcCollector[DocumentHighlight](driver, params):
 
   def collect(
@@ -20,7 +20,7 @@ final class PcDocumentHighlightProvider(
   )(
       tree: Tree,
       toAdjust: SourcePosition,
-      sym: Option[Symbol],
+      sym: Option[Symbol]
   ): DocumentHighlight =
     val (pos, _) = adjust(toAdjust)
     tree match

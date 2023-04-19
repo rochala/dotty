@@ -68,7 +68,7 @@ object AutoImports extends AutoImportsBackticks:
   case class SymbolImport(
       sym: Symbol,
       ident: SymbolIdent,
-      importSel: Option[ImportSel],
+      importSel: Option[ImportSel]
   ):
 
     def name: String = ident.value
@@ -93,7 +93,7 @@ object AutoImports extends AutoImportsBackticks:
       tree: Tree,
       comments: List[Comment],
       indexedContext: IndexedContext,
-      config: PresentationCompilerConfig,
+      config: PresentationCompilerConfig
   ): AutoImportsGenerator =
 
     import indexedContext.ctx
@@ -111,13 +111,13 @@ object AutoImports extends AutoImportsBackticks:
       pos,
       importPos,
       indexedContext,
-      renames,
+      renames
     )
   end generator
 
   case class AutoImportEdits(
       nameEdit: Option[l.TextEdit],
-      importEdit: Option[l.TextEdit],
+      importEdit: Option[l.TextEdit]
   ):
 
     def edits: List[l.TextEdit] = List(nameEdit, importEdit).flatten
@@ -144,7 +144,7 @@ object AutoImports extends AutoImportsBackticks:
       val pos: SourcePosition,
       importPosition: AutoImportPosition,
       indexedContext: IndexedContext,
-      renames: Symbol => Option[String],
+      renames: Symbol => Option[String]
   ):
 
     import indexedContext.ctx
@@ -177,8 +177,7 @@ object AutoImports extends AutoImportsBackticks:
 
       val importEdit =
         symbolImport.importSel.flatMap(sel => renderImports(List(sel)))
-      if nameEdit.isDefined || importEdit.isDefined then
-        Some(AutoImportEdits(nameEdit, importEdit))
+      if nameEdit.isDefined || importEdit.isDefined then Some(AutoImportEdits(nameEdit, importEdit))
       else None
     end editsForSymbol
 
@@ -198,7 +197,7 @@ object AutoImports extends AutoImportsBackticks:
               (
                 SymbolIdent.Select(
                   ownerImport.ident,
-                  symbol.nameBacktickedImport,
+                  symbol.nameBacktickedImport
                 ),
                 ownerImport.importSel,
               )
@@ -212,7 +211,7 @@ object AutoImports extends AutoImportsBackticks:
           SymbolImport(
             symbol,
             name,
-            sel,
+            sel
           )
         case IndexedContext.Result.Conflict =>
           val owner = symbol.owner
@@ -224,23 +223,21 @@ object AutoImports extends AutoImportsBackticks:
                     !indexedContext.hasRename(owner, rename)
                   )
                 else
-                  Some(ImportSel.Direct(owner)).filter(_ =>
-                    !indexedContext.lookupSym(owner).exists
-                  )
+                  Some(ImportSel.Direct(owner)).filter(_ => !indexedContext.lookupSym(owner).exists)
 
               SymbolImport(
                 symbol,
                 SymbolIdent.Select(
                   SymbolIdent.direct(rename),
-                  symbol.nameBacktickedImport,
+                  symbol.nameBacktickedImport
                 ),
-                importSel,
+                importSel
               )
             case None =>
               SymbolImport(
                 symbol,
                 SymbolIdent.direct(symbol.fullNameBackticked),
-                None,
+                None
               )
           end match
         case IndexedContext.Result.InScope =>
@@ -296,11 +293,10 @@ object AutoImports extends AutoImportsBackticks:
     @tailrec
     def lastPackageDef(
         prev: Option[PackageDef],
-        tree: Tree,
+        tree: Tree
     ): Option[PackageDef] =
       tree match
-        case curr @ PackageDef(_, (next: PackageDef) :: Nil)
-            if !curr.symbol.isPackageObject =>
+        case curr @ PackageDef(_, (next: PackageDef) :: Nil) if !curr.symbol.isPackageObject =>
           lastPackageDef(Some(curr), next)
         case pkg: PackageDef if !pkg.symbol.isPackageObject => Some(pkg)
         case _ => prev
@@ -310,8 +306,7 @@ object AutoImports extends AutoImportsBackticks:
         case PackageDef(_, stats) =>
           stats.flatMap {
             case s: PackageDef => firstObjectBody(s)
-            case TypeDef(_, t @ Template(defDef, _, _, _))
-                if defDef.symbol.showName == "<init>" =>
+            case TypeDef(_, t @ Template(defDef, _, _, _)) if defDef.symbol.showName == "<init>" =>
               Some(t)
             case _ => None
           }.headOption
@@ -353,9 +348,9 @@ object AutoImports extends AutoImportsBackticks:
             offset
           case None =>
             val scriptOffset = Some(0)
-              // if isAmmonite then
-              //   ScriptFirstImportPosition.ammoniteScStartOffset(text)
-              // else ScriptFirstImportPosition.scalaCliScStartOffset(text)
+            // if isAmmonite then
+            //   ScriptFirstImportPosition.ammoniteScStartOffset(text)
+            // else ScriptFirstImportPosition.scalaCliScStartOffset(text)
 
             scriptOffset.getOrElse(
               pos.source.lineToOffset(tmpl.self.srcPos.line)
@@ -370,7 +365,7 @@ object AutoImports extends AutoImportsBackticks:
       AutoImportPosition(
         skipUsingDirectivesOffset,
         0,
-        padTop = false,
+        padTop = false
       )
 
     val scriptPos =

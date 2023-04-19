@@ -6,13 +6,13 @@ import scala.meta.internal.jdk.CollectionConverters._
 import scala.meta.internal.metals.CompilerOffsetParams
 import scala.meta.internal.metals.EmptyCancelToken
 
-class BasePcRenameSuite extends BasePCSuite with RangeReplace {
+class BasePcRenameSuite extends BasePCSuite with RangeReplace:
 
   def check(
       methodBody: String,
       newName: String = "newName",
       filename: String = "A.scala",
-      wrap: Boolean = true,
+      wrap: Boolean = true
   ): Unit =
     val original =
       if (!wrap) methodBody
@@ -35,9 +35,9 @@ class BasePcRenameSuite extends BasePCSuite with RangeReplace {
           URI.create(s"file:/$filename"),
           code,
           offset,
-          EmptyCancelToken,
+          EmptyCancelToken
         ),
-        newName,
+        newName
       )
       .get()
       .asScala
@@ -47,11 +47,10 @@ class BasePcRenameSuite extends BasePCSuite with RangeReplace {
 
     assertNoDiff(expected, obtained)
 
-
   def prepare(
       input: String,
-      filename: String = "A.scala",
-  ): Unit = {
+      filename: String = "A.scala"
+  ): Unit =
     val edit = input.replaceAll("(<<|>>)", "")
     val expected =
       input.replaceAll("@@", "")
@@ -63,7 +62,7 @@ class BasePcRenameSuite extends BasePCSuite with RangeReplace {
           URI.create(s"file:/$filename"),
           code,
           offset,
-          EmptyCancelToken,
+          EmptyCancelToken
         )
       )
       .get()
@@ -72,5 +71,3 @@ class BasePcRenameSuite extends BasePCSuite with RangeReplace {
       if (!range.isPresent()) base else replaceInRange(base, range.get())
 
     assertNoDiff(expected, obtained)
-  }
-}

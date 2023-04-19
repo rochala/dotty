@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class ExtensionCompletionSuite extends BaseCompletionSuite {
+class ExtensionCompletionSuite extends BaseCompletionSuite:
 
   @Test def `simple` =
     check(
@@ -16,7 +15,7 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |def main = 100.inc@@
          |""".stripMargin,
       """|incr: Int (extension)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `simple2` =
@@ -31,7 +30,7 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|incr: Int (extension)
          |""".stripMargin,
-      filter = _.contains("(extension)"),
+      filter = _.contains("(extension)")
     )
 
   @Test def `filter-by-type` =
@@ -48,7 +47,7 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|identity: String (extension)
          |""".stripMargin, // incr won't be available
-      filter = _.contains("(extension)"),
+      filter = _.contains("(extension)")
     )
 
   @Test def `filter-by-type-subtype` =
@@ -66,7 +65,7 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|doSomething: A (extension)
          |""".stripMargin,
-      filter = _.contains("(extension)"),
+      filter = _.contains("(extension)")
     )
 
   @Test def `simple-edit` =
@@ -88,7 +87,7 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |    def incr: Int = num + 1
          |
          |def main = 100.incr
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `simple-edit-suffix` =
@@ -110,7 +109,5 @@ class ExtensionCompletionSuite extends BaseCompletionSuite {
          |    def plus(other: Int): Int = num + other
          |
          |def main = 100.plus($0)
-         |""".stripMargin,
+         |""".stripMargin
     )
-
-}

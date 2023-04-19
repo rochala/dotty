@@ -12,12 +12,11 @@ object AmmoniteIvyCompletions:
       coursierComplete: CoursierComplete,
       selector: List[ImportSelector],
       completionPos: CompletionPos,
-      text: String,
+      text: String
   )(using Context): List[CompletionValue] =
     val pos = completionPos.sourcePos
     val query = selector.collectFirst {
-      case sel: ImportSelector
-          if sel.sourcePos.encloses(pos) && sel.sourcePos.`end` > pos.`end` =>
+      case sel: ImportSelector if sel.sourcePos.encloses(pos) && sel.sourcePos.`end` > pos.`end` =>
         sel.name.decoded.replace(Cursor.value, "")
     }
     query match
@@ -38,7 +37,7 @@ object AmmoniteIvyCompletions:
             CompletionValue.IvyImport(
               insertText.stripPrefix(":"),
               Some(insertText),
-              Some(ivyEditRange),
+              Some(ivyEditRange)
             )
           )
     end match

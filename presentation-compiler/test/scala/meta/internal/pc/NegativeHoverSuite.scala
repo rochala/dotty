@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class HoverNegativeSuite extends BaseHoverSuite {
+class HoverNegativeSuite extends BaseHoverSuite:
 
   // Negative results should have an empty output.
   def checkNegative(original: String): Unit = check(original, expected = "")
@@ -16,7 +15,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
         |    List(y)
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `template` =
@@ -25,7 +24,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
         |    @@
         |  def foo = 2
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `block2` =
@@ -37,7 +36,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
         |    x
         |  }
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `val-keyword` =
@@ -45,7 +44,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  v@@al x = 42
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `val-equal` =
@@ -53,7 +52,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x =@@ 42
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `literal-int` =
@@ -61,7 +60,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x = 4@@2
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `literal-double` =
@@ -69,7 +68,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x = 4@@2d
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `literal-float` =
@@ -77,7 +76,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x = 4@@2f
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `literal-long` =
@@ -85,7 +84,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x = 4@@2L
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `literal-string` =
@@ -93,7 +92,7 @@ class HoverNegativeSuite extends BaseHoverSuite {
       """object a {
         |  val x = "Hel@@lo"
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `interpolator-part` =
@@ -102,6 +101,5 @@ class HoverNegativeSuite extends BaseHoverSuite {
         |  val name = "John"
         |  s"Hel@@lo $name"
         |}
-        |""".stripMargin,
+        |""".stripMargin
     )
-}

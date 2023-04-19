@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class SignatureHelpSuite extends BaseSignatureHelpSuite {
+class SignatureHelpSuite extends BaseSignatureHelpSuite:
 
   @Test def `method` =
     check(
@@ -40,7 +39,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|fold[B](ifEmpty: => B)(f: Int => B): B
          |                       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `canbuildfrom2` =
@@ -52,7 +51,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|map[B](f: Int => B): List[B]
          |       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `ctor` =
@@ -76,10 +75,10 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new ProcessBuilder(@@)
         |}
       """.stripMargin,
-     """|ProcessBuilder(x$0: String*)
-        |               ^^^^^^^^^^^^
-        |ProcessBuilder(x$0: java.util.List[String])
-        |""".stripMargin
+      """|ProcessBuilder(x$0: String*)
+         |               ^^^^^^^^^^^^
+         |ProcessBuilder(x$0: java.util.List[String])
+         |""".stripMargin
     )
 
   @Test def `ctor2` =
@@ -89,9 +88,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new Some(10@@)
         |}
       """.stripMargin,
-    """|Some[A](value: A)
-       |        ^^^^^^^^
-       |""".stripMargin
+      """|Some[A](value: A)
+         |        ^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `ctor3` =
@@ -102,12 +101,12 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new File(@@)
         |}
       """.stripMargin,
-    """|File(x$0: java.net.URI)
-       |     ^^^^^^^^^^^^^^^^^
-       |File(x$0: java.io.File, x$1: String)
-       |File(x$0: String, x$1: String)
-       |File(x$0: String)
-       |""".stripMargin
+      """|File(x$0: java.net.URI)
+         |     ^^^^^^^^^^^^^^^^^
+         |File(x$0: java.io.File, x$1: String)
+         |File(x$0: String, x$1: String)
+         |File(x$0: String)
+         |""".stripMargin
     )
 
   @Test def `ctor4` =
@@ -117,12 +116,12 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new java.io.File(@@)
         |}
                  """.stripMargin,
-        """|File(x$0: java.net.URI)
-           |     ^^^^^^^^^^^^^^^^^
-           |File(x$0: java.io.File, x$1: String)
-           |File(x$0: String, x$1: String)
-           |File(x$0: String)
-           |""".stripMargin
+      """|File(x$0: java.net.URI)
+         |     ^^^^^^^^^^^^^^^^^
+         |File(x$0: java.io.File, x$1: String)
+         |File(x$0: String, x$1: String)
+         |File(x$0: String)
+         |""".stripMargin
     )
 
   @Test def `apply` =
@@ -137,7 +136,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """|apply(b: String): String
          |      ^^^^^^^^^
          |apply(a: Int): Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `partial` =
@@ -149,9 +148,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  }
         |}
       """.stripMargin,
-          """|collect[B](pf: PartialFunction[Int, B]): Option[B]
-             |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-             |""".stripMargin
+      """|collect[B](pf: PartialFunction[Int, B]): Option[B]
+         |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `nested` =
@@ -163,7 +162,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](x: A): Option[A]
          |         ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `nested2` =
@@ -175,7 +174,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](elems: A*): List[A]
          |         ^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `nested3` =
@@ -187,21 +186,21 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](x: A): Option[A]
          |         ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // https://github.com/lampepfl/dotty/issues/15244
   @Test def `vararg` =
-  check(
-    """
-      |object a {
-      |  List(1, 2@@
-      |}
+    check(
+      """
+        |object a {
+        |  List(1, 2@@
+        |}
     """.stripMargin,
-    """|apply[A](elems: A*): List[A]
-       |         ^^^^^^^^^
-       |""".stripMargin,
-  )
+      """|apply[A](elems: A*): List[A]
+         |         ^^^^^^^^^
+         |""".stripMargin
+    )
 
   @Test def `tparam` =
     check(
@@ -212,7 +211,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|identity[A](x: A): A
          |         ^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tparam2` =
@@ -224,7 +223,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|empty[A]: Option[A]
          |      ^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tparam3` =
@@ -236,7 +235,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](x: A): Option[A]
          |      ^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tparam4` =
@@ -246,9 +245,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  Map.empty[I@@]
         |}
       """.stripMargin,
-        """|empty[K, V]: Map[K, V]
-          |      ^
-          |""".stripMargin
+      """|empty[K, V]: Map[K, V]
+         |      ^
+         |""".stripMargin
     )
 
   @Test def `tparam5` =
@@ -261,7 +260,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """|lengthCompare(len: Int): Int
          |              ^^^^^^^^
          |lengthCompare(that: Iterable[?]): Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `error1` =
@@ -272,9 +271,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  }
         |}
       """.stripMargin,
-          """|apply[K, V](elems: (K, V)*): Map[K, V]
-             |            ^^^^^^^^^^^^^^
-             |""".stripMargin
+      """|apply[K, V](elems: (K, V)*): Map[K, V]
+         |            ^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `for` =
@@ -290,11 +289,11 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  } yield l
         |}
       """.stripMargin,
-      "",
+      ""
     )
 
   @Test def `for1` =
-     check(
+    check(
       """
         |object a {
         |  for {
@@ -307,7 +306,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](x: A): Option[A]
          |         ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for2` =
@@ -326,7 +325,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
          |   ^^^^^^^^
          |to(end: Int, step: Int): scala.collection.immutable.Range.Inclusive
          |""".stripMargin,
-      stableOrder = false,
+      stableOrder = false
     )
 
   @Test def `bounds` =
@@ -338,7 +337,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|applyOrElse[K1 <: Int, V1 >: String](x: K1, default: K1 => V1): V1
          |                                     ^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `error` =
@@ -351,7 +350,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[K, V](elems: (K, V)*): Map[K, V]
          |            ^^^^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `case-class` =
@@ -423,9 +422,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |
         |
       """.stripMargin,
-          """|apply(viewId: String, nodeUri: String, label: String, command: String, collapseState: String): TreeViewNode
-             |      ^^^^^^^^^^^^^^
-             |""".stripMargin
+      """|apply(viewId: String, nodeUri: String, label: String, command: String, collapseState: String): TreeViewNode
+         |      ^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `named` =
@@ -436,9 +435,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  User(age = 1, @@)
         |}
       """.stripMargin,
-          """|apply(name: String, age: Int): User
-             |                    ^^^^^^^^
-             |""".stripMargin
+      """|apply(name: String, age: Int): User
+         |                    ^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `named1` =
@@ -449,9 +448,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  User(name = "", @@)
         |}
       """.stripMargin,
-          """|apply(name: String, age: Int): User
-             |                    ^^^^^^^^
-             |""".stripMargin
+      """|apply(name: String, age: Int): User
+         |                    ^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `named2` =
@@ -464,7 +463,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|user(name: String, age: Int): Int
          |     ^^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `named3` =
@@ -476,10 +475,10 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  def x = user(str@@eet = 42, name = "", age = 2)
         |}
       """.stripMargin,
-          """|user(name: String, age: Int, street: Int): Int
-             |                             ^^^^^^^^^^^
-             |user(name: String, age: Int): Int
-             |""".stripMargin
+      """|user(name: String, age: Int, street: Int): Int
+         |                             ^^^^^^^^^^^
+         |user(name: String, age: Int): Int
+         |""".stripMargin
     )
 
   @Test def `named4` =
@@ -491,7 +490,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|identity[A](x: A): A
          |            ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `short-name` =
@@ -501,10 +500,10 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new scala.util.control.Exception.Catch(@@)
         |}
       """.stripMargin,
-        // TODO short names are not supported yet
-        """|Catch[T](pf: scala.util.control.Exception.Catcher[T], fin: Option[scala.util.control.Exception.Finally], rethrow: Throwable => Boolean)
-           |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-           |""".stripMargin
+      // TODO short names are not supported yet
+      """|Catch[T](pf: scala.util.control.Exception.Catcher[T], fin: Option[scala.util.control.Exception.Finally], rethrow: Throwable => Boolean)
+         |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `short-name1` =
@@ -514,10 +513,10 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  new java.util.HashMap[String, Int]().computeIfAbsent(@@)
         |}
       """.stripMargin,
-        // TODO short names are not supported yet
-        """|computeIfAbsent(x$0: String, x$1: java.util.function.Function[? >: String, ? <: Int]): Int
-           |                ^^^^^^^^^^^
-           |""".stripMargin,
+      // TODO short names are not supported yet
+      """|computeIfAbsent(x$0: String, x$1: java.util.function.Function[? >: String, ? <: Int]): Int
+         |                ^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `curry5` =
@@ -531,7 +530,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """|
          |curry(a: Int)(c: Int): Int
          |              ^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `last-arg` =
@@ -543,7 +542,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|apply[A](x: A): Option[A]
          |         ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `last-arg1` =
@@ -555,7 +554,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|map[B](f: Int => B): List[B]
          |       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `last-arg2` =
@@ -567,7 +566,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|map[B](f: Int => B): List[B]
          |       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `last-arg3` =
@@ -584,9 +583,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |    }
         |  }
       """.stripMargin,
-          """|map[G[_$3]](fn: Int => G[Int])(using T: TypeClass[F]): G[Int]
-             |            ^^^^^^^^^^^^^^^^^
-             |""".stripMargin
+      """|map[G[_$3]](fn: Int => G[Int])(using T: TypeClass[F]): G[Int]
+         |            ^^^^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `evidence` =
@@ -598,7 +597,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|empty[T: ClassTag]: Array[T]
          |      ^^^^^^^^^^^
-         | """.stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit-conv` =
@@ -613,9 +612,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  foo(4@@2)
         |}
       """.stripMargin,
-          """|conv[T](e: T): Text[T]
-             |        ^^^^
-             |""".stripMargin
+      """|conv[T](e: T): Text[T]
+         |        ^^^^
+         |""".stripMargin
     )
 
   @Test def `type` =
@@ -625,9 +624,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  val x: Map[Int, Stri@@ng]
         |}
       """.stripMargin,
-          """|Map[K, V]: Map
-             |       ^
-             | """.stripMargin
+      """|Map[K, V]: Map
+         |       ^
+         |""".stripMargin
     )
 
   @Test def `type1` =
@@ -637,10 +636,10 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  val x: Map[Int, Stri@@]
         |}
       """.stripMargin,
-          """|Map[K, V]: Map
-             |       ^
-             | """.stripMargin
-  )
+      """|Map[K, V]: Map
+         |       ^
+         |""".stripMargin
+    )
 
   @Test def `off-by-one` =
     check(
@@ -649,9 +648,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  identity(42)@@
         |}
         |""".stripMargin,
-          """|identity[A](x: A): A
-             |            ^^^^
-             |""".stripMargin
+      """|identity[A](x: A): A
+         |            ^^^^
+         |""".stripMargin
     )
 
   @Test def `off-by-one2` =
@@ -663,7 +662,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|identity[A](x: A): A
          |            ^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `between-parens` =
@@ -673,9 +672,9 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |  Option(1).fold(2)@@(_ + 1)
         |}
         |""".stripMargin,
-          """|fold[B](ifEmpty: => B)(f: Int => B): B
-             |        ^^^^^^^^^^^^^
-             |""".stripMargin,
+      """|fold[B](ifEmpty: => B)(f: Int => B): B
+         |        ^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `between-parens2` =
@@ -687,7 +686,7 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|fold[B](ifEmpty: => B)(f: Int => B): B
          |        ^^^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `between-parens3` =
@@ -699,7 +698,5 @@ class SignatureHelpSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|fold[B](ifEmpty: => B)(f: Int => B): B
          |                       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
-
-}

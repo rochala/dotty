@@ -7,7 +7,7 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.Ignore
 
-class CompletionSuite extends BaseCompletionSuite {
+class CompletionSuite extends BaseCompletionSuite:
 
   @Test def scope =
     check(
@@ -22,7 +22,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |List - scala.collection.immutable
         |List[A](elems: A*): CC[A]
         |""".stripMargin,
-      topLines = Some(5),
+      topLines = Some(5)
     )
 
   @Test def member =
@@ -33,7 +33,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """
         |empty[A]: List[A]
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def extension =
@@ -44,7 +44,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """
         |stripSuffix(suffix: String): String
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def tparam1 =
@@ -57,7 +57,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |  new Foo[Int].ident@@
         |}""".stripMargin,
       """|identity(a: Int): Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def tparam2 =
@@ -68,11 +68,10 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|getOrElse[V1 >: String](key: Int, default: => V1): V1
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def dot =
-
     check(
       // before 3.0.1 completions with the same name were included in one completion in a random order
       """
@@ -121,7 +120,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |wait(): Unit
          |wait(x$0: Long): Unit
          |wait(x$0: Long, x$1: Int): Unit
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def implicitClass =
@@ -144,7 +143,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |  uService@@
         |}""".stripMargin,
       """|userService: Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def fuzzy1 =
@@ -153,16 +152,16 @@ class CompletionSuite extends BaseCompletionSuite {
         |object A {
         |  new PBuil@@
         |}""".stripMargin,
-    """|ProcessBuilder java.lang
-       |ProcessBuilder - scala.sys.process
-       |CertPathBuilder - java.security.cert
-       |CertPathBuilderSpi - java.security.cert
-       |CertPathBuilderResult - java.security.cert
-       |PKIXBuilderParameters - java.security.cert
-       |PooledConnectionBuilder - javax.sql
-       |CertPathBuilderException - java.security.cert
-       |PKIXCertPathBuilderResult - java.security.cert
-       |""".stripMargin,
+      """|ProcessBuilder java.lang
+         |ProcessBuilder - scala.sys.process
+         |CertPathBuilder - java.security.cert
+         |CertPathBuilderSpi - java.security.cert
+         |CertPathBuilderResult - java.security.cert
+         |PKIXBuilderParameters - java.security.cert
+         |PooledConnectionBuilder - javax.sql
+         |CertPathBuilderException - java.security.cert
+         |PKIXCertPathBuilderResult - java.security.cert
+         |""".stripMargin
     )
 
   @Test def companion =
@@ -174,7 +173,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|TrieMap scala.collection.concurrent
          |TrieMap[K, V](elems: (K, V)*): CC[K, V]
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def pkg =
@@ -183,7 +182,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |import scala.collection.conc@@
         |""".stripMargin,
       """|concurrent scala.collection
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import-star-basic` =
@@ -219,7 +218,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |AsJavaLongConsumer - scala.jdk.FunctionWrappers
          |FromJavaBiConsumer - scala.jdk.FunctionWrappers
          |FromJavaIntConsumer - scala.jdk.FunctionWrappers
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def import1 =
@@ -228,7 +227,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |import Paths@@
         |""".stripMargin,
       """|Paths - java.nio.file
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def import2 =
@@ -237,7 +236,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |import Catch@@
         |""".stripMargin,
       """|Catch - scala.util.control.Exception
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def import3 =
@@ -256,7 +255,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |XPathNodes - javax.xml.xpath
          |PathMatcher - java.nio.file
          |XPathResult - org.w3c.dom.xpath
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def import4 =
@@ -265,7 +264,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |import scala.collection.AbstractIterator@@
         |""".stripMargin,
       """|AbstractIterator scala.collection
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def accessible =
@@ -279,7 +278,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |ParameterMetaData - java.sql
          |ResultSetMetaData - java.sql
          |RowSetMetaDataImpl - javax.sql.rowset
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def source =
@@ -294,7 +293,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|Inner - a.Outer
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def duplicate =
@@ -309,7 +308,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |  class Inner
         |}
         |""".stripMargin,
-     "Inner a.Outer",
+      "Inner a.Outer"
     )
 
   @Test def duplicate2 =
@@ -328,7 +327,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """Files java.nio.file
         |Files - a.Outer
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def commit =
@@ -341,7 +340,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "empty[K, V]: Map[K, V] (commit: '')", // space between K V
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def commit1 =
@@ -355,7 +354,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|identity[A](x: A): A (commit: '')
          |""".stripMargin,
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `numeric-sort` =
@@ -393,7 +392,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |Function21 scala
          |Function22 scala
          |""".stripMargin,
-      topLines = Some(25),
+      topLines = Some(25)
     )
 
   @Test def sam =
@@ -404,7 +403,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|toCharArray(): Array[Char]
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit` =
@@ -415,7 +414,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|concat[T: ClassTag](xss: Array[T]*): Array[T]
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit-evidence-many` =
@@ -429,7 +428,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|test[T: Ordering: Numeric](x: T): T
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def bounds =
@@ -455,7 +454,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|thisIsLocal: Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def local1 =
@@ -474,7 +473,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|DelayedLazyVal scala.concurrent
-         |DelayedLazyVal[T](f: () => T, body: => Unit)(exec: ExecutionContext): DelayedLazyVal[T]""".stripMargin,
+         |DelayedLazyVal[T](f: () => T, body: => Unit)(exec: ExecutionContext): DelayedLazyVal[T]""".stripMargin
     )
 
   @Test def local2 =
@@ -494,7 +493,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       """|prefixbb: Int
          |prefixaa: Int
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def singleton =
@@ -521,7 +520,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |until(end: T, step: T): Exclusive[T]
          |""".stripMargin,
       postProcessObtained = _.replace("Float", "Double"),
-      stableOrder = false,
+      stableOrder = false
     )
 
   def classFoo: String =
@@ -542,7 +541,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  new Foo().bana@@
           |}
           |""".stripMargin,
-       "selectDynamic(field: String): Foo"
+      "selectDynamic(field: String): Foo"
     )
 
   @Test def dynamic2 =
@@ -552,7 +551,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  val x = new Foo().foo.bana@@
           |}
           |""".stripMargin,
-       "selectDynamic(field: String): Foo"
+      "selectDynamic(field: String): Foo"
     )
 
   @Test def dynamic3 =
@@ -563,7 +562,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  (foo.bar = 42).bana@@
           |}
           |""".stripMargin,
-       "selectDynamic(field: String): Foo"
+      "selectDynamic(field: String): Foo"
     )
 
   @Test def dynamic4 =
@@ -573,7 +572,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  val foo = new Foo().foo(x = 42).bana@@
           |}
           |""".stripMargin,
-       "selectDynamic(field: String): Foo"
+      "selectDynamic(field: String): Foo"
     )
 
   @Test def dynamic5 =
@@ -585,7 +584,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|selectDynamic(field: String): Foo
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type` =
@@ -595,7 +594,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|ListBuffer - scala.collection.mutable
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def type1 =
@@ -605,9 +604,8 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|ListBuffer - scala.collection.mutable
-         |""".stripMargin,
+         |""".stripMargin
     )
-
 
   @Test def pat =
     check(
@@ -616,12 +614,12 @@ class CompletionSuite extends BaseCompletionSuite {
           |    case Som@@
           |}
           |""".stripMargin,
-       """|Some(value) scala
-          |Some scala
-          |Some[A](value: A): Some[A]
-          |SomeToExpr[T: Type: ToExpr]: SomeToExpr[T]
-          |SomeFromExpr[T](using Type[T], FromExpr[T]): SomeFromExpr[T]
-          |""".stripMargin
+      """|Some(value) scala
+         |Some scala
+         |Some[A](value: A): Some[A]
+         |SomeToExpr[T: Type: ToExpr]: SomeToExpr[T]
+         |SomeFromExpr[T](using Type[T], FromExpr[T]): SomeFromExpr[T]
+         |""".stripMargin
     )
 
   @Test def pat1 =
@@ -631,11 +629,11 @@ class CompletionSuite extends BaseCompletionSuite {
           |    case List(Som@@)
           |}
           |""".stripMargin,
-       """|Some scala
-          |Some[A](value: A): Some[A]
-          |SomeToExpr[T: Type: ToExpr]: SomeToExpr[T]
-          |SomeFromExpr[T](using Type[T], FromExpr[T]): SomeFromExpr[T]
-          |""".stripMargin,
+      """|Some scala
+         |Some[A](value: A): Some[A]
+         |SomeToExpr[T: Type: ToExpr]: SomeToExpr[T]
+         |SomeFromExpr[T](using Type[T], FromExpr[T]): SomeFromExpr[T]
+         |""".stripMargin
     )
 
   @Test def adt =
@@ -648,7 +646,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """|None scala
          |NoManifest scala.reflect
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def adt1 =
@@ -658,11 +656,11 @@ class CompletionSuite extends BaseCompletionSuite {
           |    case S@@
           |}
           |""".stripMargin,
-       """|Some(value) scala
-          |Seq scala.collection.immutable
-          |Set scala.collection.immutable
-          |""".stripMargin,
-      topLines = Some(3),
+      """|Some(value) scala
+         |Seq scala.collection.immutable
+         |Set scala.collection.immutable
+         |""".stripMargin,
+      topLines = Some(3)
     )
 
   @Test def adt2 =
@@ -676,7 +674,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |Seq scala.collection.immutable
          |Set scala.collection.immutable
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def adt3 =
@@ -693,10 +691,10 @@ class CompletionSuite extends BaseCompletionSuite {
           |  }
           |}
           |""".stripMargin,
-       """|NotString: Int
-          |Number: Regex
-          |Nil scala.collection.immutable
-          |""".stripMargin,
+      """|NotString: Int
+         |Number: Regex
+         |Nil scala.collection.immutable
+         |""".stripMargin,
       topLines = Option(3)
     )
 
@@ -712,7 +710,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |Nil scala.collection.immutable
          |NoManifest scala.reflect
          |""".stripMargin,
-      topLines = Option(3),
+      topLines = Option(3)
     )
 
   @Test def adt5 =
@@ -727,7 +725,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |Nil scala.collection.immutable
          |NoManifest scala.reflect
          |""".stripMargin,
-      topLines = Option(3),
+      topLines = Option(3)
     )
 
   @Test def underscore =
@@ -737,7 +735,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       // assert that `_root_` is not a completion item.
-      "",
+      ""
     )
 
   @Test def filterText =
@@ -749,7 +747,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """substring(beginIndex: Int): String
         |substring(beginIndex: Int, endIndex: Int): String
         |""".stripMargin,
-      filterText = "substring",
+      filterText = "substring"
     )
 
   @Test def error =
@@ -761,7 +759,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  }
           |}
           |""".stripMargin,
-      "myError: String",
+      "myError: String"
     )
 
   @Test def sort =
@@ -780,7 +778,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |printnnn: String
          |print(x: Any): Unit
          |""".stripMargin,
-      topLines = Some(4),
+      topLines = Some(4)
     )
 
   @Test def `fuzzy-member-sort` =
@@ -813,7 +811,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |yeti1: Int
          |yeti2: Int
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def `using` =
@@ -827,7 +825,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|max[T](x: T, y: T)(using ord: Ordered[T]): T
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `annoncontext` =
@@ -840,7 +838,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |}
           |""".stripMargin,
       """|max[T](x: T, y: T)(using Ordered[T]): T
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def ordering1 =
@@ -855,7 +853,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |higherKinds scala.languageFeature
          |implicitConversions scala.languageFeature
          |""".stripMargin,
-      topLines = Some(5),
+      topLines = Some(5)
     )
 
   @Test def ordering2 =
@@ -875,7 +873,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |%(x: Char): Int
          |%(x: Double): Double
          |""".stripMargin,
-      topLines = Some(10),
+      topLines = Some(10)
     )
 
   @Test def ordering3 =
@@ -896,7 +894,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """|fooB: String
          |fooA: String
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   // issues with scala 3 https://github.com/lampepfl/dotty/pull/13515
@@ -916,7 +914,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |fooC: Int
          |foo: String
          |""".stripMargin,
-      topLines = Some(4),
+      topLines = Some(4)
     )
 
   @Test def newlinedot =
@@ -930,7 +928,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |    .map($0)
          |}""".stripMargin,
       filter = _.contains("map["),
-      assertSingleItem = false,
+      assertSingleItem = false
     )
 
   @Test def `dot-error-tree-edit` =
@@ -951,7 +949,7 @@ class CompletionSuite extends BaseCompletionSuite {
         |     a
         |  }
         |}""".stripMargin,
-      filter = _.startsWith("toInt:"),
+      filter = _.startsWith("toInt:")
     )
 
   @Test def `select-ignores-next-line` =
@@ -965,7 +963,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |  }
          |}
          |""".stripMargin,
-      _.nonEmpty,
+      _.nonEmpty
     )
 
   @Test def `empty-template-braces` =
@@ -978,7 +976,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """|Foo x
          |bar: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `empty-template-optional-braces1` =
@@ -991,7 +989,7 @@ class CompletionSuite extends BaseCompletionSuite {
       """|Foo x
          |bar: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `emptyline-optional-braces2` =
@@ -1009,7 +1007,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |Foo x
          |bar: Int
          |""".stripMargin,
-      topLines = Some(4),
+      topLines = Some(4)
     )
 
   @Test def `emptyline-optional-braces3` =
@@ -1026,7 +1024,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |bar: Int
          |baz: Int
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def `tab-indented` =
@@ -1043,7 +1041,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |            42.toInt
           |}
           |""".stripMargin,
-      filter = _.startsWith("toInt"),
+      filter = _.startsWith("toInt")
     )
 
   @Test def nocompletions =
@@ -1053,7 +1051,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  errored.@@
           |}
           |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def pkg2 =
@@ -1062,7 +1060,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  scala.coll@@
           |}
           |""".stripMargin,
-      "collection scala",
+      "collection scala"
     )
 
   @Test def pkgtyped =
@@ -1071,7 +1069,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  val a : scala.coll@@
           |}
           |""".stripMargin,
-      "collection scala",
+      "collection scala"
     )
 
   @Test def pkgnew =
@@ -1080,7 +1078,7 @@ class CompletionSuite extends BaseCompletionSuite {
           |  new scala.coll@@
           |}
           |""".stripMargin,
-      "collection scala",
+      "collection scala"
     )
 
   @Test def pkgscala =
@@ -1089,9 +1087,9 @@ class CompletionSuite extends BaseCompletionSuite {
           |  scala@@
           |}
           |""".stripMargin,
-       """|scala _root_
-          |`package` - scala
-          |""".stripMargin
+      """|scala _root_
+         |`package` - scala
+         |""".stripMargin
     )
 
   @Test def `class-members-trait-issue` =
@@ -1105,8 +1103,8 @@ class CompletionSuite extends BaseCompletionSuite {
           |  def abc: Int = 23
           |}
           |""".stripMargin,
-       """|first: java.util.List[Int]
-          |""".stripMargin
+      """|first: java.util.List[Int]
+         |""".stripMargin
     )
 
   @Test def `object-at-type-pos` =
@@ -1118,9 +1116,9 @@ class CompletionSuite extends BaseCompletionSuite {
           |  def f1(a: Fo@@)
           |}
           |""".stripMargin,
-      """|Foo object-at-type-pos
+      """|Foo test
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `wildcard-param` =
@@ -1132,31 +1130,31 @@ class CompletionSuite extends BaseCompletionSuite {
         |  }
         |}""".stripMargin,
       "",
-      filter = _.startsWith("_"),
+      filter = _.startsWith("_")
     )
 
   @Test def currentTest =
     check(
       """
         |class Test ext@@""".stripMargin,
-      "extends",
+      "extends"
     )
 
   @Test def `issue-3625` =
-  check(
-    """|package a
-       |
-       |object Test:
-       |  case class Widget(name: String, other: Int)
-       |  val otxxx: Int = 1
-       |  Widget(name = "foo", @@
-       |""".stripMargin,
-    """|other = : Int
-       |other = otxxx : Int
-       |otxxx: Int
-       |""".stripMargin,
-    topLines = Some(3),
-  )
+    check(
+      """|package a
+         |
+         |object Test:
+         |  case class Widget(name: String, other: Int)
+         |  val otxxx: Int = 1
+         |  Widget(name = "foo", @@
+         |""".stripMargin,
+      """|other = : Int
+         |other = otxxx : Int
+         |otxxx: Int
+         |""".stripMargin,
+      topLines = Some(3)
+    )
 
   @Test def `constructor-empty` =
     check(
@@ -1169,7 +1167,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Testing a
          |Testing(): Testing
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `constructor-params` =
@@ -1183,7 +1181,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|Testing a
          |Testing(a: Int, b: String): Testing
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // https://github.com/scalameta/metals/issues/2810
@@ -1204,7 +1202,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|map[B](f: A => B): Foo[B]
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `issue-3421` =
@@ -1217,7 +1215,7 @@ class CompletionSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "thing(): Any",
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `issue-3421-match` =
@@ -1234,7 +1232,5 @@ class CompletionSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       "invalid: Any",
-      topLines = Some(1),
+      topLines = Some(1)
     )
-
-}

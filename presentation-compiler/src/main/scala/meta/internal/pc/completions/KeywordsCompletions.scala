@@ -24,10 +24,11 @@ object KeywordsCompletions:
       completionPos: CompletionPos,
       comments: List[Comment]
   )(using ctx: Context): List[CompletionValue] =
-    lazy val notInComment = checkIfNotInComment(completionPos.cursorPos, path, comments)
+    lazy val notInComment =
+      checkIfNotInComment(completionPos.cursorPos, path, comments)
     // lazy val untpdPath: Option[untpd.Tree] = NavigateAST.untypedPath(completionPos.cursorPos.span) match
-      // case (utree: untpd.Tree) :: _ => Some(utree)
-      // case _ => None
+    // case (utree: untpd.Tree) :: _ => Some(utree)
+    // case _ => None
     path match
       case Nil if completionPos.query.isEmpty =>
         Keyword.all.collect {
@@ -46,7 +47,8 @@ object KeywordsCompletions:
         val isParam = this.isParam(path)
         val isSelect = this.isSelect(path)
         val isImport = this.isImport(path)
-        val possibleTemplateKeywords = checkTemplateForNewParents(enclosing = path, completionPos)
+        val possibleTemplateKeywords =
+          checkTemplateForNewParents(enclosing = path, completionPos)
 
         Keyword.all.collect {
           case kw
@@ -73,9 +75,9 @@ object KeywordsCompletions:
   end contribute
 
   private def checkIfNotInComment(
-    pos: SourcePosition,
-    path: List[Tree],
-    comments: List[Comment]
+      pos: SourcePosition,
+      path: List[Tree],
+      comments: List[Comment]
   )(using ctx: Context): Boolean =
     !comments.exists(_.span.contains(pos.span))
 
@@ -117,7 +119,7 @@ object KeywordsCompletions:
   private def isDefinition(
       enclosing: List[Tree],
       name: String,
-      pos: SourcePosition,
+      pos: SourcePosition
   )(using ctx: Context): Boolean =
     enclosing match
       case (_: Ident) :: _ => false
@@ -150,12 +152,11 @@ object KeywordsCompletions:
   case class TemplateKeywordAvailability(
       `extends`: Boolean,
       `with`: Boolean,
-      `derives`: Boolean,
+      `derives`: Boolean
   )
 
-  object TemplateKeywordAvailability {
+  object TemplateKeywordAvailability:
     def default = TemplateKeywordAvailability(false, false, false)
-  }
 
   /*
    * Checks whether given path and position can be followed with
@@ -167,8 +168,8 @@ object KeywordsCompletions:
    *
    * @note This method requires a typed path. The rest of the metals functionalities.
    */
-  def checkTemplateForNewParents(enclosing: List[Tree], pos: CompletionPos)(
-      using ctx: Context
+  def checkTemplateForNewParents(enclosing: List[Tree], pos: CompletionPos)(using
+      ctx: Context
   ): TemplateKeywordAvailability =
     /*
      * Finds tree which ends just before cursor positions, that may be extended or derive.
@@ -204,7 +205,8 @@ object KeywordsCompletions:
             case Nil =>
               // we have to fallback to typed tree and check if it is an enum
               enclosing match
-                case (tree: TypeDef) :: _ if tree.symbol.isEnumClass => Some(other)
+                case (tree: TypeDef) :: _ if tree.symbol.isEnumClass =>
+                  Some(other)
                 case _ => None
             case other =>
               other
@@ -216,19 +218,26 @@ object KeywordsCompletions:
 
     end findLastSatisfyingTree
 
+    def checkForPossibleKeywords(
+        template: Template
+    ): TemplateKeywordAvailability =
+      TemplateKeywordAvailability(
+        template.parents.isEmpty,
+        template.parents.nonEmpty,
+        template.derived.isEmpty
+      )
 
-    def checkForPossibleKeywords(template: Template): TemplateKeywordAvailability =
-      TemplateKeywordAvailability(template.parents.isEmpty, template.parents.nonEmpty, template.derived.isEmpty)
-
-    findLastSatisfyingTree(pos.cursorPos.span).flatMap {
-      case untpd.TypeDef(_, template: Template) => Some(checkForPossibleKeywords(template))
-      case untpd.ModuleDef(_, template: Template) => Some(checkForPossibleKeywords(template))
-      case template: Template => Some(checkForPossibleKeywords(template))
-      case other => None
-    }.getOrElse(TemplateKeywordAvailability.default)
+    findLastSatisfyingTree(pos.cursorPos.span)
+      .flatMap {
+        case untpd.TypeDef(_, template: Template) =>
+          Some(checkForPossibleKeywords(template))
+        case untpd.ModuleDef(_, template: Template) =>
+          Some(checkForPossibleKeywords(template))
+        case template: Template => Some(checkForPossibleKeywords(template))
+        case other => None
+      }
+      .getOrElse(TemplateKeywordAvailability.default)
 
   end checkTemplateForNewParents
-
-
 
 end KeywordsCompletions

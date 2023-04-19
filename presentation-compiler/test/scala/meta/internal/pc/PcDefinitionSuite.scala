@@ -6,7 +6,7 @@ import scala.meta.pc.OffsetParams
 import org.eclipse.lsp4j.Location
 import org.junit.Test
 
-class PcDefinitionSuite extends BasePcDefinitionSuite {
+class PcDefinitionSuite extends BasePcDefinitionSuite:
 
   override def requiresJdkSources: Boolean = true
 
@@ -22,25 +22,25 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
 
   @Test def `basic` =
     check(
-          """|
-             |object Main {
-             |  val <<abc>> = 42
-             |  println(a@@bc)
-             |}
-             |""".stripMargin
+      """|
+         |object Main {
+         |  val <<abc>> = 42
+         |  println(a@@bc)
+         |}
+         |""".stripMargin
     )
 
   @Test def `for` =
     check(
-          """|object Main {
-             |  for {
-             |    <<x>> <- List(1)
-             |    y <- 1.to(x)
-             |    z = y + x
-             |    if y < @@x
-             |  } yield y
-             |}
-             |""".stripMargin
+      """|object Main {
+         |  for {
+         |    <<x>> <- List(1)
+         |    y <- 1.to(x)
+         |    z = y + x
+         |    if y < @@x
+         |  } yield y
+         |}
+         |""".stripMargin
     )
 
   @Test def `for-flatMap` =
@@ -52,7 +52,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |    y <- Option(x)
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-map` =
@@ -64,7 +64,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |    y /*scala/Option#map(). Option.scala*/@@<- Option(x)
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-withFilter` =
@@ -77,17 +77,17 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |    /*scala/Option#withFilter(). Option.scala*/@@if y > 2
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `function` =
     check(
-          """|
-             |object Main {
-             |  val <<increment>>: Int => Int = _ + 2
-             |  incre@@ment(1)
-             |}
-             |""".stripMargin
+      """|
+         |object Main {
+         |  val <<increment>>: Int => Int = _ + 2
+         |  incre@@ment(1)
+         |}
+         |""".stripMargin
     )
 
   // assert we don't go to `Tuple2.scala`
@@ -97,16 +97,16 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  @@(1, 2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `apply` =
     check(
-          """|
-             |object Main {
-             |  /*scala/collection/IterableFactory#apply(). Factory.scala*/@@List(1)
-             |}
-             |""".stripMargin,
+      """|
+         |object Main {
+         |  /*scala/collection/IterableFactory#apply(). Factory.scala*/@@List(1)
+         |}
+         |""".stripMargin
     )
 
   @Test def `error` =
@@ -115,7 +115,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  /*scala/Predef.assert(). Predef.scala*//*scala/Predef.assert(+1). Predef.scala*/@@assert
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `error2` =
@@ -124,7 +124,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  Predef./*scala/Predef.assert(). Predef.scala*//*scala/Predef.assert(+1). Predef.scala*/@@assert
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `error3` =
@@ -133,7 +133,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  1./*scala/Predef.Ensuring#ensuring(). Predef.scala*//*scala/Predef.Ensuring#ensuring(+1). Predef.scala*//*scala/Predef.Ensuring#ensuring(+2). Predef.scala*//*scala/Predef.Ensuring#ensuring(+3). Predef.scala*/@@ensuring
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `new` =
@@ -142,7 +142,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  ne@@w java.io.File("")
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends` =
@@ -150,16 +150,16 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
       """|
          |object Main ex@@tends java.io.Serializable {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import1` =
     check(
-          """|
-             |import scala.concurrent./*scala/concurrent/Future# Future.scala*//*scala/concurrent/Future. Future.scala*/@@Future
-             |object Main {
-             |}
-             |""".stripMargin
+      """|
+         |import scala.concurrent./*scala/concurrent/Future# Future.scala*//*scala/concurrent/Future. Future.scala*/@@Future
+         |object Main {
+         |}
+         |""".stripMargin
     )
 
   @Test def `import2` =
@@ -168,7 +168,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |imp@@ort scala.concurrent.Future
          |object Main {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import3` =
@@ -177,45 +177,45 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |import scala.co@@ncurrent.Future
          |object Main {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `named-arg-local` =
     check(
-          """|
-             |object Main {
-             |  def foo(<<arg>>: Int): Unit = ()
-             |
-             |  foo(a@@rg = 42)
-             |}
-             |""".stripMargin
+      """|
+         |object Main {
+         |  def foo(<<arg>>: Int): Unit = ()
+         |
+         |  foo(a@@rg = 42)
+         |}
+         |""".stripMargin
     )
 
   @Test def `named-arg-multiple` =
     check(
-          """|object Main {
-             |  def tst(par1: Int, par2: String, <<par3>>: Boolean): Unit = {}
-             |
-             |  tst(1, p@@ar3 = true, par2 = "")
-             |}""".stripMargin
+      """|object Main {
+         |  def tst(par1: Int, par2: String, <<par3>>: Boolean): Unit = {}
+         |
+         |  tst(1, p@@ar3 = true, par2 = "")
+         |}""".stripMargin
     )
 
   @Test def `named-arg-reversed` =
     check(
-          """|object Main {
-             |  def tst(par1: Int, <<par2>>: String): Unit = {}
-             |
-             |  tst(pa@@r2 = "foo", par1 = 1)
-             |}
-             |""".stripMargin
+      """|object Main {
+         |  def tst(par1: Int, <<par2>>: String): Unit = {}
+         |
+         |  tst(pa@@r2 = "foo", par1 = 1)
+         |}
+         |""".stripMargin
     )
 
   @Test def `named-arg-global` =
     check(
-          """|object Main {
-             |  assert(/*scala/Predef.assert(+1).(assertion) Predef.scala*/@@assertion = true)
-             |}
-             |""".stripMargin
+      """|object Main {
+         |  assert(/*scala/Predef.assert(+1).(assertion) Predef.scala*/@@assertion = true)
+         |}
+         |""".stripMargin
     )
 
   @Test def `symbolic-infix` =
@@ -224,16 +224,16 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  val lst = 1 /*scala/collection/immutable/List#`::`(). List.scala*/@@:: Nil
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `colon` =
     check(
-        """|
-           |object Main {
-           |  val <<number>>: Int = 1
-           |}
-           |""".stripMargin
+      """|
+         |object Main {
+         |  val <<number>>: Int = 1
+         |}
+         |""".stripMargin
     )
 
   @Test def `package` =
@@ -242,24 +242,24 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  val n = ma@@th.max(1, 2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `eta` =
     check(
-          """|
-             |object Main {
-             |  List(1).map(@@_ + 2)
-             |}
-             |""".stripMargin
+      """|
+         |object Main {
+         |  List(1).map(@@_ + 2)
+         |}
+         |""".stripMargin
     )
 
   @Test def `eta-2` =
     check(
-          """|object Main {
-             |  List(1).foldLeft(0)(_ + @@_)
-             |}
-             |""".stripMargin
+      """|object Main {
+         |  List(1).foldLeft(0)(_ + @@_)
+         |}
+         |""".stripMargin
     )
 
   @Test def `result-type` =
@@ -268,34 +268,34 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  def x: /*scala/Int# Int.scala*/@@Int = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `constructor` =
     check(
       """|
          |class Main(x: /*scala/Int# Int.scala*/@@Int)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `case-class-apply` =
     check(
-          """|
-             |case class Foo(<<a>>: Int, b: String)
-             |class Main {
-             |  Foo(@@a = 3, b = "42")
-             |}
-             |""".stripMargin
+      """|
+         |case class Foo(<<a>>: Int, b: String)
+         |class Main {
+         |  Foo(@@a = 3, b = "42")
+         |}
+         |""".stripMargin
     )
 
   @Test def `case-class-copy` =
     check(
-          """|
-             |case class Foo(<<a>>: Int, b: String)
-             |class Main {
-             |  Foo(2, "4").copy(@@a = 3, b = "42")
-             |}
-             |""".stripMargin
+      """|
+         |case class Foo(<<a>>: Int, b: String)
+         |class Main {
+         |  Foo(2, "4").copy(@@a = 3, b = "42")
+         |}
+         |""".stripMargin
     )
 
   @Test def `do-not-point-at ::` =
@@ -304,29 +304,29 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |class Main {
          |  val all = Option(42)./*scala/Option#get(). Option.scala*/@@get :: List("1", "2")
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `synthetic-definition-case-class` =
     check(
-          """|
-             |class Main {
-             |  case class <<User>>(name: String, age: Int)
-             |  def hello(u: User): Unit = ()
-             |  hello(User())
-             |}
-             |""".stripMargin
+      """|
+         |class Main {
+         |  case class <<User>>(name: String, age: Int)
+         |  def hello(u: User): Unit = ()
+         |  hello(User())
+         |}
+         |""".stripMargin
     )
 
   @Test def `synthetic-definition-class-constructor` =
     check(
-          """|
-             |class Main {
-             |  class <<User>>(name: String, age: Int)
-             |  def hello(u: User): Unit = ()
-             |  hello(new Us@@er())
-             |}
-             |""".stripMargin
+      """|
+         |class Main {
+         |  class <<User>>(name: String, age: Int)
+         |  def hello(u: User): Unit = ()
+         |  hello(new Us@@er())
+         |}
+         |""".stripMargin
     )
 
   @Test def `no-definition-1` =
@@ -339,7 +339,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |  }
          |  println(foo())
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `no-definition-2` =
@@ -351,7 +351,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |  }
          |  println(foo())
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `no-definition-3` =
@@ -363,7 +363,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |  }
          |  println(foo())
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-def` =
@@ -380,6 +380,5 @@ class PcDefinitionSuite extends BasePcDefinitionSuite {
          |
          |case class Box[A](value: A) derives Sh@@ow
          |
-         |""".stripMargin,
+         |""".stripMargin
     )
-}

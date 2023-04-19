@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class NamedArgHoverSuite extends BaseHoverSuite {
+class NamedArgHoverSuite extends BaseHoverSuite:
   @Test def `named` =
     check(
       """package a
@@ -34,7 +33,7 @@ class NamedArgHoverSuite extends BaseHoverSuite {
         |  foo(nam@@ed = 2)
         |}
         |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `error2` =
@@ -45,7 +44,7 @@ class NamedArgHoverSuite extends BaseHoverSuite {
         |  foo("error", nam@@ed = 2)
         |}
         |""".stripMargin,
-        "named: Int".hover
+      "named: Int".hover
     )
 
   @Test def `nested` =
@@ -56,6 +55,5 @@ class NamedArgHoverSuite extends BaseHoverSuite {
         |  println(<<new User(age = 42, n@@ame = "")>>)
         |}
         |""".stripMargin,
-        "name: String".hover
+      "name: String".hover
     )
-}

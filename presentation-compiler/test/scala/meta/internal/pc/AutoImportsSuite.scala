@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class AutoImportsSuite extends BaseAutoImportsSuite {
+class AutoImportsSuite extends BaseAutoImportsSuite:
 
   @Test def `basic` =
     check(
@@ -12,7 +12,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |""".stripMargin,
       """|scala.concurrent
          |java.util.concurrent
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `basic-edit` =
@@ -30,7 +30,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  Future.successful(2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `basic-edit-comment` =
@@ -51,7 +51,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  Future.successful(2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `basic-edit-directive` =
@@ -70,7 +70,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  Future.successful(2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `scala-cli-sc-using-directives` =
@@ -93,7 +93,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |}
          |}
          |""".stripMargin,
-      filename = "A.sc.scala",
+      filename = "A.sc.scala"
     )
 
   @Test def `symbol-no-prefix` =
@@ -111,7 +111,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val uuid = UUID.randomUUID()
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `symbol-prefix-existing` =
@@ -129,7 +129,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val uuid = UUID.randomUUID()
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `symbol-prefix` =
@@ -147,9 +147,8 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val l : ju.Map[String, Int] = ???
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
-
 
   @Test def `interpolator-edit` =
     checkEdit(
@@ -166,7 +165,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val l = s"${mutable.Seq(2)}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `package-object` =
@@ -187,7 +186,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object Main{
          | val obj = ABC
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import-inside-package-object` =
@@ -205,7 +204,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |package object b {
          |  val l = s"${ListBuffer(2)}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `multiple-packages` =
@@ -227,7 +226,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val l = s"${ListBuffer(2)}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `multiple-packages-existing-imports` =
@@ -252,7 +251,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  val l = s"${ListBuffer(2)}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import-in-import` =
@@ -268,7 +267,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
          |object A {
          |  import scala.concurrent.ExecutionContext.global
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `first-auto-import-amm-script` =
@@ -283,7 +282,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
            |
            |val p: Path = ???
            |""".stripMargin
-      ),
+      )
     )
 
   @Test def `second-auto-import-amm-script` =
@@ -298,7 +297,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
           |import java.nio.file.Path
           |val p: Path = ???
           |""".stripMargin
-      ),
+      )
     )
 
   @Test def `amm-objects` =
@@ -321,7 +320,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
            |  }
            |}
            |""".stripMargin
-      ),
+      )
     )
 
   @Test def `first-auto-import-amm-script-with-header` =
@@ -338,7 +337,7 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
            |
            |val p: Path = ???
            |""".stripMargin
-      ),
+      )
     )
 
   private def ammoniteWrapper(code: String): String =
@@ -361,8 +360,19 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
   // https://dotty.epfl.ch/docs/internals/syntax.html#soft-keywords
   @Test
   def `soft-keyword-check-test` =
-    List("infix", "inline", "opaque", "open", "transparent", "as", "derives",
-      "end", "extension", "throws", "using").foreach(softKeywordCheck)
+    List(
+      "infix",
+      "inline",
+      "opaque",
+      "open",
+      "transparent",
+      "as",
+      "derives",
+      "end",
+      "extension",
+      "throws",
+      "using"
+    ).foreach(softKeywordCheck)
 
   private def softKeywordCheck(keyword: String) =
     checkEdit(
@@ -374,7 +384,5 @@ class AutoImportsSuite extends BaseAutoImportsSuite {
           |
           |object $keyword{ object ABC }
           |object Main{ val obj = ABC }
-          |""".stripMargin,
+          |""".stripMargin
     )
-
-}

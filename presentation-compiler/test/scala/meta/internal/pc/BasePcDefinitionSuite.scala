@@ -12,37 +12,42 @@ import dotty.tools.dotc.util.Spans.Span
 import dotty.tools.dotc.util.SourceFile
 import scala.meta.internal.mtags.MtagsEnrichments.toLsp
 
-abstract class BasePcDefinitionSuite extends BasePCSuite {
+abstract class BasePcDefinitionSuite extends BasePCSuite:
 
   def definitions(offsetParams: OffsetParams): List[l.Location]
 
-  def check(original: String): Unit = {
+  def check(original: String): Unit =
     val filename = "A.scala"
     val uri = s"file:///$filename"
 
     val (_, offset) = params(original.removeRanges, filename)
     val cleanedCode = original.removeRanges.removePos
 
-    val offsetRange = new SourcePosition(SourceFile.virtual(filename, cleanedCode), Span(offset)).toLsp
+    val offsetRange = new SourcePosition(
+      SourceFile.virtual(filename, cleanedCode),
+      Span(offset)
+    ).toLsp
 
-    val locs = definitions(CompilerOffsetParams(URI.create(uri), cleanedCode, offset))
+    val locs = definitions(
+      CompilerOffsetParams(URI.create(uri), cleanedCode, offset)
+    )
     val edits = locs.flatMap { location =>
       if (location.getUri() == uri) {
         List(
           new TextEdit(
             new l.Range(
               location.getRange().getStart(),
-              location.getRange().getStart(),
+              location.getRange().getStart()
             ),
-            "<<",
+            "<<"
           ),
           new TextEdit(
             new l.Range(
               location.getRange().getEnd(),
-              location.getRange().getEnd(),
+              location.getRange().getEnd()
             ),
-            ">>",
-          ),
+            ">>"
+          )
         )
       } else {
         val filename = location.getUri()
@@ -53,8 +58,4 @@ abstract class BasePcDefinitionSuite extends BasePCSuite {
     val obtained = TextEdits.applyEdits(cleanedCode, edits)
     val expected = original.removePos
 
-
     assertNoDiff(expected, obtained)
-  }
-
-}

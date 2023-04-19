@@ -5,15 +5,15 @@ import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.PresentationCompilerConfig.OverrideDefFormat
 import org.junit.Test
 
-class OverrideConfigCompletionSuite extends BaseCompletionSuite {
+class OverrideConfigCompletionSuite extends BaseCompletionSuite:
 
   override def config: PresentationCompilerConfig =
     PresentationCompilerConfigImpl().copy(
       _symbolPrefixes = Map(
         "a/Weekday." -> "w",
-        "java/util/function/" -> "f",
+        "java/util/function/" -> "f"
       ),
-      overrideDefFormat = OverrideDefFormat.Unicode,
+      overrideDefFormat = OverrideDefFormat.Unicode
     )
 
   @Test def `object` =
@@ -41,7 +41,7 @@ class OverrideConfigCompletionSuite extends BaseCompletionSuite {
          |class Main extends Super {
          |  def weekday: w.Monday = ${0:???}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `package` =
@@ -81,4 +81,3 @@ class OverrideConfigCompletionSuite extends BaseCompletionSuite {
          |⏫ override def number: Int
          |""".stripMargin
     )
-}

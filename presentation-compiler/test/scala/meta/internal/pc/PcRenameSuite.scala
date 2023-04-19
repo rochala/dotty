@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class PcRenameSuite extends BasePcRenameSuite {
+class PcRenameSuite extends BasePcRenameSuite:
   // override def extraDependencies(scalaVersion: String): Seq[Dependency] = {
   //   val scalaBinaryVersion = createBinaryVersion(scalaVersion)
   //   Seq(
@@ -15,7 +14,7 @@ class PcRenameSuite extends BasePcRenameSuite {
     check(
       """|val <<a>> = 123
          |<<@@a>> + 1
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `apply` =
@@ -27,7 +26,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  }
          |}
          |""".stripMargin,
-      wrap = false,
+      wrap = false
     )
 
   @Test def `generics` =
@@ -38,7 +37,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |trait T3[I, J] extends T2[I] { override def <<torename>>(p: I): String = super.<<torename>>(p) }
          |trait T4[I, J] extends T3[J, I] { override def <<torename>>(p: J): String = super.<<torename>>(p) }
          |trait T5[U] extends T4[U, U] { override def <<tore@@name>>(p: U): String = super.<<torename>>(p) }
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `match-ret-type` =
@@ -47,7 +46,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |trait PP extends P
          |trait A { def <<torename>>(a: String): P = ??? }
          |trait B extends A { override def <<tore@@name>>(a: String): PP = ??? }
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `self-type` =
@@ -60,7 +59,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  val a = new Alphabet with <<ABC>>
          |}
          |""".stripMargin,
-      newName = "Animal",
+      newName = "Animal"
     )
 
   @Test def `method-inheritance` =
@@ -72,7 +71,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |class GoodMorning extends Hello {
          |  def <<met@@hod>>(abc : String) = true
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `long-inheritance` =
@@ -88,7 +87,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |abstract class C extends B[String] {
          |  def <<meth@@od>>(abc : String) : Boolean = false
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `multiple-inheritance` =
@@ -104,7 +103,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |abstract class C extends B with A {
          |  override def <<meth@@od>>(abc : String) : Boolean = false
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `colon-bad` =
@@ -116,7 +115,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  val user = new User()
          |  "" <<::>> user
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `colon-good` =
@@ -129,7 +128,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  "" <<::>> user
          |}
          |""".stripMargin,
-      newName = "+++:",
+      newName = "+++:"
     )
 
   @Test def `inheritance` =
@@ -138,7 +137,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |class Dog extends <<Animal>>
          |class Cat extends <<Animal>>
          |""".stripMargin,
-      newName = "Tree",
+      newName = "Tree"
     )
 
   @Test def `companion` =
@@ -146,7 +145,7 @@ class PcRenameSuite extends BasePcRenameSuite {
       """|class <<Foo>>{}
          |object <<Fo@@o>> {}
     """.stripMargin,
-      newName = "Tree",
+      newName = "Tree"
     )
 
   @Test def `companion2` =
@@ -154,7 +153,7 @@ class PcRenameSuite extends BasePcRenameSuite {
       """|class <<Fo@@o>>{}
          |object <<Foo>>
     """.stripMargin,
-      newName = "Tree",
+      newName = "Tree"
     )
 
   @Test def `macro` =
@@ -166,7 +165,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  case object Dog extends <<Animal>>
          |  case object Cat extends <<Animal>>
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `anon` =
@@ -182,7 +181,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |val a = new Alphabet {
          |  override def <<me@@thod>>(adf: String): Int = 321
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit-param` =
@@ -190,7 +189,7 @@ class PcRenameSuite extends BasePcRenameSuite {
       """|implicit val <<some@@Name>>: Int = 1
          |def m[A](implicit a: A): A = a
          |m[Int]
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `backtick-new-name` =
@@ -202,7 +201,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  val toRename = A.<<toR@@ename>>
          |}
          |""".stripMargin,
-      newName = "`other-rename`",
+      newName = "`other-rename`"
     )
 
   @Test def `backtick-old-and-new-name` =
@@ -214,7 +213,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  val toRename = A.<<`to-R@@ename`>>
          |}
          |""".stripMargin,
-      newName = "`other-rename`",
+      newName = "`other-rename`"
     )
 
   @Test def `backtick` =
@@ -223,7 +222,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |"" match {
          |  case `<<greeting>>` =>
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `double-backtick` =
@@ -233,7 +232,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  case <<`greeting`>> =>
          |}
          |""".stripMargin,
-      newName = "`greeting-!`",
+      newName = "`greeting-!`"
     )
 
   @Test def `backtick2` =
@@ -242,7 +241,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |"" match {
          |  case `<<gre@@eting>>` =>
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `backtick3` =
@@ -252,7 +251,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  case `gre@@eting` =>
          |}
          |""".stripMargin,
-      newName = "`greeting`",
+      newName = "`greeting`"
     )
 
   @Test def `params1` =
@@ -263,7 +262,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          | .copy(<<va@@lue>> = "43")
          | .<<value>>
          |val name2 = Name(<<value>> = "44")
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `params2` =
@@ -274,14 +273,14 @@ class PcRenameSuite extends BasePcRenameSuite {
          | .copy(<<value>> = "43")
          | .<<value>>
          |val name2 = Name(<<value>> = "44")
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `constructor` =
     check(
       """|case class Name(<<va@@lue>>: String)
          |val name2 = new Name(<<value>> = "44")
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type-params1` =
@@ -291,7 +290,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |val a = classOf[<<AB@@C>>]
          |val b = new CBD[<<ABC>>]
          |""".stripMargin,
-      newName = "Animal",
+      newName = "Animal"
     )
 
   @Test def `type-params2` =
@@ -301,7 +300,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |val a = classOf[<<ABC>>]
          |val b = new CBD[<<ABC>>]
          |""".stripMargin,
-      newName = "Animal",
+      newName = "Animal"
     )
 
   @Test def `implicit-parameters` =
@@ -315,7 +314,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  val x = bar
          |}
          |""".stripMargin,
-      newName = "foo2",
+      newName = "foo2"
     )
 
   @Test def `hierarchy-trait` =
@@ -327,7 +326,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |val symbol2: <<Symbol>> = Method("method")
          |val symbol3: <<Symbol>> = Variable("value")
          |""".stripMargin,
-      newName = "NewSymbol",
+      newName = "NewSymbol"
     )
 
   @Test def `hierarchy-class` =
@@ -339,7 +338,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |val symbol2: <<Symbol>> = Method("method")
          |val symbol3: <<Symbol>> = Variable("value")
          |""".stripMargin,
-      newName = "NewSymbol",
+      newName = "NewSymbol"
     )
 
   @Test def `variable` =
@@ -350,7 +349,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |    <<v5>> = true
          |    <<v5>> == true
          |  }
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `worksheet-method` =
@@ -359,7 +358,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |trait T1[Z] extends S1[Z] { override def <<tore@@name>>(p: Z): String = super.<<torename>>(p) }
          |""".stripMargin,
       filename = "A.worksheet.sc",
-      wrap = false,
+      wrap = false
     )
 
   @Test def `worksheet-classes` =
@@ -370,7 +369,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |""".stripMargin,
       newName = "Tree",
       filename = "A.worksheet.sc",
-      wrap = false,
+      wrap = false
     )
 
   @Test def `not-compiling` =
@@ -383,7 +382,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |    <<ab@@c>>.map(_ + 1)
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension-param` =
@@ -393,7 +392,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  def double2 = <<sbd>> + <<sbd>>
          |end extension
          |""".stripMargin,
-      newName = "greeting",
+      newName = "greeting"
     )
 
   @Test def `extension-params-ref` =
@@ -403,7 +402,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  def double2 = <<sbd>> + <<sbd>>
          |end extension
          |""".stripMargin,
-      newName = "greeting",
+      newName = "greeting"
     )
 
   @Test def `extension-type-param` =
@@ -413,7 +412,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  def double2 = <<xs>> ++ <<xs>>
          |end extension
          |""".stripMargin,
-      newName = "ABC",
+      newName = "ABC"
     )
 
   @Test def `extension-type-param-ref` =
@@ -423,7 +422,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  def double2 = <<xs>> ++ <<x@@s>>
          |end extension
          |""".stripMargin,
-      newName = "ABC",
+      newName = "ABC"
     )
 
   @Test def `class-of` =
@@ -435,7 +434,7 @@ class PcRenameSuite extends BasePcRenameSuite {
          |  }
          |}
          |""".stripMargin,
-      newName = "testing",
+      newName = "testing"
     )
 
   @Test def `trailling-comma` =
@@ -451,6 +450,5 @@ class PcRenameSuite extends BasePcRenameSuite {
          |    )
          |}
          |""".stripMargin,
-      newName = "`other-rename`",
+      newName = "`other-rename`"
     )
-}

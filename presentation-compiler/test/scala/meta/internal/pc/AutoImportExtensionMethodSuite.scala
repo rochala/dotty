@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class AutoImportExtensionMethodsSuite extends BaseAutoImportsSuite {
+class AutoImportExtensionMethodsSuite extends BaseAutoImportsSuite:
 
   @Test def `basic` =
     check(
@@ -12,7 +12,7 @@ class AutoImportExtensionMethodsSuite extends BaseAutoImportsSuite {
          |def main = 1.<<incr>>
          |""".stripMargin,
       """|A
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `basic-edit` =
@@ -27,6 +27,5 @@ class AutoImportExtensionMethodsSuite extends BaseAutoImportsSuite {
          |  extension (num: Int) def incr = ???
          |
          |def main = 1.incr
-         |""".stripMargin,
+         |""".stripMargin
     )
-}

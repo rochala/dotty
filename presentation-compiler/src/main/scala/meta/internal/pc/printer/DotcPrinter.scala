@@ -25,9 +25,7 @@ object DotcPrinter:
 
   private val defaultWidth = 1000
 
-  class Std(using ctx: Context)
-      extends RefinedPrinter(ctx)
-      with DotcPrinter:
+  class Std(using ctx: Context) extends RefinedPrinter(ctx) with DotcPrinter:
 
     override def nameString(name: Name): String =
       super.nameString(name.stripModuleClassSuffix)
@@ -51,8 +49,7 @@ object DotcPrinter:
       tp match
         case tp @ TermRef(pre, _) =>
           val sym = tp.symbol
-          if sym.isPackageObject && !homogenizedView && !printDebug then
-            toTextPrefix(pre)
+          if sym.isPackageObject && !homogenizedView && !printDebug then toTextPrefix(pre)
           else printPrefix(tp)
         case _ => super.toTextPrefix(tp)
     }
@@ -98,13 +95,11 @@ object DotcPrinter:
           tp.tref match
             case tpe @ TypeRef(NoPrefix, designator) =>
               val sym =
-                if designator.isInstanceOf[Symbol] then
-                  designator.asInstanceOf[Symbol]
+                if designator.isInstanceOf[Symbol] then designator.asInstanceOf[Symbol]
                 else tpe.termSymbol
 
               val text = super.toTextPrefix(tp)
-              if sym.is(ModuleClass) && indexed.toplevelClashes(sym) then
-                Str("_root_.") ~ text
+              if sym.is(ModuleClass) && indexed.toplevelClashes(sym) then Str("_root_.") ~ text
               else text
             case _ => super.toTextPrefix(tp)
         case _ => super.toTextPrefix(tp)

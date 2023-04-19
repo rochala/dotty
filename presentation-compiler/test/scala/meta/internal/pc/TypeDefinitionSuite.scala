@@ -6,7 +6,7 @@ import scala.meta.pc.OffsetParams
 import org.eclipse.lsp4j.Location
 import org.junit.Test
 
-class TypeDefinitionSuite extends BasePcDefinitionSuite {
+class TypeDefinitionSuite extends BasePcDefinitionSuite:
 
   override def requiresJdkSources: Boolean = true
 
@@ -26,7 +26,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |
          |object Main {
          |  val ts@@t = new TClass(2)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `for` =
@@ -40,7 +40,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |    if y < /*scala/Int# Int.scala*/@@x
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-flatMap` =
@@ -52,7 +52,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |    y <- Option(x)
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-map` =
@@ -64,7 +64,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |    y /*scala/Option# Option.scala*/@@<- Option(x)
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-withFilter` =
@@ -77,7 +77,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |    /*scala/Option#WithFilter# Option.scala*/@@if y > 2
          |  } yield y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `constructor` =
@@ -89,7 +89,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
         | def tst(m: TClass): Unit = {}
         |
         |  tst(new T@@Class(2))
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `function` =
@@ -99,7 +99,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |  val increment: Int => Int = _ + 2
          |  incre/*scala/Int# Int.scala*/@@ment(1)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tuple` =
@@ -109,7 +109,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  @@(1, 2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `method` =
@@ -118,7 +118,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |  def tst(): Unit = {}
          |
          |  ts@@/*scala/Unit# Unit.scala*/t()
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `named-arg-multiple` =
@@ -127,7 +127,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |  def tst(par1: Int, par2: String, par3: Boolean): Unit = {}
          |
          |  tst(1, p/*scala/Boolean# Boolean.scala*/@@ar3 = true, par2 = "")
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `named-arg-reversed` =
@@ -136,7 +136,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |  def tst(par1: Int, par2: String): Unit = {}
          |
          |  tst(p/*scala/Predef.String# Predef.scala*/@@ar2 = "foo", par1 = 1)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `named-arg-local` =
@@ -146,94 +146,94 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |
          |  foo(a/*scala/Int# Int.scala*/@@rg = 42)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `named-arg-global` =
     check(
-          """|object Main {
-             |  assert(a/*scala/Boolean# Boolean.scala*/@@ssertion = true)
-             |}
-             |""".stripMargin
+      """|object Main {
+         |  assert(a/*scala/Boolean# Boolean.scala*/@@ssertion = true)
+         |}
+         |""".stripMargin
     )
 
   @Test def `list` =
     check(
       """|object Main {
-         | List(1).hea/*scala/Int# Int.scala*/@@d
+         |  List(1).hea/*scala/Int# Int.scala*/@@d
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `class` =
     check(
       """|object Main {
-         | class <<F@@oo>>(val x: Int)
+         |  class <<F@@oo>>(val x: Int)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `val-keyword` =
     check(
       """|object Main {
-         | va@@l x = 42
+         |  va@@l x = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `literal` =
     check(
       """|object Main {
-         | val x = 4/*scala/Int# Int.scala*/@@2
+         |  val x = 4/*scala/Int# Int.scala*/@@2
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `if` =
     check(
       """|object Main {
-         | for {
-         |   x <- List(1)
-         |   i/*scala/collection/WithFilter# WithFilter.scala*/@@f x > 1
-         | } println(x)
+         |  for {
+         |    x <- List(1)
+         |    i/*scala/collection/WithFilter# WithFilter.scala*/@@f x > 1
+         |  } println(x)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `string` =
     check(
       """|object Main {
-         | "".stripS/*java/lang/String# String.java*/@@uffix("foo")
+         |  "".stripS/*java/lang/String# String.java*/@@uffix("foo")
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `method-generic` =
     check(
       """|object Main {
-         | def foo[<<T>>](param: T): T = para@@m
+         |  def foo[<<T>>](param: T): T = para@@m
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `method-generic-result` =
     check(
       """|object A {
-         | def foo[T](param: T): T = param
+         |  def foo[T](param: T): T = param
          |}
          |object Main {
-         | println(A.fo/*scala/Int# Int.scala*/@@o(2))
+         |  println(A.fo/*scala/Int# Int.scala*/@@o(2))
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `apply` =
     check(
-          """|
-             |object Main {
-             |  /*scala/collection/immutable/List# List.scala*/List(1)
-             |}
-             |""".stripMargin,
+      """|
+         |object Main {
+         |  /*scala/collection/immutable/List# List.scala*/List(1)
+         |}
+         |""".stripMargin
     )
 
   @Test def `new` =
@@ -242,7 +242,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  ne@@w java.io.File("")
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends` =
@@ -250,16 +250,16 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
       """|
          |object Main ex@@tends java.io.Serializable {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import1` =
     check(
-          """|
-             |import scala.concurrent./*scala/concurrent/Future# Future.scala*//*scala/concurrent/Future. Future.scala*/@@Future
-             |object Main {
-             |}
-             |""".stripMargin
+      """|
+         |import scala.concurrent./*scala/concurrent/Future# Future.scala*//*scala/concurrent/Future. Future.scala*/@@Future
+         |object Main {
+         |}
+         |""".stripMargin
     )
 
   @Test def `import2` =
@@ -268,7 +268,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |imp@@ort scala.concurrent.Future
          |object Main {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `import3` =
@@ -277,7 +277,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |import scala.co@@ncurrent.Future
          |object Main {
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `symbolic-infix` =
@@ -286,7 +286,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  val lst = 1 /*scala/collection/immutable/List# List.scala*/@@:: Nil
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `package` =
@@ -295,7 +295,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  val n = ma@@th.max(1, 2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `eta` =
@@ -304,7 +304,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  List(1).map(/*scala/Int# Int.scala*/@@_ + 2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `eta-2` =
@@ -313,7 +313,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  List(1).foldLeft(0)(_ + /*scala/Int# Int.scala*/@@_)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `result-type` =
@@ -322,7 +322,7 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |object Main {
          |  def x: /*scala/Int# Int.scala*/@@Int = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `do-not-point-at ::` =
@@ -331,29 +331,27 @@ class TypeDefinitionSuite extends BasePcDefinitionSuite {
          |class Main {
          |  val all = Option(42)./*scala/Int# Int.scala*/@@get :: List("1", "2")
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `synthetic-definition-case-class` =
     check(
-          """|
-             |class Main {
-             |  case class <<User>>(name: String, age: Int)
-             |  def hello(u: User): Unit = ()
-             |  hello(Us@@er())
-             |}
-             |""".stripMargin
+      """|
+         |class Main {
+         |  case class <<User>>(name: String, age: Int)
+         |  def hello(u: User): Unit = ()
+         |  hello(Us@@er())
+         |}
+         |""".stripMargin
     )
 
   @Test def `synthetic-definition-class-constructor` =
     check(
-          """|
-             |class Main {
-             |  class <<User>>(name: String, age: Int)
-             |  def hello(u: User): Unit = ()
-             |  hello(new Us@@er())
-             |}
-             |""".stripMargin
+      """|
+         |class Main {
+         |  class <<User>>(name: String, age: Int)
+         |  def hello(u: User): Unit = ()
+         |  hello(new Us@@er())
+         |}
+         |""".stripMargin
     )
-
-}

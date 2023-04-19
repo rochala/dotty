@@ -16,8 +16,7 @@ import scala.meta.pc.CancelToken
 import scala.meta.pc.PresentationCompilerConfig
 import org.junit.Test
 
-
-class CancelCompletionSuite extends BaseCompletionSuite {
+class CancelCompletionSuite extends BaseCompletionSuite:
 
   override protected def config: PresentationCompilerConfig =
     PresentationCompilerConfigImpl().copy(
@@ -28,41 +27,37 @@ class CancelCompletionSuite extends BaseCompletionSuite {
   /**
    * A cancel token that cancels asynchronously on first `checkCancelled` call.
    */
-  class AlwaysCancelToken extends CancelToken {
+  class AlwaysCancelToken extends CancelToken:
     val cancel = new CompletableFuture[lang.Boolean]()
     var isCancelled = new AtomicBoolean(false)
     override def onCancel(): CompletionStage[lang.Boolean] = cancel
-    override def checkCanceled(): Unit = {
+    override def checkCanceled(): Unit =
       if (isCancelled.compareAndSet(false, true)) {
         cancel.complete(true)
-      } else {
+      } else
         Thread.sleep(10)
-      }
-    }
-  }
 
   def checkCancelled(
       query: String,
-      expected: String,
-  ): Unit = {
+      expected: String
+  ): Unit =
     val (code, offset) = params(query)
     val token = new AlwaysCancelToken
-    try {
+    try
       presentationCompiler
         .complete(
           CompilerOffsetParams(
             URI.create("file:///A.scala"),
             code,
             offset,
-            token,
+            token
           )
         )
         .get()
       fail("Expected completion request to be interrupted")
-    } catch {
+    catch
       case InterruptException() =>
         assert(token.isCancelled.get())
-    }
 
     // assert that regular completion works as expected.
     val completion = presentationCompiler
@@ -71,7 +66,7 @@ class CancelCompletionSuite extends BaseCompletionSuite {
           URI.create("file:///A.scala"),
           code,
           offset,
-          EmptyCancelToken,
+          EmptyCancelToken
         )
       )
       .get()
@@ -81,7 +76,6 @@ class CancelCompletionSuite extends BaseCompletionSuite {
       .mkString("\n")
 
     assertNoDiff(expected, obtained)
-  }
 
   @Test def `basic` =
     checkCancelled(
@@ -92,24 +86,21 @@ class CancelCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       """|assert(assertion: Boolean): Unit
          |assert(assertion: Boolean, message: => Any): Unit
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   /**
    * A cancel token to simulate infinite compilation
    */
-  object FreezeCancelToken extends CancelToken {
+  object FreezeCancelToken extends CancelToken:
     val cancel = new CompletableFuture[lang.Boolean]()
     var isCancelled = new AtomicBoolean(false)
     override def onCancel(): CompletionStage[lang.Boolean] = cancel
-    override def checkCanceled(): Unit = {
+    override def checkCanceled(): Unit =
       var hello = true
       var i = 0
       while (hello) i += 1
       hello = false
-    }
-
-  }
 
   @Test def `break-compilation` =
     val query = """
@@ -119,29 +110,27 @@ class CancelCompletionSuite extends BaseCompletionSuite {
                """.stripMargin
     val (code, offset) = params(query)
     val uri = URI.create("file:///A.scala")
-    try {
+    try
       presentationCompiler
         .complete(
           CompilerOffsetParams(
             uri,
             code,
             offset,
-            FreezeCancelToken,
+            FreezeCancelToken
           )
         )
         .get()
-    } catch {
-      case _: CancellationException =>
-    }
+    catch case _: CancellationException => ()
+
     val res = presentationCompiler
       .complete(
         CompilerOffsetParams(
           uri,
           code,
           offset,
-          EmptyCancelToken,
+          EmptyCancelToken
         )
       )
       .get()
     assert(res.getItems().asScala.nonEmpty)
-}

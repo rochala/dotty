@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.Location
 class PcDefinitionProvider(
     driver: InteractiveDriver,
     params: OffsetParams,
-    search: SymbolSearch,
+    search: SymbolSearch
 ):
 
   def definitions(): DefinitionResult =
@@ -40,7 +40,7 @@ class PcDefinitionProvider(
     val filePath = Paths.get(uri)
     driver.run(
       uri,
-      SourceFile.virtual(filePath.toString, params.text),
+      SourceFile.virtual(filePath.toString, params.text)
     )
     val unit = driver.currentCtx.run.units.head
     val tree = unit.tpdTree
@@ -55,8 +55,7 @@ class PcDefinitionProvider(
       if findTypeDef then findTypeDefinitions(path, pos, indexedContext)
       else findDefinitions(path, pos, indexedContext)
 
-    if (result.locations().isEmpty()) then
-      fallbackToUntyped(unit, pos)(using ctx)
+    if (result.locations().isEmpty()) then fallbackToUntyped(unit, pos)(using ctx)
     else result
   end definitions
 
@@ -72,8 +71,8 @@ class PcDefinitionProvider(
    * @param pos cursor position
    * @return definition result
    */
-  private def fallbackToUntyped(unit: CompilationUnit, pos: SourcePosition)(
-      using ctx: Context
+  private def fallbackToUntyped(unit: CompilationUnit, pos: SourcePosition)(using
+      ctx: Context
   ) =
     lazy val untpdPath = NavigateAST
       .untypedPath(pos.span)
@@ -85,19 +84,19 @@ class PcDefinitionProvider(
   private def findDefinitions(
       path: List[Tree],
       pos: SourcePosition,
-      indexed: IndexedContext,
+      indexed: IndexedContext
   ): DefinitionResult =
     import indexed.ctx
     definitionsForSymbol(
       MetalsInteractive.enclosingSymbols(path, pos, indexed),
-      pos,
+      pos
     )
   end findDefinitions
 
   private def findTypeDefinitions(
       path: List[Tree],
       pos: SourcePosition,
-      indexed: IndexedContext,
+      indexed: IndexedContext
   ): DefinitionResult =
     import indexed.ctx
     val enclosing = path.expandRangeToEnclosingApply(pos)
@@ -119,7 +118,7 @@ class PcDefinitionProvider(
 
   private def definitionsForSymbol(
       symbols: List[Symbol],
-      pos: SourcePosition,
+      pos: SourcePosition
   )(using ctx: Context): DefinitionResult =
     symbols match
       case symbols @ (sym :: other) =>
@@ -135,7 +134,7 @@ class PcDefinitionProvider(
                 case Some(loc) =>
                   DefinitionResultImpl(
                     SemanticdbSymbols.symbolName(sym),
-                    List(loc).asJava,
+                    List(loc).asJava
                   )
             case None =>
               DefinitionResultImpl.empty
@@ -147,7 +146,7 @@ class PcDefinitionProvider(
             }
           DefinitionResultImpl(
             SemanticdbSymbols.symbolName(sym),
-            res,
+            res
           )
         end if
       case Nil => DefinitionResultImpl.empty

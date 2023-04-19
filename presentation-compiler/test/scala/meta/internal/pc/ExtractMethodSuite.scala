@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class ExtractMethodSuite extends BaseExtractMethodSuite {
+class ExtractMethodSuite extends BaseExtractMethodSuite:
   @Test def `simple-expr` =
     checkEdit(
       s"""|object A{
@@ -18,7 +17,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    123 + method(b)
           |
           |  val a = newMethod()
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `no-param` =
@@ -85,7 +84,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    method(5)
           |
           |  val a = newMethod1()
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `multi-param` =
@@ -110,7 +109,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    val b = 4
           |    newMethod(b, c)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `higher-scope` =
@@ -162,7 +161,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    val b = 4
           |    newMethod(b)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `nested-declarations` =
@@ -189,7 +188,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    val c = 1
           |    newMethod(c)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `class-param` =
@@ -206,7 +205,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |  class B(val b: Int) {
           |    def f2 = newMethod(b)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `method-param` =
@@ -225,7 +224,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |  def f1(a: Int) = {
           |    newMethod(a)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `method-type` =
@@ -244,7 +243,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |  def f1[T](a: T) = {
           |    newMethod(a)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `method-type-no-param` =
@@ -263,7 +262,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |  def f1[T](a: T) = {
           |    newMethod()
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `inner-conflict` =
@@ -313,7 +312,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    def m2(b: Int) = b + 1
           |    newMethod(a, m2)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `extract-def-mult-params-lists` =
@@ -336,7 +335,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    newMethod(a, m2)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `extract-def-mult-type-params` =
@@ -357,7 +356,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    newMethod(a, m2)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `extract-def-partial` =
@@ -378,7 +377,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    newMethod(m2)(2)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `extract-def-no-args` =
@@ -399,7 +398,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    newMethod(m2)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `extract-def-no-args2` =
@@ -420,7 +419,7 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |    newMethod(m2)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `extract-class` =
@@ -443,6 +442,5 @@ class ExtractMethodSuite extends BaseExtractMethodSuite {
           |      newMethod(color, other)
           |    }
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
-}

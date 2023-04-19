@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class SemanticTokensSuite extends BaseSemanticTokensSuite {
+class SemanticTokensSuite extends BaseSemanticTokensSuite:
 
   @Test def `class, object, var, val(readonly), method, type, parameter, String(single-line)` =
     check(
@@ -11,28 +10,28 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |
           |class <<Test>>/*class*/{
           |
-          | var <<wkStr>>/*variable,definition*/ = "Dog-"
-          | val <<nameStr>>/*variable,definition,readonly*/ = "Jack"
+          |  var <<wkStr>>/*variable,definition*/ = "Dog-"
+          |  val <<nameStr>>/*variable,definition,readonly*/ = "Jack"
           |
-          | def <<Main>>/*method,definition*/={
+          |  def <<Main>>/*method,definition*/={
           |
-          |  val <<preStr>>/*variable,definition,readonly*/= "I am "
-          |  var <<postStr>>/*variable,definition*/= "in a house. "
-          |  <<wkStr>>/*variable*/=<<nameStr>>/*variable,readonly*/ <<+>>/*method*/ "Cat-"
+          |    val <<preStr>>/*variable,definition,readonly*/= "I am "
+          |    var <<postStr>>/*variable,definition*/= "in a house. "
+          |    <<wkStr>>/*variable*/=<<nameStr>>/*variable,readonly*/ <<+>>/*method*/ "Cat-"
           |
-          |  <<testC>>/*class*/.<<bc>>/*method*/(<<preStr>>/*variable,readonly*/
-          |    <<+>>/*method*/ <<wkStr>>/*variable*/
-          |    <<+>>/*method*/ <<preStr>>/*variable,readonly*/)
-          | }
+          |    <<testC>>/*class*/.<<bc>>/*method*/(<<preStr>>/*variable,readonly*/
+          |      <<+>>/*method*/ <<wkStr>>/*variable*/
+          |      <<+>>/*method*/ <<preStr>>/*variable,readonly*/)
+          |  }
           |}
           |
           |object <<testC>>/*class*/{
           |
-          | def <<bc>>/*method,definition*/(<<msg>>/*parameter,declaration,readonly*/:<<String>>/*type*/)={
-          |   <<println>>/*method*/(<<msg>>/*parameter,readonly*/)
-          | }
+          |  def <<bc>>/*method,definition*/(<<msg>>/*parameter,declaration,readonly*/:<<String>>/*type*/)={
+          |    <<println>>/*method*/(<<msg>>/*parameter,readonly*/)
+          |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `Comment(Single-Line, Multi-Line)` =
@@ -48,7 +47,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |  def <<add>>/*method,definition*/(<<a>>/*parameter,declaration,readonly*/ : <<Int>>/*class,abstract*/) = {
           |    // Single Line Comment
           |    <<a>>/*parameter,readonly*/ <<+>>/*method*/ 1 // com = 1
-          |   }
+          |  }
           |}
           |""".stripMargin
     )
@@ -67,7 +66,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |object <<sample10>>/*class*/ {
           |  def <<main>>/*method,definition*/(<<args>>/*parameter,declaration,readonly*/: <<Array>>/*class*/[<<String>>/*type*/]) ={
           |    <<println>>/*method*/(
-          |     (<<ab>>/*class*/.<<iVar>>/*variable*/ <<+>>/*method*/ <<ab>>/*class*/.<<iVal>>/*variable,readonly*/).<<toString>>/*method*/
+          |      (<<ab>>/*class*/.<<iVar>>/*variable*/ <<+>>/*method*/ <<ab>>/*class*/.<<iVal>>/*variable,readonly*/).<<toString>>/*method*/
           |    )
           |  }
           |}
@@ -112,7 +111,6 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |
           |
           |""".stripMargin
-
     )
 
   @Test def `deprecated` =
@@ -127,7 +125,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |     <<println>>/*method*/("Hello, world!"<<+>>/*method*/ <<str>>/*variable,readonly*/)
           |  }
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `import(Out of File)` =
@@ -145,7 +143,6 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |""".stripMargin
     )
 
-
   @Test def `anonymous-class` =
     check(
       s"""|package <<example>>/*namespace*/
@@ -161,7 +158,6 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |    override def <<method>>/*method,definition*/(<<adf>>/*parameter,declaration,readonly*/: <<String>>/*type*/): <<Int>>/*class,abstract*/ = 321
           |  }
           |}""".stripMargin
-
     )
 
   @Test def `import-rename` =
@@ -173,7 +169,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |class <<Imports>>/*class*/ {
           |  // rename reference
           |  <<NoBad>>/*class*/(null)
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `pattern-match` =
@@ -188,7 +184,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |    case <<Some>>/*class*/(<<b>>/*variable,definition,readonly*/) => <<b>>/*variable,readonly*/
           |    case <<other>>/*variable,definition,readonly*/ =>
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `pattern-match-value` =
@@ -201,7 +197,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |  val <<Some>>/*class*/(<<s1>>/*variable,definition,readonly*/) = <<s>>/*variable,readonly*/
           |  val <<Some>>/*class*/(<<s2>>/*variable,definition,readonly*/) = <<s>>/*variable,readonly*/
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `enum` =
@@ -211,7 +207,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
          |enum <<FooEnum>>/*enum,abstract*/:
          |  case <<Bar>>/*enum*/, <<Baz>>/*enum*/
          |object <<FooEnum>>/*class*/
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `enum1` =
@@ -223,7 +219,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
          |  case <<B>>/*enum*/(<<a>>/*variable,declaration,readonly*/: <<Int>>/*class,abstract*/, <<b>>/*variable,declaration,readonly*/: <<Int>>/*class,abstract*/)
          |  case <<C>>/*enum*/(<<a>>/*variable,declaration,readonly*/: <<Int>>/*class,abstract*/, <<b>>/*variable,declaration,readonly*/: <<Int>>/*class,abstract*/, <<c>>/*variable,declaration,readonly*/: <<Int>>/*class,abstract*/)
          |
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // Issue: Sequential parameters are not highlighted
@@ -234,7 +230,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |
           |def <<m>>/*method,definition*/(<<xs>>/*parameter,declaration,readonly*/: <<Int>>/*class,abstract*/*) = <<xs>>/*parameter,readonly*/.<<map>>/*method*/(<<_>>/*parameter,readonly*/ <<+>>/*method*/ 1)
           |val <<a>>/*variable,definition,readonly*/ = <<m>>/*method*/(xs = 1,2,3)
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   // Issue: Structural types are not highlighted
@@ -273,7 +269,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
           |  var <<b>>/*variable,definition*/ = 2
           |  val <<c>>/*variable,definition,readonly*/ = <<List>>/*class*/(1,<<a>>/*variable,readonly*/,<<b>>/*variable*/)
           |  <<b>>/*variable*/ = <<a>>/*variable,readonly*/
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `predef` =
@@ -284,7 +280,7 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
         |  val <<y>>/*variable,definition,readonly*/ = <<Vector>>/*class*/(1,2)
         |  val <<z>>/*variable,definition,readonly*/ = <<Set>>/*class*/(1,2,3)
         |  val <<w>>/*variable,definition,readonly*/ = <<Right>>/*class*/(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class` =
@@ -294,7 +290,5 @@ class SemanticTokensSuite extends BaseSemanticTokensSuite {
          |object <<A>>/*class*/ {
          |  val <<f>>/*variable,definition,readonly*/ = <<Foo>>/*class*/(1,2)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
-
-}

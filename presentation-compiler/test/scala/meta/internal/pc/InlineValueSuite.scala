@@ -12,7 +12,7 @@ import scala.meta.pc.DisplayableException
 import org.eclipse.{lsp4j => l}
 import org.junit.Test
 
-class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
+class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments:
 
   @Test def `inline-local` =
     checkEdit(
@@ -26,17 +26,17 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |  def u(): Unit = {
          |    val p: Int = 1 + 2
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-local-same-name` =
     checkEdit(
       """|object Main {
-         | val a = { val a = 1; val b = <<a>> + 1 }
+         |  val a = { val a = 1; val b = <<a>> + 1 }
          |}""".stripMargin,
       """|object Main {
-         | val a = { val b = 1 + 1 }
-         |}""".stripMargin,
+         |  val a = { val b = 1 + 1 }
+         |}""".stripMargin
     )
 
   @Test def `inline-local-same-name2` =
@@ -53,7 +53,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val b = 1 + 1
          |  }
          |  val a = 3
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-local-same-name3` =
@@ -72,7 +72,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |  }
          |  val a = 3
          |  val g = a
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-all-local` =
@@ -89,7 +89,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val p: Int = 1 + 2
          |    val i: Int = 1 + 3
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-all-local-val` =
@@ -106,7 +106,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val p: Int = 1 + 2
          |    val i: Int = 1 + 3
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-local-brackets` =
@@ -124,7 +124,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val p: Int = 2 - (1 + 6)
          |    val k: Int = o
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-all-local-brackets` =
@@ -143,7 +143,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val p: Int = h - (1 + 6)
          |    val k: Int = 1 + 6
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-not-local` =
@@ -155,7 +155,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
       """|object Main {
          |  val o: Int = 6
          |  val p: Int = 2 - 6
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-not-local-pkg` =
@@ -169,7 +169,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |object Main {
          |  val o: Int = 6
          |  val p: Int = 2 - 6
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `lambda-apply` =
@@ -184,7 +184,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |  def demo = {
          |    println(((x: Int) => x + 1)(1))
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `lambda-as-arg` =
@@ -199,7 +199,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |  def demo = {
          |    val plus2 = (x: Int) => x + 1
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inline-all-not-local` =
@@ -208,7 +208,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |  val <<o>>: Int = 6
          |  val p: Int = 2 - o
          |}""".stripMargin,
-      InlineErrors.notLocal,
+      InlineErrors.notLocal
     )
 
   @Test def `for-comprehension` =
@@ -228,7 +228,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |val b = (for {
          |    i <- List(1,2,3)
          |  } yield i + 1).map(_ + 1)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `bracktes-add` =
@@ -240,7 +240,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
       """|object Main {
          |  val b = 1 + (2 + 3)
          |  val c = 1 + (2 + 3)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   // --- different possibilites of conflicts ----------
@@ -256,7 +256,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val z = <<f>> + 1
          |  }
          |}""".stripMargin,
-      InlineErrors.variablesAreShadowed("scala.net.com.ooo.Demo.j"),
+      InlineErrors.variablesAreShadowed("scala.net.com.ooo.Demo.j")
     )
 
   @Test def `scoping-class` =
@@ -270,7 +270,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    val z = <<f>> + 1
          |  }
          |}""".stripMargin,
-      InlineErrors.variablesAreShadowed("Demo.j"),
+      InlineErrors.variablesAreShadowed("Demo.j")
     )
 
   // Note: we do not check if summoned implicts change when inlining
@@ -295,7 +295,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    implicit val v : Boolean = false
          |    val z = myF
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `scoping-packages` =
@@ -313,7 +313,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    <<inl>>
          |  }
          |}""".stripMargin,
-      InlineErrors.variablesAreShadowed("a.A.aaa"),
+      InlineErrors.variablesAreShadowed("a.A.aaa")
     )
 
   @Test def `bad-scoping` =
@@ -327,7 +327,7 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |    }
          |  }
          |}""".stripMargin,
-      InlineErrors.variablesAreShadowed("Demo.oo.j"),
+      InlineErrors.variablesAreShadowed("Demo.oo.j")
     )
 
   @Test def `bad-scoping-2` =
@@ -340,13 +340,13 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
          |     val m = <<l>> + 3
          |  }
          |}""".stripMargin,
-      InlineErrors.variablesAreShadowed("A.k"),
+      InlineErrors.variablesAreShadowed("A.k")
     )
 
   def checkEdit(
       original: String,
       expected: String,
-      filename: String = "file:/A.scala",
+      filename: String = "file:/A.scala"
   ): Unit =
     val edits = getInlineEdits(original, filename)
     val (code, _, _) = params(original)
@@ -357,27 +357,25 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
   def checkError(
       original: String,
       expectedError: String,
-      filename: String = "file:/A.scala",
+      filename: String = "file:/A.scala"
   ): Unit =
-    try {
+    try
       val edits = getInlineEdits(original, filename)
       val (code, _, _) = params(original)
       val obtained = TextEdits.applyEdits(code, edits)
       fail(s"""|No error found, obtained:
                |$obtained""".stripMargin)
-    } catch {
-      case e: Exception if (e.getCause match {
+    catch
+      case e: Exception if (e.getCause match
             case _: DisplayableException => true
             case _ => false
-          }) =>
-
+          ) =>
         assertNoDiff(expectedError, e.getCause.getMessage)
-    }
 
   def getInlineEdits(
       original: String,
-      filename: String,
-  ): List[l.TextEdit] = {
+      filename: String
+  ): List[l.TextEdit] =
     val (code, _, offset) = params(original)
     val result = presentationCompiler
       .inlineValue(
@@ -385,11 +383,8 @@ class InlineValueSuite extends BaseCodeActionSuite with CommonMtagsEnrichments {
           URI.create(filename),
           code,
           offset,
-          cancelToken,
+          cancelToken
         )
       )
       .get()
     result.asScala.toList
-  }
-
-}

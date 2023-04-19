@@ -3,8 +3,7 @@ package scala.meta.internal.pc
 import org.junit.Test
 import java.nio.file.Path
 
-
-class ExtractMethodNoIndentSuite extends BaseExtractMethodSuite {
+class ExtractMethodNoIndentSuite extends BaseExtractMethodSuite:
   override protected def scalacOptions(classpath: Seq[Path]): Seq[String] =
     List("-no-indent")
 
@@ -22,7 +21,7 @@ class ExtractMethodNoIndentSuite extends BaseExtractMethodSuite {
           |    123 + method(b)
           |
           |  val a = newMethod()
-          |}""".stripMargin,
+          |}""".stripMargin
     )
 
   @Test def `multiple-expr` =
@@ -49,11 +48,10 @@ class ExtractMethodNoIndentSuite extends BaseExtractMethodSuite {
           |    val c = 1
           |    newMethod(c)
           |  }
-          |}""".stripMargin,
+          |}""".stripMargin
     )
-}
 
-class CompletionMatchNoIndentSuite extends BaseCompletionSuite {
+class CompletionMatchNoIndentSuite extends BaseCompletionSuite:
   override protected def scalacOptions(classpath: Seq[Path]): Seq[String] =
     List("-no-indent")
 
@@ -69,7 +67,7 @@ class CompletionMatchNoIndentSuite extends BaseCompletionSuite {
          |\tcase$$0
          |}
          |}""".stripMargin,
-      filter = !_.contains("exhaustive"),
+      filter = !_.contains("exhaustive")
     )
 
   @Test def `exhaustive` =
@@ -85,6 +83,5 @@ class CompletionMatchNoIndentSuite extends BaseCompletionSuite {
          |\tcase Some(value) =>
          |}
          |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
-}

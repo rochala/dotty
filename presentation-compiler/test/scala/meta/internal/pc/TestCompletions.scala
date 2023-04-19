@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.eclipse.lsp4j.CompletionItem
 
-object TestCompletions {
+object TestCompletions:
 
   /**
    * Returns the fully qualified label like "java.util.Dequeue" from the completion item.
@@ -14,7 +14,7 @@ object TestCompletions {
    *
    * This method returns the insert text without the snippet syntax.
    */
-  def getFullyQualifiedLabel(item: CompletionItem): String = {
+  def getFullyQualifiedLabel(item: CompletionItem): String =
     if (item.getInsertText == null) {
       item.getLabel
     } else {
@@ -25,5 +25,3 @@ object TestCompletions {
         fullyQualifiedPrefix + item.getLabel
       }
     }
-  }
-}

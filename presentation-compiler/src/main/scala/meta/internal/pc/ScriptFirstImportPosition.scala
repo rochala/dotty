@@ -1,4 +1,4 @@
- package scala.meta.internal.pc
+package scala.meta.internal.pc
 
 import dotty.tools.dotc.core.Comments.Comment
 import dotty.tools.dotc.ast.tpd.*

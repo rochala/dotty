@@ -4,30 +4,28 @@ import org.eclipse.lsp4j.DocumentHighlight
 import org.eclipse.lsp4j.Range
 import TestExtensions._
 
-trait RangeReplace {
+trait RangeReplace:
 
   def renderHighlightsAsString(
       code: String,
-      highlights: List[DocumentHighlight],
-  ): String = {
+      highlights: List[DocumentHighlight]
+  ): String =
     highlights
-      .foldLeft((code, List.empty[(Int, Int)])) {
-        case ((base, alreadyAddedMarkings), location) =>
-          replaceInRangeWithAdjustmens(
-            code,
-            base,
-            location.getRange,
-            alreadyAddedMarkings,
-          )
+      .foldLeft((code, List.empty[(Int, Int)])) { case ((base, alreadyAddedMarkings), location) =>
+        replaceInRangeWithAdjustmens(
+          code,
+          base,
+          location.getRange,
+          alreadyAddedMarkings
+        )
       }
       ._1
-  }
 
   protected def replaceInRange(
       base: String,
       range: Range,
       prefix: String = "<<",
-      suffix: String = ">>",
+      suffix: String = ">>"
   ): String =
     replaceInRangeWithAdjustmens(base, base, range, List(), prefix, suffix)._1
 
@@ -37,8 +35,8 @@ trait RangeReplace {
       range: Range,
       alreadyAddedMarkings: List[(Int, Int)],
       prefix: String = "<<",
-      suffix: String = ">>",
-  ): (String, List[(Int, Int)]) = {
+      suffix: String = ">>"
+  ): (String, List[(Int, Int)]) =
     def adjustPosition(pos: Int) =
       alreadyAddedMarkings
         .filter { case (i, _) => i <= pos }
@@ -60,6 +58,3 @@ trait RangeReplace {
         suffix.length,
       ) :: alreadyAddedMarkings,
     )
-  }
-
-}

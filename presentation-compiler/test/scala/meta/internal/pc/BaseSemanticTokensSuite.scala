@@ -5,12 +5,12 @@ import java.net.URI
 import scala.meta.internal.jdk.CollectionConverters._
 import scala.meta.internal.metals.CompilerVirtualFileParams
 
-class BaseSemanticTokensSuite extends BasePCSuite {
+class BaseSemanticTokensSuite extends BasePCSuite:
 
   // We check only if correct symbol tokens are added here.
   // Other tokens (e.g. keywords) are added outside the compiler.
   def check(
-      expected: String,
+      expected: String
   ): Unit =
     val base =
       expected
@@ -24,8 +24,6 @@ class BaseSemanticTokensSuite extends BasePCSuite {
 
     val obtained = TestSemanticTokens.pcSemanticString(
       base,
-      nodes.asScala.toList,
+      nodes.asScala.toList
     )
     assertNoDiff(expected, obtained)
-
-}

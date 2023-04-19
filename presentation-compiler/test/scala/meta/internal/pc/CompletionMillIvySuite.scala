@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class CompletionMillIvySuite extends BaseCompletionSuite {
+class CompletionMillIvySuite extends BaseCompletionSuite:
 
   @Test def `source` =
     check(
@@ -11,7 +10,7 @@ class CompletionMillIvySuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|io.circe
          |""".stripMargin,
-      filename = "build.sc",
+      filename = "build.sc"
     )
 
   @Test def `java-completions` =
@@ -22,7 +21,7 @@ class CompletionMillIvySuite extends BaseCompletionSuite {
          |circe-core_native0.4_2.13
          |circe-core_native0.4_3
          |""".stripMargin,
-      filename = "build.sc",
+      filename = "build.sc"
     )
 
   @Test def `scala-completions` =
@@ -35,7 +34,7 @@ class CompletionMillIvySuite extends BaseCompletionSuite {
          |circe-core_sjs1
          |circe-core_sjs1.0-RC2
          |""".stripMargin,
-      filename = "build.sc",
+      filename = "build.sc"
     )
 
   @Test def `version` =
@@ -44,6 +43,5 @@ class CompletionMillIvySuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|0.13.0
          |""".stripMargin,
-      filename = "build.sc",
+      filename = "build.sc"
     )
-}

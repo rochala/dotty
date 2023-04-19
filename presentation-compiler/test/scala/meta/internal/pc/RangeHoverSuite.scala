@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class RangeHoverSuite extends BaseHoverSuite {
+class RangeHoverSuite extends BaseHoverSuite:
 
   @Test def `range-sum-method` =
     check(
@@ -23,7 +22,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange,
+         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange
     )
 
   @Test def `range-sum-method-generic` =
@@ -38,7 +37,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|T
-         |def head: T""".stripMargin.hoverRange,
+         |def head: T""".stripMargin.hoverRange
     )
 
   @Test def `range-longer-expression` =
@@ -59,7 +58,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange,
+         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange
     )
 
   @Test def `range-longer-expression-1` =
@@ -80,7 +79,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|IndexedSeq[Int]
-         |override def flatMap[B](f: Int => IterableOnce[B]): IndexedSeq[B]""".stripMargin.hoverRange,
+         |override def flatMap[B](f: Int => IterableOnce[B]): IndexedSeq[B]""".stripMargin.hoverRange
     )
 
   @Test def `range-expression-in-closure` =
@@ -101,7 +100,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|List[Int]
-         |def apply[A](elems: A*): List[A]""".stripMargin.hoverRange,
+         |def apply[A](elems: A*): List[A]""".stripMargin.hoverRange
     )
 
   @Test def `range-lfs-of-valdef` =
@@ -122,7 +121,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|List[Int]
-         |val l: List[Int]""".stripMargin.hoverRange,
+         |val l: List[Int]""".stripMargin.hoverRange
     )
 
   @Test def `range-literal` =
@@ -160,7 +159,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |val x: Int""".stripMargin.hoverRange,
+         |val x: Int""".stripMargin.hoverRange
     )
 
   @Test def `range-binding-lhs-in-for` =
@@ -177,7 +176,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |b: Int""".stripMargin.hoverRange,
+         |b: Int""".stripMargin.hoverRange
     )
 
   @Test def `range-wider` =
@@ -198,7 +197,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange,
+         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange
     )
 
   @Test def `range-wider2` =
@@ -219,7 +218,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |}
          |""".stripMargin,
       """|Int
-         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange,
+         |def sum[B >: Int](implicit num: Numeric[B]): B""".stripMargin.hoverRange
     )
 
   @Test def `transparent` =
@@ -231,7 +230,7 @@ class RangeHoverSuite extends BaseHoverSuite {
          |val bar = <<%<%foo(1)%>%>>
          |""".stripMargin,
       """|Bar
-         |inline transparent def foo(i: Int): Foo""".stripMargin.hoverRange,
+         |inline transparent def foo(i: Int): Foo""".stripMargin.hoverRange
     )
 
   @Test def `dep-types` =
@@ -252,6 +251,5 @@ class RangeHoverSuite extends BaseHoverSuite {
          |val x = <<%<%fooOut(FooA1)%>%>>
          |""".stripMargin,
       """|A1.type
-         |def fooOut(f: Foo): f.Out""".stripMargin.hoverRange,
+         |def fooOut(f: Foo): f.Out""".stripMargin.hoverRange
     )
-}

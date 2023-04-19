@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
+class SignatureHelpDocSuite extends BaseSignatureHelpSuite:
 
   override def requiresJdkSources: Boolean = true
 
@@ -60,7 +60,7 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
          |                       ^^^^^^^^^^^
          |  @param ifEmpty the expression to evaluate if empty.
          |  @param f the function to apply if nonempty.
-          """.stripMargin,
+          """.stripMargin
     )
 
   val foldOlderDocs2: String =
@@ -96,7 +96,7 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
           |        ^^^^^^^^^^^^^
           |  @param ifEmpty the expression to evaluate if empty.
           |  @param f the function to apply if nonempty.
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `curry3` =
@@ -108,30 +108,30 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  }
         |}
       """.stripMargin,
-    """|Applies a binary operator to a start value and all elements of this collection,
-       | going left to right.
-       |
-       | Note: will not terminate for infinite-sized collections.
-       | Note: might return different results for different runs, unless the
-       |underlying collection type is ordered or the operator is associative
-       |and commutative.
-       |
-       |
-       |**Type Parameters**
-       |- `B`: the result type of the binary operator.
-       |
-       |**Parameters**
-       |- `z`: the start value.
-       |- `op`: the binary operator.
-       |
-       |**Returns:** the result of inserting `op` between consecutive elements of this collection,
-       |          going left to right with the start value `z` on the left:
-       |          `op(...op(z, x), x, ..., x)` where `x, ..., x`
-       |           are the elements of this collection.
-       |          Returns `z` if this collection is empty.
-       |foldLeft[B](z: B)(op: (B, Int) => B): B
-       |                  ^^^^^^^^^^^^^^^^^
-       |""".stripMargin,
+      """|Applies a binary operator to a start value and all elements of this collection,
+         | going left to right.
+         |
+         | Note: will not terminate for infinite-sized collections.
+         | Note: might return different results for different runs, unless the
+         |underlying collection type is ordered or the operator is associative
+         |and commutative.
+         |
+         |
+         |**Type Parameters**
+         |- `B`: the result type of the binary operator.
+         |
+         |**Parameters**
+         |- `z`: the start value.
+         |- `op`: the binary operator.
+         |
+         |**Returns:** the result of inserting `op` between consecutive elements of this collection,
+         |          going left to right with the start value `z` on the left:
+         |          `op(...op(z, x), x, ..., x)` where `x, ..., x`
+         |           are the elements of this collection.
+         |          Returns `z` if this collection is empty.
+         |foldLeft[B](z: B)(op: (B, Int) => B): B
+         |                  ^^^^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `curry4` =
@@ -145,7 +145,7 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
       """|
          |curry(a: Int, b: Int)(c: Int): Int
          |                      ^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `canbuildfrom` =
@@ -168,7 +168,7 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
          |               `f` to each element of this collection and collecting the results.
          |map[B](f: Int => B): List[B]
          |       ^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `too-many` =
@@ -178,18 +178,18 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  Option(1, 2, @@2)
         |}
       """.stripMargin,
-          """|An Option factory which creates Some(x) if the argument is not null,
-             | and None if it is null.
-             |
-             |
-             |**Parameters**
-             |- `x`: the value
-             |
-             |**Returns:** Some(value) if value != null, None if value == null
-             |apply[A](x: A): Option[A]
-             |         ^^^^
-             |  @param x the value
-             |""".stripMargin,
+      """|An Option factory which creates Some(x) if the argument is not null,
+         | and None if it is null.
+         |
+         |
+         |**Parameters**
+         |- `x`: the value
+         |
+         |**Returns:** Some(value) if value != null, None if value == null
+         |apply[A](x: A): Option[A]
+         |         ^^^^
+         |  @param x the value
+         |""".stripMargin
     )
 
   @Test def `java5` =
@@ -199,12 +199,12 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  java.util.Collections.singleton(@@)
         |}
       """.stripMargin,
-          """|Returns an immutable set containing only the specified object.
-             |The returned set is serializable.
-             |singleton[T](o: T): java.util.Set[T]
-             |             ^^^^
-             |  @param o o the sole object to be stored in the returned set.
-             |""".stripMargin,
+      """|Returns an immutable set containing only the specified object.
+         |The returned set is serializable.
+         |singleton[T](o: T): java.util.Set[T]
+         |             ^^^^
+         |  @param o o the sole object to be stored in the returned set.
+         |""".stripMargin
     )
 
   @Test def `default` =
@@ -214,25 +214,25 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  new scala.util.control.Exception.Catch(@@)
         |}
       """.stripMargin,
-          """|A container class for catch/finally logic.
-             |
-             | Pass a different value for rethrow if you want to probably
-             | unwisely allow catching control exceptions and other throwables
-             | which the rest of the world may expect to get through.
-             |
-             |**Type Parameters**
-             |- `T`: result type of bodies used in try and catch blocks
-             |
-             |**Parameters**
-             |- `fin`: Finally logic which if defined will be invoked after catch logic
-             |- `rethrow`: Predicate on throwables determining when to rethrow a caught [Throwable](Throwable)
-             |- `pf`: Partial function used when applying catch logic to determine result value
-             |Catch[T](pf: scala.util.control.Exception.Catcher[T], fin: Option[scala.util.control.Exception.Finally], rethrow: Throwable => Boolean)
-             |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-             |  @param pf Partial function used when applying catch logic to determine result value
-             |  @param fin Finally logic which if defined will be invoked after catch logic
-             |  @param rethrow Predicate on throwables determining when to rethrow a caught [Throwable](Throwable)
-             |""".stripMargin,
+      """|A container class for catch/finally logic.
+         |
+         | Pass a different value for rethrow if you want to probably
+         | unwisely allow catching control exceptions and other throwables
+         | which the rest of the world may expect to get through.
+         |
+         |**Type Parameters**
+         |- `T`: result type of bodies used in try and catch blocks
+         |
+         |**Parameters**
+         |- `fin`: Finally logic which if defined will be invoked after catch logic
+         |- `rethrow`: Predicate on throwables determining when to rethrow a caught [Throwable](Throwable)
+         |- `pf`: Partial function used when applying catch logic to determine result value
+         |Catch[T](pf: scala.util.control.Exception.Catcher[T], fin: Option[scala.util.control.Exception.Finally], rethrow: Throwable => Boolean)
+         |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         |  @param pf Partial function used when applying catch logic to determine result value
+         |  @param fin Finally logic which if defined will be invoked after catch logic
+         |  @param rethrow Predicate on throwables determining when to rethrow a caught [Throwable](Throwable)
+         |""".stripMargin
     )
 
   @Test def `java` =
@@ -242,12 +242,12 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  new java.io.File(@@)
         |}
       """.stripMargin,
-     """|File(uri: java.net.URI)
-        |     ^^^^^^^^^^^^^^^^^
-        |File(parent: java.io.File, child: String)
-        |File(parent: String, child: String)
-        |File(pathname: String)
-        |""".stripMargin
+      """|File(uri: java.net.URI)
+         |     ^^^^^^^^^^^^^^^^^
+         |File(parent: java.io.File, child: String)
+         |File(parent: String, child: String)
+         |File(pathname: String)
+         |""".stripMargin
     )
 
   @Test def `java2` =
@@ -257,10 +257,10 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  "".substring(1@@)
         |}
       """.stripMargin,
-          """|substring(beginIndex: Int, endIndex: Int): String
-             |substring(beginIndex: Int): String
-             |          ^^^^^^^^^^^^^^^
-             |""".stripMargin
+      """|substring(beginIndex: Int, endIndex: Int): String
+         |substring(beginIndex: Int): String
+         |          ^^^^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `java3` =
@@ -270,17 +270,17 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  String.valueOf(1@@)
         |}
       """.stripMargin,
-          """|valueOf(d: Double): String
-             |valueOf(f: Float): String
-             |valueOf(l: Long): String
-             |valueOf(i: Int): String
-             |        ^^^^^^
-             |valueOf(c: Char): String
-             |valueOf(b: Boolean): String
-             |valueOf(data: Array[Char], offset: Int, count: Int): String
-             |valueOf(data: Array[Char]): String
-             |valueOf(obj: Object): String
-             |""".stripMargin
+      """|valueOf(d: Double): String
+         |valueOf(f: Float): String
+         |valueOf(l: Long): String
+         |valueOf(i: Int): String
+         |        ^^^^^^
+         |valueOf(c: Char): String
+         |valueOf(b: Boolean): String
+         |valueOf(data: Array[Char], offset: Int, count: Int): String
+         |valueOf(data: Array[Char]): String
+         |valueOf(obj: Object): String
+         |""".stripMargin
     )
 
   @Test def `java4` =
@@ -290,17 +290,17 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  String.valueOf(@@)
         |}
       """.stripMargin,
-          """|valueOf(d: Double): String
-             |        ^^^^^^^^^
-             |valueOf(f: Float): String
-             |valueOf(l: Long): String
-             |valueOf(i: Int): String
-             |valueOf(c: Char): String
-             |valueOf(b: Boolean): String
-             |valueOf(data: Array[Char], offset: Int, count: Int): String
-             |valueOf(data: Array[Char]): String
-             |valueOf(obj: Object): String
-             |""".stripMargin,
+      """|valueOf(d: Double): String
+         |        ^^^^^^^^^
+         |valueOf(f: Float): String
+         |valueOf(l: Long): String
+         |valueOf(i: Int): String
+         |valueOf(c: Char): String
+         |valueOf(b: Boolean): String
+         |valueOf(data: Array[Char], offset: Int, count: Int): String
+         |valueOf(data: Array[Char]): String
+         |valueOf(obj: Object): String
+         |""".stripMargin
     )
 
   @Test def `ctor2` =
@@ -310,11 +310,11 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
         |  new Some(10@@)
         |}
       """.stripMargin,
-          """|Class `Some[A]` represents existing values of type
-             | `A`.
-             |Some[A](value: A)
-             |        ^^^^^^^^
-             |""".stripMargin
+      """|Class `Some[A]` represents existing values of type
+         | `A`.
+         |Some[A](value: A)
+         |        ^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `markdown` =
@@ -332,6 +332,5 @@ class SignatureHelpDocSuite extends BaseSignatureHelpSuite {
          |**Returns:** a new range with a different step
          |by(step: Int): Range
          |   ^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
-}

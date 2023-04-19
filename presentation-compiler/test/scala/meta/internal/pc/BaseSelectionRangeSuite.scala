@@ -1,6 +1,5 @@
 package scala.meta.internal.pc
 
-
 import java.nio.file.Paths
 import java.{util => ju}
 
@@ -12,20 +11,20 @@ import scala.meta.pc.OffsetParams
 import org.eclipse.{lsp4j => l}
 import scala.meta.internal.pc.TestExtensions.getOffset
 
-abstract class BaseSelectionRangeSuite extends BasePCSuite {
+abstract class BaseSelectionRangeSuite extends BasePCSuite:
 
   def check(
       original: String,
       expectedRanges: List[String],
-      compat: Map[String, List[String]] = Map.empty,
-  ): Unit = {
+      compat: Map[String, List[String]] = Map.empty
+  ): Unit =
     val (code, offset) = params(original)
     val offsetParams: ju.List[OffsetParams] = List[OffsetParams](
       CompilerOffsetParams(
         Paths.get("SelectionRange.scala").toUri(),
         code,
         offset,
-        EmptyCancelToken,
+        EmptyCancelToken
       )
     ).asJava
 
@@ -47,29 +46,28 @@ abstract class BaseSelectionRangeSuite extends BasePCSuite {
     assertSelectionRanges(
       selectionRanges.headOption,
       expectedRanges,
-      code,
+      code
     )
-  }
 
   private def assertSelectionRanges(
       range: Option[l.SelectionRange],
       expected: List[String],
-      original: String,
-  ): Unit = {
+      original: String
+  ): Unit =
     assert(range.nonEmpty)
     expected.headOption.foreach { expectedRange =>
       val obtained = applyRanges(original, range.get)
       assertNoDiff(expectedRange, obtained)
       assertSelectionRanges(range.map(_.getParent()), expected.tail, original)
     }
-  }
 
   private def applyRanges(
       text: String,
-      selectionRange: l.SelectionRange,
-  ): String = {
+      selectionRange: l.SelectionRange
+  ): String =
 
-    val (startPos, endPos) = (selectionRange.getRange.getStart, selectionRange.getRange.getEnd)
+    val (startPos, endPos) =
+      (selectionRange.getRange.getStart, selectionRange.getRange.getEnd)
     val startOffset = startPos.getOffset(text)
     val endOffset = endPos.getOffset(text)
 
@@ -80,5 +78,3 @@ abstract class BaseSelectionRangeSuite extends BasePCSuite {
     out.append("<<region<<")
     out.append(text, endOffset, text.length)
     out.toString
-  }
-}

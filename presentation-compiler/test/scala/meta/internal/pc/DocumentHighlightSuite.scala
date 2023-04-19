@@ -2,15 +2,14 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
+class DocumentHighlightSuite extends BaseDocumentHighlightSuite:
 
   @Test def `single` =
     check(
       """
         |object Main {
         |  Option(1).<<he@@ad>>
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `multiple` =
@@ -20,7 +19,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val <<abc>> = 123
         |  <<abc>>.toInt
         |  println(<<ab@@c>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `multiple2` =
@@ -30,7 +29,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val <<a@@bc>> = 123
         |  <<abc>>.toInt
         |  println(<<abc>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `multiple3` =
@@ -40,7 +39,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val <<abc>> = 123
         |  <<ab@@c>>.toInt
         |  println(<<abc>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `different-symbols` =
@@ -50,7 +49,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val abc = 123
         |  abc.<<to@@Int>>
         |  134l.toInt
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `scopes` =
@@ -60,7 +59,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val <<@@a>> = 123
         |  val f = (a: Int) => a + 1
         |  println(<<a>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `scopes2` =
@@ -70,7 +69,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val <<a>> = 123
         |  val f = (a: Int) => a + 1
         |  println(<<@@a>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `params` =
@@ -81,7 +80,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = User(<<name>> = "Susan")
         |  println(user.<<name>>)
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `params2` =
@@ -92,7 +91,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = User(<<na@@me>> = "Susan")
         |  println(user.<<name>>)
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `params3` =
@@ -103,7 +102,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = User(<<name>> = "Susan")
         |  println(user.<<n@@ame>>)
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `params4` =
@@ -114,7 +113,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = User(<<name>> = "Susan")
         |  println(user.<<name>>)
         |  user.copy(<<na@@me>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `object` =
@@ -126,7 +125,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = <<User>>(name = "Susan")
         |  println(user.name)
         |  user.copy(name = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `object2` =
@@ -138,7 +137,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = <<User>>(name = "Susan")
         |  println(user.name)
         |  user.copy(name = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `object3` =
@@ -150,7 +149,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val user = <<U@@ser>>(name = "Susan")
         |  println(user.name)
         |  user.copy(name = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class-var` =
@@ -162,7 +161,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  println(user.<<name>>)
         |  user.<<name>> = ""
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class-var2` =
@@ -174,7 +173,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  println(user.<<name>>)
         |  user.<<name>> = ""
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class-var3` =
@@ -186,7 +185,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  println(user.<<n@@ame>>)
         |  user.<<name>> = ""
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class-var4` =
@@ -198,7 +197,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  println(user.<<name>>)
         |  user.<<na@@me>> = ""
         |  user.copy(<<name>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-class-var5` =
@@ -210,7 +209,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  println(user.<<name>>)
         |  user.<<name>> = ""
         |  user.copy(<<na@@me>> = "John")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `var` =
@@ -221,7 +220,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  <<abd>> = 344
         |  <<abd>> +=1
         |  println(<<abd>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `var2` =
@@ -232,7 +231,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  <<ab@@d>> = 344
         |  <<abd>> +=1
         |  println(<<abd>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `var3` =
@@ -243,7 +242,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  <<abd>> = 344
         |  <<ab@@d>> +=1
         |  println(<<abd>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `var4` =
@@ -254,7 +253,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  <<abd>> = 344
         |  <<abd>> +=1
         |  println(<<a@@bd>>)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `overloaded` =
@@ -264,7 +263,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  def hello() = ""
         |  def <<hel@@lo>>(a : Int) = ""
         |  def hello(a : Int, b : String) = ""
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-var` =
@@ -281,7 +280,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-var2` =
@@ -298,7 +297,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-var3` =
@@ -315,7 +314,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-assign` =
@@ -332,7 +331,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-assign2` =
@@ -349,7 +348,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-assign3` =
@@ -366,7 +365,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-class` =
@@ -383,7 +382,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-class2` =
@@ -400,7 +399,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `local-class3` =
@@ -417,7 +416,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |      def m2: Int = abc + 2
         |    }
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `setter-getter` =
@@ -430,7 +429,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  }
         |  val t = new T1
         |  t.<<arg>> = 123
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `setter-getter2` =
@@ -444,7 +443,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  val t = new T1
         |  t.<<arg>> = 123
         |
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `setter-getter3` =
@@ -457,7 +456,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  }
         |  val t = new T1
         |  t.<<ar@@g>> = 123
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `same-name` =
@@ -468,7 +467,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  def bar(<<n@@ame>>: String) = ???
         |  foo(name = "123")
         |  bar(<<name>> = "123")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `same-name2` =
@@ -479,7 +478,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  def bar(<<name>>: String) = ???
         |  foo(name = "123")
         |  bar(<<na@@me>> = "123")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `same-name3` =
@@ -490,7 +489,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  def bar(name: String) = ???
         |  foo(<<name>> = "123")
         |  bar(name = "123")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `same-name4` =
@@ -501,7 +500,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |  def bar(name: String) = ???
         |  foo(<<na@@me>> = "123")
         |  bar(name = "123")
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `import1` =
@@ -510,7 +509,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.<<Tr@@y>>
         |object Test {
         |   <<Try>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `import2` =
@@ -519,7 +518,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.<<Try>>
         |object Test {
         |   <<Tr@@y>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `import3` =
@@ -528,7 +527,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.<<ut@@il>>.Try
         |object Test {
         |   scala.<<util>>.Try(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `import4` =
@@ -537,7 +536,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.<<util>>.Try
         |object Test {
         |   scala.<<ut@@il>>.Try(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `rename1` =
@@ -546,7 +545,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.{ <<Try>> => <<ATr@@y>>}
         |object Test {
         |   <<ATry>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `rename2` =
@@ -555,7 +554,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.{ <<Try>> => <<ATry>>}
         |object Test {
         |   <<ATr@@y>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   // @note, we could try and not highlight normal Try,
@@ -566,7 +565,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.{ <<Try>> => <<ATr@@y>>}
         |object Test {
         |   scala.util.<<Try>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `rename4` =
@@ -575,7 +574,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.{ <<Try>> => <<ATry>>}
         |object Test {
         |   scala.util.<<Tr@@y>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `rename5` =
@@ -584,7 +583,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |import scala.util.{ <<T@@ry>> => <<ATry>>}
         |object Test {
         |   scala.util.<<Try>>(1)
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-match1` =
@@ -597,7 +596,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |     case Success(<<va@@lue>>) =>
         |       <<value>>
         |   }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `case-match2` =
@@ -610,7 +609,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |     case Success(<<value>>) =>
         |       <<va@@lue>>
         |   }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `inner-class1` =
@@ -621,7 +620,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |    object <<User>>{ def nnn = ""}
          |    <<User>>.nnn
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inner-class2` =
@@ -632,7 +631,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |    object <<U@@ser>>{ def nnn = ""}
          |    <<User>>.nnn
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inner-class3` =
@@ -643,7 +642,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |    object <<User>>{ def nnn = ""}
          |    <<Use@@r>>.nnn
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `inner-class4` =
@@ -656,7 +655,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |      <<Use@@r>>.nnn
          |    }
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `package-object` =
@@ -668,7 +667,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  class PackageObjectNestedClass
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `named-param` =
@@ -678,7 +677,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |      case class User(<<name>>: String)
          |      val a = User(<<na@@me>> = "abc")
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `backtick` =
@@ -687,7 +686,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  val <<`hi-!`>> = 5
          |
          |  <<`hi@@-!`>> + 3
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `shadowing` =
@@ -698,21 +697,21 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |    <<a@@bc>> + 1
          |  }
          |  val d = abc + 1
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `select-parentheses` =
     check(
       """|object Main {
          |  val a = (1 + 2 + 3).<<toStr@@ing>>
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `select-parentheses2` =
     check(
       """|object Main {
          |  val a = (1 + 2 + 3) <<:@@:>> Nil
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `trailling-comma` =
@@ -725,7 +724,7 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |    a,
         |    <<b@@>>,
         |  )
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `trailling-comma2` =
@@ -738,6 +737,5 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |    a,
         |    <<`ab@@`>>,
         |  )
-        |}""".stripMargin,
+        |}""".stripMargin
     )
-}

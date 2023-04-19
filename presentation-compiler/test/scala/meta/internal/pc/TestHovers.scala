@@ -4,11 +4,10 @@ import scala.meta.internal.pc.HoverMarkup
 import org.eclipse.lsp4j.Hover
 import TestExtensions._
 
-
-trait TestHovers {
-  extension (string: String) {
-    def hover: String = {
-      string.trim.linesIterator.toList match {
+trait TestHovers:
+  extension (string: String)
+    def hover: String =
+      string.trim.linesIterator.toList match
         case List(symbolSignature) =>
           HoverMarkup("", Some(symbolSignature), "")
         case List(expressionType, symbolSignature) =>
@@ -16,15 +15,13 @@ trait TestHovers {
             expressionType,
             Some(symbolSignature),
             "",
-            forceExpressionType = true,
+            forceExpressionType = true
           )
         case _ =>
           string
-      }
-    }
 
     def hoverRange: String =
-      string.trim.linesIterator.toList match {
+      string.trim.linesIterator.toList match
         case List(symbolSignature) =>
           HoverMarkup(symbolSignature)
         case List(expressionType, symbolSignature) =>
@@ -32,44 +29,38 @@ trait TestHovers {
             expressionType,
             Some(symbolSignature),
             "",
-            forceExpressionType = true,
+            forceExpressionType = true
           )
         case _ =>
           string
-      }
-  }
 
   def renderAsString(
       code: String,
       hover: Option[Hover],
-      includeRange: Boolean,
-  ): String = {
-    hover match {
+      includeRange: Boolean
+  ): String =
+    hover match
       case Some(value) =>
         val types = value.getContents.getRight.getValue()
 
-        val range = Option(value.getRange) match {
+        val range = Option(value.getRange) match
           case Some(value) if includeRange =>
             val start = value.getStart.getOffset(code)
             val end = value.getEnd.getOffset(code)
             val rangeText = code.slice(start, end)
             codeFence(
               rangeText,
-              "range",
+              "range"
             )
           case _ => ""
-        }
         List(types, range).filterNot(_.isEmpty).mkString("\n")
       case None =>
         ""
-    }
 
-  }
-
-  private def codeFence(code: String, language: String): String = {
+  private def codeFence(code: String, language: String): String =
     val trimmed = code.trim
     if (trimmed.isEmpty) ""
-    else {
+    else
       new StringBuilder()
         .append("```")
         .append(language)
@@ -78,6 +69,3 @@ trait TestHovers {
         .append("\n")
         .append("```")
         .toString()
-    }
-  }
-}

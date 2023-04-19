@@ -20,7 +20,7 @@ object NamedArgCompletions:
       pos: SourcePosition,
       path: List[Tree],
       indexedContext: IndexedContext,
-      clientSupportsSnippets: Boolean,
+      clientSupportsSnippets: Boolean
   )(using ctx: Context): List[CompletionValue] =
     path match
       case (ident: Ident) :: (app: Apply) :: _
@@ -29,15 +29,14 @@ object NamedArgCompletions:
           Some(ident),
           app,
           indexedContext,
-          clientSupportsSnippets,
+          clientSupportsSnippets
         )
-      case (ident: Ident) :: ValDef(_, _, _) :: Block(_, app: Apply) :: _
-          if !isInfix(pos, app) =>
+      case (ident: Ident) :: ValDef(_, _, _) :: Block(_, app: Apply) :: _ if !isInfix(pos, app) =>
         contribute(
           Some(ident),
           app,
           indexedContext,
-          clientSupportsSnippets,
+          clientSupportsSnippets
         )
       case _ =>
         Nil
@@ -57,7 +56,7 @@ object NamedArgCompletions:
       ident: Option[Ident],
       apply: Apply,
       indexedContext: IndexedContext,
-      clientSupportsSnippets: Boolean,
+      clientSupportsSnippets: Boolean
   )(using Context): List[CompletionValue] =
     def isUselessLiteral(arg: Tree): Boolean =
       arg match
@@ -154,9 +153,8 @@ object NamedArgCompletions:
       then
         val editText = allParams.zipWithIndex
           .collect {
-            case (param, index) if !param.is(Flags.HasDefault) => {
+            case (param, index) if !param.is(Flags.HasDefault) =>
               s"${param.nameBackticked.replace("$", "$$")} = $${${index + 1}${findDefaultValue(param)}}"
-            }
           }
           .mkString(", ")
         List(
@@ -176,7 +174,7 @@ object NamedArgCompletions:
             param.nameBackticked + " = " + memberName + " "
           CompletionValue.namedArg(
             label = editText,
-            param,
+            param
           )
         }
       }
@@ -184,7 +182,7 @@ object NamedArgCompletions:
     params.map(p =>
       CompletionValue.namedArg(
         s"${p.nameBackticked} = ",
-        p,
+        p
       )
     ) ::: findPossibleDefaults() ::: fillAllFields()
   end contribute

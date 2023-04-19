@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class KeywordCompletionSuite extends BaseCompletionSuite {
+class KeywordCompletionSuite extends BaseCompletionSuite:
 
   @Test def `super-template` =
     check(
@@ -20,7 +20,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """|superVisorStrategy: Int (commit: '')
          |super (commit: '')
          |""".stripMargin,
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `comment` =
@@ -37,7 +37,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "",
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `scala-doc` =
@@ -56,7 +56,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "",
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `super-def` =
@@ -76,7 +76,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|superVisorStrategy: Int
          |super
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `super-val` =
@@ -96,7 +96,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|superVisorStrategy: Int
          |super
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `super-var` =
@@ -116,7 +116,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|superVisorStrategy: Int
          |super
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `super-arg` =
@@ -133,7 +133,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       """|super
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `val-template` =
@@ -149,7 +149,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """|value: Int
          |val
          |var
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `val-def` =
@@ -165,7 +165,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|val
          |var
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `given-def` =
@@ -181,7 +181,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|given (commit: '')
          |""".stripMargin,
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `val-arg` =
@@ -197,7 +197,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|value: Int
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `val-trailing-space` =
@@ -211,7 +211,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       "  va@@",
       "  val ",
-      filter = _ == "val",
+      filter = _ == "val"
     )
 
   @Test def `return-method` =
@@ -226,7 +226,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """|return
          |""".stripMargin,
       // methods add in 3.2.1
-      filter = item => !item.contains("retains"),
+      filter = item => !item.contains("retains")
     )
 
   @Test def `return-val` =
@@ -240,7 +240,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       "",
       // methods add in 3.2.1
-      filter = item => !item.contains("retains"),
+      filter = item => !item.contains("retains")
     )
 
   @Test def `return-template` =
@@ -252,7 +252,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |  ret@@
         |}
         |""".stripMargin,
-      "",
+      ""
       // methods add in 3.2.1
       // filter = item => !item.contains("retains"),
     )
@@ -264,7 +264,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |
         |ret@@
         |""".stripMargin,
-      "",
+      ""
       // methods add in 3.2.1
       // filter = item => !item.contains("retains"),
     )
@@ -281,7 +281,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|import (commit: '')
          |""".stripMargin,
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `import-empty` =
@@ -295,7 +295,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """|import (commit: '')
          |""".stripMargin,
       includeCommitCharacter = true,
-      enablePackageWrap = false,
+      enablePackageWrap = false
     )
 
   @Test def `abstract-class` =
@@ -306,7 +306,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |abstract cla@@
         |""".stripMargin,
       """|class
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `type-toplevel` =
@@ -316,7 +316,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |
         |typ@@
       """.stripMargin,
-      "type",
+      "type"
     )
 
   @Test def `type-template` =
@@ -345,7 +345,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       // NOTE(olafur) `type` is technically valid in blocks but they're not completed
       // to reduce noise (we do the same for class, object, trait).
-      "",
+      ""
     )
 
   @Test def `new-type` =
@@ -359,7 +359,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       "",
       // to avoid newMain annotation
-      filter = str => !str.contains("newMain"),
+      filter = str => !str.contains("newMain")
     )
   // TODO: Should provide empty completions
   // The issue is that the tree looks the same as for `case @@` (it doesn't see `new`)
@@ -377,7 +377,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       "",
       // to avoid newMain annotation
-      filter = str => !str.contains("newMain"),
+      filter = str => !str.contains("newMain")
     )
 
   @Test def `super-typeapply` =
@@ -392,7 +392,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       """|supervisorStrategy: Int
          |super
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `protected-def` =
@@ -404,7 +404,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |  protected de@@
         |}
       """.stripMargin,
-      "def",
+      "def"
     )
 
   @Test def `protected-val` =
@@ -418,7 +418,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """.stripMargin,
       """val
         |var
-        |""".stripMargin,
+        |""".stripMargin
     )
 
   @Test def `topLevel` =
@@ -457,7 +457,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
          |}""".stripMargin,
       """|using (commit: '')
          |""".stripMargin,
-      includeCommitCharacter = true,
+      includeCommitCharacter = true
     )
 
   @Test def `not-using` =
@@ -465,7 +465,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
       """|object A{
          |  def hello(a: String, u@@)
          |}""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `extends-class` =
@@ -476,7 +476,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo ext@@
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-with-class` =
@@ -487,7 +487,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo extends Any wi@@
       """.stripMargin,
       """|with
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-class-nested` =
@@ -500,7 +500,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-class-nested-with-body` =
@@ -515,7 +515,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |}
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-obj` =
@@ -526,7 +526,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |object Foo ext@@
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-trait` =
@@ -537,7 +537,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |trait Foo ext@@ {}
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-with-constructor` =
@@ -548,7 +548,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) ext@@
       """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extends-with-type-param` =
@@ -559,7 +559,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo[A] ext@@
         """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `no-extends` =
@@ -573,7 +573,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |  }
         |}
       """.stripMargin,
-      "",
+      ""
     )
 
   @Test def `no-extends-paren` =
@@ -587,7 +587,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |  }
         |}
       """.stripMargin,
-      "",
+      ""
     )
 
   @Test def `extends-limitation` =
@@ -600,8 +600,8 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Main
         |  exten@@
       """.stripMargin,
-     """|extends
-        |""".stripMargin
+      """|extends
+         |""".stripMargin
     )
 
   @Test def `extends-enum` =
@@ -612,7 +612,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |enum Foo(x: Int) ext@@
           """.stripMargin,
       """|extends
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-object` =
@@ -623,7 +623,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |object Foo der@@
         """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-with-constructor` =
@@ -634,7 +634,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) der@@
         """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-comma-extends` =
@@ -648,7 +648,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) extends Bar, Baz der@@
           """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-extends` =
@@ -660,7 +660,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) extends Bar der@@
             """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-extends-type-param` =
@@ -672,7 +672,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) extends Bar[Int] der@@
               """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-with-extends` =
@@ -686,7 +686,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) extends Bar with Baz der@@
                 """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `derives-with-constructor-extends` =
@@ -700,7 +700,7 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |class Foo(x: Int) extends Bar with Baz(1) der@@
                   """.stripMargin,
       """|derives
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `no-derives` =
@@ -714,8 +714,5 @@ class KeywordCompletionSuite extends BaseCompletionSuite {
         |  }
         |}
         """.stripMargin,
-      "",
+      ""
     )
-
-}
-

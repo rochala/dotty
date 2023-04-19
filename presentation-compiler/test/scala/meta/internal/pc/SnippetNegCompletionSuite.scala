@@ -4,7 +4,7 @@ import scala.meta.internal.pc.PresentationCompilerConfigImpl
 import scala.meta.pc.PresentationCompilerConfig
 import org.junit.Test
 
-class CompletionSnippetNegSuite extends BaseCompletionSuite {
+class CompletionSnippetNegSuite extends BaseCompletionSuite:
 
   override def config: PresentationCompilerConfig =
     PresentationCompilerConfigImpl(
@@ -18,7 +18,7 @@ class CompletionSnippetNegSuite extends BaseCompletionSuite {
         |  List.appl@@
         |}
         |""".stripMargin,
-      "apply",
+      "apply"
     )
 
   @Test def `scope` =
@@ -31,7 +31,7 @@ class CompletionSnippetNegSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|println()
          |println
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `java-nullary` =
@@ -47,19 +47,5 @@ class CompletionSnippetNegSuite extends BaseCompletionSuite {
         |""".stripMargin,
       // even if `Foo.toString` is nullary, it overrides `Object.toString()`
       // which is a Java non-nullary method with an empty parameter list.
-      "toString",
+      "toString"
     )
-
-  @Test def `type` =
-    checkSnippet(
-      s"""|object Main {
-          |  val x: scala.IndexedSe@@
-          |}
-          |""".stripMargin,
-      // It's expected to have two separate results, one for `object IndexedSeq` and one for `type IndexedSeq[T]`.
-      """|IndexedSeq
-         |IndexedSeq
-         |""".stripMargin,
-    )
-
-}

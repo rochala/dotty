@@ -36,7 +36,7 @@ class CompletionProvider(
     params: OffsetParams,
     config: PresentationCompilerConfig,
     buildTargetIdentifier: String,
-    workspace: Option[Path],
+    workspace: Option[Path]
 )(using reports: ReportContext):
   def completions(): CompletionList =
     val uri = params.uri
@@ -68,7 +68,7 @@ class CompletionProvider(
           unit.tpdTree,
           unit.comments,
           indexedCtx,
-          config,
+          config
         )
         val (completions, searchResult) =
           new Completions(
@@ -84,7 +84,7 @@ class CompletionProvider(
             workspace,
             autoImportsGen,
             unit.comments,
-            driver.settings,
+            driver.settings
           ).completions()
 
         val items = completions.zipWithIndex.map { case (item, idx) =>
@@ -94,7 +94,7 @@ class CompletionProvider(
             autoImportsGen,
             completionPos,
             path,
-            indexedCtx,
+            indexedCtx
           )(using newctx)
         }
         val isIncomplete = searchResult match
@@ -105,7 +105,7 @@ class CompletionProvider(
 
     new CompletionList(
       isIncomplete,
-      items.asJava,
+      items.asJava
     )
   end completions
 
@@ -146,12 +146,12 @@ class CompletionProvider(
       autoImports: AutoImportsGenerator,
       completionPos: CompletionPos,
       path: List[Tree],
-      indexedContext: IndexedContext,
+      indexedContext: IndexedContext
   )(using ctx: Context): CompletionItem =
     val printer = MetalsPrinter.standard(
       indexedContext,
       search,
-      includeDefaultParam = MetalsPrinter.IncludeDefaultParam.ResolveLater,
+      includeDefaultParam = MetalsPrinter.IncludeDefaultParam.ResolveLater
     )
     val editRange = completionPos.toEditRange
 
@@ -166,11 +166,11 @@ class CompletionProvider(
     def mkItem(
         insertText: String,
         additionalEdits: List[TextEdit] = Nil,
-        range: Option[LspRange] = None,
+        range: Option[LspRange] = None
     ): CompletionItem =
       val nameEdit = new TextEdit(
         range.getOrElse(editRange),
-        insertText,
+        insertText
       )
       val item = new CompletionItem(label)
       item.setSortText(f"${idx}%05d")
@@ -190,8 +190,7 @@ class CompletionProvider(
 
       item.setTags(completion.lspTags.asJava)
 
-      if config.isCompletionSnippetsEnabled then
-        item.setInsertTextFormat(InsertTextFormat.Snippet)
+      if config.isCompletionSnippetsEnabled then item.setInsertTextFormat(InsertTextFormat.Snippet)
 
       completion.command.foreach { command =>
         item.setCommand(new Command("", command))
@@ -208,7 +207,7 @@ class CompletionProvider(
         // s"My name is $name"
         case (_: Ident) :: (_: SeqLiteral) :: (_: Typed) :: Apply(
               Select(Apply(Select(Select(_, name), _), _), _),
-              _,
+              _
             ) :: _ =>
           name == StdNames.nme.StringContext
         // "My name is $name"
@@ -218,8 +217,7 @@ class CompletionProvider(
           false
 
     def mkItemWithImports(
-        v: CompletionValue.Workspace | CompletionValue.Extension |
-          CompletionValue.Interpolator
+        v: CompletionValue.Workspace | CompletionValue.Extension | CompletionValue.Interpolator
     ) =
       val sym = v.symbol
       path match
@@ -233,7 +231,7 @@ class CompletionProvider(
                   mkItem(
                     nameEdit.getNewText(),
                     other.toList,
-                    range = Some(nameEdit.getRange()),
+                    range = Some(nameEdit.getRange())
                   )
                 case _ =>
                   mkItem(
@@ -241,7 +239,7 @@ class CompletionProvider(
                       ident.backticked + completionTextSuffix
                     ),
                     edits.edits,
-                    range = v.range,
+                    range = v.range
                   )
             case None =>
               val r = indexedContext.lookupSym(sym)
@@ -270,7 +268,7 @@ class CompletionProvider(
         val insert = completion.insertText.getOrElse(ident.backticked)
         mkItem(
           insert + completionTextSuffix,
-          range = completion.range,
+          range = completion.range
         )
     end match
   end completionItems

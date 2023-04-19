@@ -32,7 +32,7 @@ final class ExtractMethodProvider(
     extractionPos: OffsetParams,
     driver: InteractiveDriver,
     search: SymbolSearch,
-    noIndent: Boolean,
+    noIndent: Boolean
 ) extends ExtractMethodUtils:
 
   def extractMethod(): List[TextEdit] =
@@ -80,7 +80,7 @@ final class ExtractMethodProvider(
     def localRefs(
         ts: List[tpd.Tree],
         defnPos: SourcePosition,
-        extractedPos: SourcePosition,
+        extractedPos: SourcePosition
     ): (List[Symbol], List[Symbol]) =
       def nonAvailable(sym: Symbol): Boolean =
         val symPos = sym.sourcePos
@@ -147,7 +147,7 @@ final class ExtractMethodProvider(
             head.startPos.start,
             expr.endPos.end,
             newIndent,
-            oldIndentLen,
+            oldIndentLen
           )
         val (obracket, cbracket) =
           if noIndent && extracted.length > 1 then (" {", s"$newIndent}")
@@ -158,12 +158,12 @@ final class ExtractMethodProvider(
         List(
           new l.TextEdit(
             extractedPos.toLsp,
-            replacedText,
+            replacedText
           ),
           new l.TextEdit(
             defnPos.startPos.toLsp,
-            defText,
-          ),
+            defText
+          )
         )
 
     edits.getOrElse(Nil)

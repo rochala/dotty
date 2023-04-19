@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class MatchCompletionSuite extends BaseCompletionSuite {
+class MatchCompletionSuite extends BaseCompletionSuite:
   override def requiresScalaLibrarySources: Boolean = true
 
   @Test def `match` =
@@ -11,9 +11,9 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |object A {
         |  Option(1) match@@
         |}""".stripMargin,
-       """|match
-          |match (exhaustive) Option (2 cases)
-          |""".stripMargin
+      """|match
+         |match (exhaustive) Option (2 cases)
+         |""".stripMargin
     )
 
   @Test def `trailing-expression` =
@@ -23,9 +23,9 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |  Option(1) match@@
         |  println(1)
         |}""".stripMargin,
-     """|match
-        |match (exhaustive) Option (2 cases)
-        |""".stripMargin
+      """|match
+         |match (exhaustive) Option (2 cases)
+         |""".stripMargin
     )
 
   @Test def `dot` =
@@ -34,9 +34,9 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |object A {
         |  Option(1).match@@
         |}""".stripMargin,
-     """|match
-        |match (exhaustive) Option (2 cases)
-        |""".stripMargin
+      """|match
+         |match (exhaustive) Option (2 cases)
+         |""".stripMargin
     )
 
   @Test def `stale1` =
@@ -48,7 +48,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |@@
         |""".stripMargin,
       "",
-      filter = _ => false,
+      filter = _ => false
     )
 
   // Assert that Workday/Weekend symbols from previous test don't appear in result.
@@ -82,7 +82,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |
           |}
           |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `stale3` =
@@ -95,18 +95,18 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |  null.asInstanceOf[Weekday] matc@@
         |}
         |""".stripMargin,
-    s"""|package stale
-        |sealed abstract class Weekday
-        |case object Workday extends Weekday
-        |case object Weekend extends Weekday
-        |object App {
-        |  null.asInstanceOf[Weekday] match
-        |\tcase Workday => $$0
-        |\tcase Weekend =>
-        |
-        |}
-        |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      s"""|package stale
+          |sealed abstract class Weekday
+          |case object Workday extends Weekday
+          |case object Weekend extends Weekday
+          |object App {
+          |  null.asInstanceOf[Weekday] match
+          |\tcase Workday => $$0
+          |\tcase Weekend =>
+          |
+          |}
+          |""".stripMargin,
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-sorting` =
@@ -120,20 +120,20 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |  null.asInstanceOf[TestTree] matc@@
         |}
         |""".stripMargin,
-    s"""|package sort
-        |sealed abstract class TestTree
-        |case class Branch1(t1: TestTree) extends TestTree
-        |case class Leaf(v: Int) extends TestTree
-        |case class Branch2(t1: TestTree, t2: TestTree) extends TestTree
-        |object App {
-        |  null.asInstanceOf[TestTree] match
-        |\tcase Branch1(t1) => $$0
-        |\tcase Leaf(v) =>
-        |\tcase Branch2(t1, t2) =>
-        |
-        |}
-        |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      s"""|package sort
+          |sealed abstract class TestTree
+          |case class Branch1(t1: TestTree) extends TestTree
+          |case class Leaf(v: Int) extends TestTree
+          |case class Branch2(t1: TestTree, t2: TestTree) extends TestTree
+          |object App {
+          |  null.asInstanceOf[TestTree] match
+          |\tcase Branch1(t1) => $$0
+          |\tcase Leaf(v) =>
+          |\tcase Branch2(t1, t2) =>
+          |
+          |}
+          |""".stripMargin,
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-sorting-scalalib` =
@@ -151,7 +151,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
          |
          |}
          |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `inner-class` =
@@ -171,7 +171,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|match
          |match (exhaustive) Foo (2 cases)
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `exhaustive-java-enum` =
@@ -184,18 +184,18 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |object Main {
         |  (null: AccessMode) match@@
         |}""".stripMargin,
-     s"""
-        |package example
-        |
-        |import java.nio.file.AccessMode
-        |
-        |object Main {
-        |  (null: AccessMode) match
-        |\tcase AccessMode.READ => $$0
-        |\tcase AccessMode.WRITE =>
-        |\tcase AccessMode.EXECUTE =>
-        |
-        |}""".stripMargin,
+      s"""
+         |package example
+         |
+         |import java.nio.file.AccessMode
+         |
+         |object Main {
+         |  (null: AccessMode) match
+         |\tcase AccessMode.READ => $$0
+         |\tcase AccessMode.WRITE =>
+         |\tcase AccessMode.EXECUTE =>
+         |
+         |}""".stripMargin,
       filter = _.contains("exhaustive")
     )
 
@@ -215,27 +215,27 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |  val x: withenum.Color = ???
         |  x match@@
         |}""".stripMargin,
-    s"""|import withenum.Color
-        |
-        |package withenum {
-        |enum Color(rank: Int):
-        |  case Red extends Color(1)
-        |  case Blue extends Color(2)
-        |  case Green extends Color(3)
-        |}
-        |
-        |package example
-        |
-        |object Main {
-        |  val x: withenum.Color = ???
-        |  x match
-        |\tcase Color.Red => $$0
-        |\tcase Color.Blue =>
-        |\tcase Color.Green =>
-        |
-        |}
-        |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      s"""|import withenum.Color
+          |
+          |package withenum {
+          |enum Color(rank: Int):
+          |  case Red extends Color(1)
+          |  case Blue extends Color(2)
+          |  case Green extends Color(3)
+          |}
+          |
+          |package example
+          |
+          |object Main {
+          |  val x: withenum.Color = ???
+          |  x match
+          |\tcase Color.Red => $$0
+          |\tcase Color.Blue =>
+          |\tcase Color.Green =>
+          |
+          |}
+          |""".stripMargin,
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-fully-qualify` =
@@ -248,18 +248,18 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |object Main {
         |  Option(1) match@@
         |}""".stripMargin,
-     s"""
-        |package example
-        |
-        |object None
-        |
-        |object Main {
-        |  Option(1) match
-        |\tcase Some(value) => $$0
-        |\tcase scala.None =>
-        |
-        |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      s"""
+         |package example
+         |
+         |object None
+         |
+         |object Main {
+         |  Option(1) match
+         |\tcase Some(value) => $$0
+         |\tcase scala.None =>
+         |
+         |}""".stripMargin,
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-upper-type-bounds` =
@@ -289,7 +289,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
          |\tcase Bar =>
          |
          |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-upper-type-bounds with refinement` =
@@ -308,24 +308,24 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |  def testExhaustive[T <: TestA with TestB](test: T): Boolean =
         |    test m@@
         |}""".stripMargin,
-     s"""
-        |package example
-        |
-        |sealed trait TestA
-        |case object Foo extends TestA
-        |case object Bar extends TestA
-        |sealed trait TestB
-        |case object Baz extends TestB
-        |case object Goo extends TestB
-        |case object Both extends TestA with TestB
-        |object Main {
-        |  def testExhaustive[T <: TestA with TestB](test: T): Boolean =
-        |    test match
-        |\tcase Both => $$0
-        |\t
-        |
-        |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      s"""
+         |package example
+         |
+         |sealed trait TestA
+         |case object Foo extends TestA
+         |case object Bar extends TestA
+         |sealed trait TestB
+         |case object Baz extends TestB
+         |case object Goo extends TestB
+         |case object Both extends TestA with TestB
+         |object Main {
+         |  def testExhaustive[T <: TestA with TestB](test: T): Boolean =
+         |    test match
+         |\tcase Both => $$0
+         |\t
+         |
+         |}""".stripMargin,
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-map` =
@@ -336,7 +336,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case (exhaustive) Option (2 cases)
          |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-map-edit` =
@@ -352,7 +352,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
          |\tcase None =>
          |}
          |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-map-edit-2` =
@@ -380,7 +380,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |\tcase E(e) =>
           |  }
           |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-map-edit-3` =
@@ -409,7 +409,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |case E(e) =>
           |  }
           |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-enum-tags` =
@@ -459,7 +459,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |\tcase DishWashing(amount) =>
           |
           |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-enum-tags2` =
@@ -508,7 +508,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |\tcase Cleaning =>
           |
           |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-enum-tags3` =
@@ -559,7 +559,7 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |\tcase Singing(song) =>
           |
           |""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
 
   @Test def `exhaustive-rename` =
@@ -592,7 +592,5 @@ class MatchCompletionSuite extends BaseCompletionSuite {
           |
           |}
           |}""".stripMargin,
-      filter = _.contains("exhaustive"),
+      filter = _.contains("exhaustive")
     )
-
-}

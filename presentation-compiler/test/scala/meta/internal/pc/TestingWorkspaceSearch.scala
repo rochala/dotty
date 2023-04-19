@@ -12,9 +12,8 @@ import scala.collection.mutable
 import scala.meta.pc.SymbolSearchVisitor
 import com.sourcegraph.semanticdb_javac.Semanticdb
 
-object TestingWorkspaceSearch {
+object TestingWorkspaceSearch:
   def empty: TestingWorkspaceSearch = new TestingWorkspaceSearch
-}
 
 class TestingWorkspaceSearch {
   // val inputs: mutable.Map[String, String] = mutable.Map.empty[String, String]

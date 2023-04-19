@@ -8,7 +8,7 @@ import scala.meta.internal.metals.CompilerOffsetParams
 import org.eclipse.{lsp4j => l}
 import org.junit.Test
 
-class InsertInferredTypeSuite extends BaseCodeActionSuite {
+class InsertInferredTypeSuite extends BaseCodeActionSuite:
 
   // override def extraDependencies(scalaVersion: String): Seq[Dependency] = {
   //   val binaryVersion = createBinaryVersion(scalaVersion)
@@ -24,7 +24,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val alpha: Int = 123
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def-params` =
@@ -34,7 +34,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha(a: Int, b: String): Int = 123
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-val` =
@@ -44,7 +44,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val alpha: Int = 123
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-val2` =
@@ -54,7 +54,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val alpha: List[Int] = List(1, 2, 3)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-val3` =
@@ -64,7 +64,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val alpha: String = ""
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-val4` =
@@ -74,7 +74,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val alpha: String = s""
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def` =
@@ -84,7 +84,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha: Int = 123
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def2` =
@@ -94,7 +94,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha: List[Int] = List(1, 2, 3)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def3` =
@@ -104,7 +104,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha: String = ""
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def4` =
@@ -114,7 +114,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha: String = s""
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `wrong-def-toplevel` =
@@ -125,7 +125,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|def hello =
          |  val a: String = ""
          |
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `toplevel` =
@@ -133,7 +133,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|def <<alpha>> = List("")
          |""".stripMargin,
       """|def alpha: List[String] = List("")
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tuple` =
@@ -143,7 +143,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val (alpha: Int, beta) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `tuple-inner` =
@@ -154,7 +154,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object A{
          |  val ((alpha: Int, gamma), beta) = ((123, 1), 12)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `tuple-var` =
@@ -164,7 +164,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  var (alpha: Int, beta) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `var` =
@@ -174,7 +174,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  var alpha: (Int, Int) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `def` =
@@ -184,7 +184,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha: (Int, Int) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `def-comment` =
@@ -195,7 +195,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object A{
          |  def alpha: (Int, Int) /* [] */= (123, 12)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `def-comment-param` =
@@ -206,7 +206,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object A{
          |  def alpha(): (Int, Int) /* [] */= (123, 12)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `def-param` =
@@ -216,7 +216,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha(a : String): (Int, Int) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `def-type-param` =
@@ -226,7 +226,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  def alpha[T]: (Int, Int) = (123, 12)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `auto-import` =
@@ -237,7 +237,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|import scala.collection.mutable.Buffer
          |object A{
          |  val buffer: Buffer[String] = List("").toBuffer
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `lambda` =
@@ -247,7 +247,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val toStringList = List(1, 2, 3).map((int: Int) => int.toString)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `lambda-existing-brace` =
@@ -257,7 +257,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val toStringList = List(1, 2, 3).map( /*{}*/(int: Int) => int.toString)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `lambda-brace` =
@@ -277,7 +277,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}""".stripMargin,
       """|object A{
          |  val toStringList = List((1, 2)).map((int: Int, n) => int)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `pattern-match-paren` =
@@ -293,7 +293,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    case (head: Int) :: tail => tail
          |    case Nil => Nil
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `pattern-match-tuple` =
@@ -310,7 +310,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    case (one, two: Int) => 2
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pattern-match-option` =
@@ -327,7 +327,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    case None =>
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pattern-match-list` =
@@ -344,7 +344,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    case _ =>
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pattern-match` =
@@ -360,7 +360,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    case 2 => "Two!"
          |    case otherDigit: Int => "Not two!"
          |  }
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `for-comprehension` =
@@ -377,7 +377,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    j <- 1 to 11
          |  } yield (i, j)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `for-comprehension2` =
@@ -394,7 +394,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |    j: Int = i
          |  } yield (i, j)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `higher-kinded-types` =
@@ -432,7 +432,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
           |    } yield ()
           |
           |}
-          |""".stripMargin,
+          |""".stripMargin
     )
 
   @Test def `path` =
@@ -467,7 +467,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  }
          |
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `renamed` =
@@ -487,7 +487,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  val second: I = every
          |}
          |
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `renamed-package` =
@@ -506,7 +506,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  val every: t.Instant = ???
          |  val second: t.Instant = every
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `renamed-package-long` =
@@ -525,7 +525,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  val every: c.duration.Duration = ???
          |  val second: c.duration.Duration = every
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `error` =
@@ -551,7 +551,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  def apply(org: String): Any = Dependency(org, None, None)
          |  def apply(org: String, name: String) = Dependency(org, Some(name), None)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `either` =
@@ -577,7 +577,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object O{
          |  val `bar`: Int = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `backticks-2` =
@@ -588,7 +588,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object O{
          |  def `bar`: Int = 42
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `backticks-3` =
@@ -599,7 +599,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       """|object O{
          |  List(1).map((`a`: Int) => a + 1)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `literal-types1` =
@@ -613,7 +613,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  val a: Some[1] = Some(1)
          |  val b: Some[1] = a
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `refined-types` =
@@ -701,7 +701,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  def y = 0
          |  var z = 0
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `dealias` =
@@ -712,7 +712,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}
          |
          |object O {
-         | val <<c>> = new Foo().getT
+         |  val <<c>> = new Foo().getT
          |}
          |""".stripMargin,
       """|class Foo() {
@@ -721,9 +721,9 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |}
          |
          |object O {
-         | val c: Int = new Foo().getT
+         |  val c: Int = new Foo().getT
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `dealias2` =
@@ -739,7 +739,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  def getT: T = 1
          |  val c: T = getT
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `dealias3` =
@@ -754,60 +754,59 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
          |  opaque type T = Int
          |  def getT: T = 1
          |val c: T = Foo.getT
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `dealias4` =
     checkEdit(
       """|object O:
-         | type M = Int
-         | type W = M => Int
-         | def get: W = ???
+         |  type M = Int
+         |  type W = M => Int
+         |  def get: W = ???
          |
          |val <<m>> = O.get
          |""".stripMargin,
       """|object O:
-         | type M = Int
-         | type W = M => Int
-         | def get: W = ???
+         |  type M = Int
+         |  type W = M => Int
+         |  def get: W = ???
          |
          |val m: Int => Int = O.get
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `dealias5` =
     checkEdit(
       """|object O:
-         | opaque type M = Int
-         | type W = M => Int
-         | def get: W = ???
+         |  opaque type M = Int
+         |  type W = M => Int
+         |  def get: W = ???
          |
          |val <<m>> = O.get
          |""".stripMargin,
       """|import O.M
          |object O:
-         | opaque type M = Int
-         | type W = M => Int
-         | def get: W = ???
+         |  opaque type M = Int
+         |  type W = M => Int
+         |  def get: W = ???
          |
          |val m: M => Int = O.get
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   def checkEdit(
       original: String,
-      expected: String,
+      expected: String
   ): Unit =
     val edits = getAutoImplement(original)
     val (code, _, _) = params(original)
     val obtained = TextEdits.applyEdits(code, edits)
     assertNoDiff(expected, obtained)
 
-
   def getAutoImplement(
       original: String,
-      filename: String = "file:/A.scala",
-  ): List[l.TextEdit] = {
+      filename: String = "file:/A.scala"
+  ): List[l.TextEdit] =
     val (code, _, offset) = params(original)
     val result = presentationCompiler
       .insertInferredType(
@@ -815,6 +814,3 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite {
       )
       .get()
     result.asScala.toList
-  }
-
-}

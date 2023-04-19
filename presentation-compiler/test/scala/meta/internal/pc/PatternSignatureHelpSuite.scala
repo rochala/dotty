@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
+class SignatureHelpPatternSuite extends BaseSignatureHelpSuite:
 
   @Test def `case` =
     check(
@@ -16,7 +15,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|map[B](f: ((Int, Int)) => B): List[B]
          |       ^^^^^^^^^^^^^^^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `generic1` =
@@ -30,7 +29,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|(Int)
          | ^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `generic2` =
@@ -43,9 +42,9 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |  }
         |}
         |""".stripMargin,
-    """|(a: T, b: T)
-       | ^^^^
-       |""".stripMargin
+      """|(a: T, b: T)
+         | ^^^^
+         |""".stripMargin
     )
 
   @Test def `generic3` =
@@ -58,9 +57,9 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |  }
         |}
         |""".stripMargin,
-          """|(a: C[T])
-             | ^^^^^^^
-             |""".stripMargin
+      """|(a: C[T])
+         | ^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `generic4` =
@@ -73,9 +72,9 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |    }
         |  }
         |""".stripMargin,
-    """|(a: Int, b: String)
-       | ^^^^^^
-       |""".stripMargin
+      """|(a: Int, b: String)
+         | ^^^^^^
+         |""".stripMargin
     )
 
   @Test def `generic5` =
@@ -95,7 +94,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|(Int, String)
          | ^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `non-synthetic-unapply` =
@@ -113,7 +112,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|(Int, Int)
          | ^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `non-synthetic-unapply-second` =
@@ -131,7 +130,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|(Int, Int)
          |      ^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pat` =
@@ -143,9 +142,9 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |    case Person(@@)
         |}
       """.stripMargin,
-          """|(name: String, age: Int)
-             | ^^^^^^^^^^^^
-             |""".stripMargin
+      """|(name: String, age: Int)
+         | ^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `pat1` =
@@ -163,7 +162,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|(String, Int)
          | ^^^^^^
-         | """.stripMargin,
+         | """.stripMargin
     )
 
   @Test def `pat2` =
@@ -176,9 +175,9 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |  }
         |}
       """.stripMargin,
-        """|(List[String])
-          | ^^^^^^^^^^^^
-          |""".stripMargin,
+      """|(List[String])
+         | ^^^^^^^^^^^^
+         |""".stripMargin
     )
 
   @Test def `pat3` =
@@ -195,7 +194,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
         |""".stripMargin,
       """|(String, String)
          |         ^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pat4` =
@@ -212,7 +211,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|(String, String)
          |         ^^^^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pat5` =
@@ -230,7 +229,7 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|(Int)
          | ^^^
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `pat6` =
@@ -263,7 +262,5 @@ class SignatureHelpPatternSuite extends BaseSignatureHelpSuite {
       """.stripMargin,
       """|unapply[A](a: A): Some[(A, A)]
          |           ^^^^
-         | """.stripMargin,
+         | """.stripMargin
     )
-
-}

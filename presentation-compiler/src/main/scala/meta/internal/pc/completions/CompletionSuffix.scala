@@ -10,7 +10,7 @@ case class CompletionSuffix(
     brace: Boolean,
     bracket: Boolean,
     template: Boolean,
-    snippet: SuffixKind,
+    snippet: SuffixKind
 ):
   def hasSnippet = snippet != SuffixKind.NoSuffix
   def chain(copyFn: CompletionSuffix => CompletionSuffix) = copyFn(this)
@@ -41,7 +41,7 @@ object CompletionSuffix:
     brace = false,
     bracket = false,
     template = false,
-    snippet = SuffixKind.NoSuffix,
+    snippet = SuffixKind.NoSuffix
   )
 
 enum SuffixKind:

@@ -16,28 +16,23 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert
 
-
-class CompilerJobQueueSuite {
+class CompilerJobQueueSuite:
   var jobs: CompilerJobQueue = null
 
   @Before
-  def beforeEach: Unit = {
+  def beforeEach: Unit =
     jobs = CompilerJobQueue()
-  }
 
   @After
-  def afterEach: Unit = {
+  def afterEach: Unit =
     jobs.shutdown()
-  }
 
   @Test def `cancel` =
     val cancelled = new CompletableFuture[Unit]()
     cancelled.cancel(false)
     jobs.submit(
       cancelled,
-      () => {
-        Thread.sleep(1000)
-      },
+      () => Thread.sleep(1000)
     )
     jobs.shutdown()
     assert(Try(cancelled.get).isFailure)
@@ -48,11 +43,11 @@ class CompilerJobQueueSuite {
     val original = 1.to(size).toList
     val all = Future.traverse(original) { i =>
       val promise = Promise[Unit]()
-      jobs.submit(() => {
+      jobs.submit(() =>
         Thread.sleep(i * 5)
         obtained += i
         promise.success(())
-      })
+      )
       promise.future
     }
 
@@ -63,4 +58,3 @@ class CompilerJobQueueSuite {
 
     // Assert that the jobs don't run in the default order.
     Assert.assertNotEquals(obtained.toList, original)
-}

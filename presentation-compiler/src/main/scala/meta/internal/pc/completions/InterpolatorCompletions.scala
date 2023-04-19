@@ -33,7 +33,7 @@ object InterpolatorCompletions:
       snippetsEnabled: Boolean,
       search: SymbolSearch,
       config: PresentationCompilerConfig,
-      buildTargetIdentifier: String,
+      buildTargetIdentifier: String
   )(using Context, ReportContext) =
     InterpolationSplice(pos.span.point, text.toCharArray(), text) match
       case Some(interpolator) =>
@@ -45,10 +45,9 @@ object InterpolatorCompletions:
           indexedContext,
           completions,
           snippetsEnabled,
-          hasStringInterpolator =
-            path.tail.headOption.exists(_.isInstanceOf[SeqLiteral]),
+          hasStringInterpolator = path.tail.headOption.exists(_.isInstanceOf[SeqLiteral]),
           search,
-          buildTargetIdentifier,
+          buildTargetIdentifier
         )
       case None =>
         InterpolatorCompletions.contributeMember(
@@ -60,7 +59,7 @@ object InterpolatorCompletions:
           completions,
           snippetsEnabled,
           search,
-          buildTargetIdentifier,
+          buildTargetIdentifier
         )
     end match
   end contribute
@@ -73,11 +72,11 @@ object InterpolatorCompletions:
    */
   private def interpolatorMemberArg(
       lit: Literal,
-      parent: Tree,
+      parent: Tree
   ): PartialFunction[Tree, Option[Ident | Select]] =
     case tree @ Apply(
           _,
-          List(Typed(expr: SeqLiteral, _)),
+          List(Typed(expr: SeqLiteral, _))
         ) if expr.elems.exists {
           case _: Ident => true
           case _: Select => true
@@ -112,12 +111,12 @@ object InterpolatorCompletions:
       completions: Completions,
       areSnippetsSupported: Boolean,
       search: SymbolSearch,
-      buildTargetIdentifier: String,
+      buildTargetIdentifier: String
   )(using Context, ReportContext): List[CompletionValue] =
     def newText(
         name: String,
         suffix: Option[String],
-        identOrSelect: Ident | Select,
+        identOrSelect: Ident | Select
     ): String =
       val snippetCursor = suffixEnding(suffix, areSnippetsSupported)
       new StringBuilder()
@@ -149,13 +148,13 @@ object InterpolatorCompletions:
     def completionValues(
         syms: Seq[Symbol],
         isExtension: Boolean,
-        identOrSelect: Ident | Select,
+        identOrSelect: Ident | Select
     ): Seq[CompletionValue] =
       syms.collect {
         case sym
             if CompletionFuzzy.matches(
               completionPos.query,
-              sym.name.toString(),
+              sym.name.toString()
             ) =>
           val label = sym.name.decoded
           completions.completionsWithSuffix(
@@ -171,7 +170,7 @@ object InterpolatorCompletions:
                 // Needed for VS Code which will not show the completion otherwise
                 Some(identOrSelect.name.toString() + "." + label),
                 s,
-                isExtension = isExtension,
+                isExtension = isExtension
               ),
           )
       }.flatten
@@ -195,7 +194,7 @@ object InterpolatorCompletions:
 
   private def suffixEnding(
       suffix: Option[String],
-      areSnippetsSupported: Boolean,
+      areSnippetsSupported: Boolean
   ): String =
     suffix match
       case Some(suffix) if areSnippetsSupported && suffix == "()" =>
@@ -227,7 +226,7 @@ object InterpolatorCompletions:
       areSnippetsSupported: Boolean,
       hasStringInterpolator: Boolean,
       search: SymbolSearch,
-      buildTargetIdentifier: String,
+      buildTargetIdentifier: String
   )(using ctx: Context, reportsContext: ReportContext): List[CompletionValue] =
     val litStartPos = lit.span.start
     val litEndPos = lit.span.end - Cursor.value.length()
@@ -285,7 +284,7 @@ object InterpolatorCompletions:
       case sym
           if CompletionFuzzy.matches(
             interpolator.name,
-            sym.name.decoded,
+            sym.name.decoded
           ) && !sym.isType =>
         val label = sym.name.decoded
         completions.completionsWithSuffix(
@@ -300,7 +299,7 @@ object InterpolatorCompletions:
               Some(nameRange),
               None,
               sym,
-              isWorkspace,
+              isWorkspace
             ),
         )
     end collectCompletions

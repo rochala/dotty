@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class ScaladocCompletionSuite extends BaseCompletionSuite {
+class ScaladocCompletionSuite extends BaseCompletionSuite:
 
   @Test def `methoddef-label` =
     check(
@@ -13,7 +12,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
         |  def test(x: Int, y: Int): Int = ???
         |}""".stripMargin,
       """|/** */Scaladoc Comment
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef-label` =
@@ -24,7 +23,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
         |  case class(x: Int) {}
         |}""".stripMargin,
       """|/** */Scaladoc Comment
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // see: https://github.com/scalameta/metals/issues/1941
@@ -35,7 +34,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
         |  /**@@
         |}""".stripMargin,
       """|/** */Scaladoc Comment
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `methoddef` =
@@ -57,7 +56,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  def test1(param1: Int, param2: Int): Int = ???
          |  def test2(param1: Int, param2: Int, param3: Int): Int = ???
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef` =
@@ -78,7 +77,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  class Test1(param1: Int, param2: Int) {}
          |  class Test2(param1: Int, param2: Int, param3: Int) {}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `valdef` =
@@ -94,7 +93,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  val x = 1
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `objectdef` =
@@ -112,7 +111,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  // do not calculate scaladoc based on the method
          |  def test(x: Int): Int = ???
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `defdef-nested` =
@@ -135,7 +134,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    def nest(y: Int) = ???
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef-nested` =
@@ -157,7 +156,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    case class C(y: Int) {}
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `trait-classdef-nested` =
@@ -179,7 +178,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    case class C(y: Int) {}
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `defdef-no-param-cursor` =
@@ -199,7 +198,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  def test1: Int = ???
          |  def test2(param1: Int, param2: Int, param3: Int): Int = ???
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `defdef-returns-unit` =
@@ -220,7 +219,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  def test(param1: Int, param2: Int): Unit = ???
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `defdef-returns-inferred-unit` =
@@ -241,7 +240,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  def test(param1: Int, param2: Int) = {}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `defdef-evidence` =
@@ -263,7 +262,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  def test[T: Ordering](x: T, y: T): T = if(x < y) x else y
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef-evidence` =
@@ -282,7 +281,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  case class Test[T: Ordering](x: T, y: T) {}
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `classdef-curried` =
@@ -302,7 +301,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    */
          |  case class Test(a: Int, b: String)(c: Long)
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `no-associated-def` =
@@ -315,7 +314,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    * $0
          |    */
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `extension` =
@@ -332,7 +331,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |    * @return
          |    */
          |  def foo(param1: Int): Int = ???
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `anonymous-given` =
@@ -347,7 +346,7 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  * @return
          |  */
          |def foo(param1: Int)(using String): Int = ???
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `named-given` =
@@ -363,6 +362,5 @@ class ScaladocCompletionSuite extends BaseCompletionSuite {
          |  * @return
          |  */
          |def foo(param1: Int)(using s: String): Int = ???
-         |""".stripMargin,
+         |""".stripMargin
     )
-}

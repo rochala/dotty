@@ -49,12 +49,12 @@ final class InferredTypeProvider(
     params: OffsetParams,
     driver: InteractiveDriver,
     config: PresentationCompilerConfig,
-    symbolSearch: SymbolSearch,
+    symbolSearch: SymbolSearch
 ):
 
   case class AdjustTypeOpts(
       text: String,
-      adjustedEndPos: l.Position,
+      adjustedEndPos: l.Position
   )
 
   def inferredTypeEdits(
@@ -81,7 +81,7 @@ final class InferredTypeProvider(
       unit.tpdTree,
       unit.comments,
       indexedCtx,
-      config,
+      config
     )
     val shortenedNames = new ShortenedNames(indexedCtx)
 
@@ -97,7 +97,7 @@ final class InferredTypeProvider(
         shortenedNames,
         indexedCtx,
         symbolSearch,
-        includeDefaultParam = MetalsPrinter.IncludeDefaultParam.ResolveLater,
+        includeDefaultParam = MetalsPrinter.IncludeDefaultParam.ResolveLater
       )
       printer.tpe(tpe)
 
@@ -113,8 +113,7 @@ final class InferredTypeProvider(
       case Some(vl @ ValDef(sym, tpt, rhs)) =>
         val isParam = path match
           case head :: next :: _ if next.symbol.isAnonymousFunction => true
-          case head :: (b @ Block(stats, expr)) :: next :: _
-              if next.symbol.isAnonymousFunction =>
+          case head :: (b @ Block(stats, expr)) :: next :: _ if next.symbol.isAnonymousFunction =>
             true
           case _ => false
         def baseEdit(withParens: Boolean): TextEdit =
@@ -126,13 +125,13 @@ final class InferredTypeProvider(
             endPos,
             ": " + printType(tpt.tpe) + {
               if withParens then ")" else ""
-            },
+            }
           )
 
         def checkForParensAndEdit(
             applyEndingPos: Int,
             toCheckFor: Char,
-            blockStartPos: SourcePosition,
+            blockStartPos: SourcePosition
         ) =
           val text = params.text
           val isParensFunction: Boolean = text(applyEndingPos) == toCheckFor
@@ -141,17 +140,14 @@ final class InferredTypeProvider(
             text(blockStartPos.start) == '('
 
           if isParensFunction && !alreadyHasParens then
-            new TextEdit(blockStartPos.toLsp, "(") :: baseEdit(withParens =
-              true
-            ) :: Nil
+            new TextEdit(blockStartPos.toLsp, "(") :: baseEdit(withParens = true) :: Nil
           else baseEdit(withParens = false) :: Nil
         end checkForParensAndEdit
 
         def typeNameEdit: List[TextEdit] =
           path match
             // lambda `map(a => ???)` apply
-            case _ :: _ :: (block: untpd.Block) :: (appl: untpd.Apply) :: _
-                if isParam =>
+            case _ :: _ :: (block: untpd.Block) :: (appl: untpd.Apply) :: _ if isParam =>
               checkForParensAndEdit(appl.fun.endPos.end, '(', block.startPos)
 
             // labda `map{a => ???}` apply
@@ -174,7 +170,7 @@ final class InferredTypeProvider(
               Some(
                 AdjustTypeOpts(
                   removeType(vl.namePos.end, tpt.sourcePos.end - 1),
-                  tpt.sourcePos.toLsp.getEnd(),
+                  tpt.sourcePos.toLsp.getEnd()
                 )
               )
             )
@@ -198,7 +194,7 @@ final class InferredTypeProvider(
           adjustOpt.foreach(adjust => end.setEnd(adjust.adjustedEndPos))
           new TextEdit(
             end,
-            ": " + printType(tpt.tpe),
+            ": " + printType(tpt.tpe)
           )
         end typeNameEdit
 
@@ -213,7 +209,7 @@ final class InferredTypeProvider(
               Some(
                 AdjustTypeOpts(
                   removeType(lastColon, tpt.sourcePos.end - 1),
-                  tpt.sourcePos.toLsp.getEnd(),
+                  tpt.sourcePos.toLsp.getEnd()
                 )
               )
             )
@@ -230,15 +226,14 @@ final class InferredTypeProvider(
             bind.endPos.toLsp,
             ": " + printType(body.tpe) + {
               if withParens then ")" else ""
-            },
+            }
           )
         val typeNameEdit = path match
           /* In case it's an infix pattern match
            * we need to add () for example in:
            * case (head : Int) :: tail =>
            */
-          case _ :: (unappl @ UnApply(_, _, patterns)) :: _
-              if patterns.size > 1 =>
+          case _ :: (unappl @ UnApply(_, _, patterns)) :: _ if patterns.size > 1 =>
             val firstEnd = patterns(0).endPos.end
             val secondStart = patterns(1).startPos.start
             val hasDot = params
@@ -261,7 +256,7 @@ final class InferredTypeProvider(
       case Some(i @ Ident(name)) =>
         val typeNameEdit = new TextEdit(
           i.endPos.toLsp,
-          ": " + printType(i.tpe.widen),
+          ": " + printType(i.tpe.widen)
         )
         typeNameEdit :: imports
 
@@ -273,7 +268,7 @@ final class InferredTypeProvider(
   private def findNamePos(
       text: String,
       tree: untpd.NamedDefTree,
-      kewordOffset: Int,
+      kewordOffset: Int
   )(using
       Context
   ): SourcePosition =
@@ -284,12 +279,11 @@ final class InferredTypeProvider(
     def lookup(
         idx: Int,
         start: Option[(Int, List[Char])],
-        withBacktick: Boolean,
+        withBacktick: Boolean
     ): Option[SourcePosition] =
       start match
         case Some((start, nextMatch :: left)) =>
-          if text.charAt(idx) == nextMatch then
-            lookup(idx + 1, Some((start, left)), withBacktick)
+          if text.charAt(idx) == nextMatch then lookup(idx + 1, Some((start, left)), withBacktick)
           else lookup(idx + 1, None, withBacktick = false)
         case Some((start, Nil)) =>
           val end = if withBacktick then idx + 1 else idx
@@ -297,16 +291,14 @@ final class InferredTypeProvider(
           Some(pos)
         case None if idx < text.length =>
           val ch = text.charAt(idx)
-          if ch == realName.head then
-            lookup(idx + 1, Some((idx, realName.tail)), withBacktick)
+          if ch == realName.head then lookup(idx + 1, Some((idx, realName.tail)), withBacktick)
           else if ch == '`' then lookup(idx + 1, None, withBacktick = true)
           else lookup(idx + 1, None, withBacktick = false)
         case _ =>
           None
 
     val matchedByText =
-      if realName.nonEmpty then
-        lookup(tree.sourcePos.start + kewordOffset, None, false)
+      if realName.nonEmpty then lookup(tree.sourcePos.start + kewordOffset, None, false)
       else None
 
     matchedByText.getOrElse(tree.namePos)

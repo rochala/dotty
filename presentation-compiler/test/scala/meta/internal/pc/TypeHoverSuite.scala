@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class TypeHoverSuite extends BaseHoverSuite {
+class TypeHoverSuite extends BaseHoverSuite:
 
   @Test def `union` =
     check(
@@ -17,7 +16,7 @@ class TypeHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|val name: Foo | Bar[Files]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `intersection` =
@@ -36,7 +35,7 @@ class TypeHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|arg: Resettable & Growable[Files]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   // We should produce a shorter type but:
@@ -50,7 +49,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |
          |""".stripMargin,
       """|case Red: Color
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `enums2` =
@@ -62,7 +61,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |
          |""".stripMargin,
       """|enum Color: SimpleEnum
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `enums-outermost` =
@@ -86,7 +85,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |
          |""".stripMargin,
       """|enum Color: SimpleEnum
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `enum-params` =
@@ -101,7 +100,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |
          |""".stripMargin,
       """|case Green: Color
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `extension-methods` =
@@ -115,7 +114,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |    "".<<doub@@le2>>
          |end Foo
          |""".stripMargin,
-      "extension (s: String) def double2: String".hover,
+      "extension (s: String) def double2: String".hover
     )
 
   /* Currently there is no way to differentiate between
@@ -141,7 +140,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |    "".<<doub@@le(1)>>
          |end Foo
          |""".stripMargin,
-      "extension [T](using A)(s: T) def double(using B)[G](using C)(times: G): String".hover,
+      "extension [T](using A)(s: T) def double(using B)[G](using C)(times: G): String".hover
     )
 
   @Test def `extension-methods-complex-binary` =
@@ -161,7 +160,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |end Foo
          |""".stripMargin,
       """|Int
-         |extension [T](using A)(main: T) def %:[R](res: R)(using B)(using C): R""".stripMargin.hover,
+         |extension [T](using A)(main: T) def %:[R](res: R)(using B)(using C): R""".stripMargin.hover
     )
 
   @Test def `using` =
@@ -175,7 +174,7 @@ class TypeHoverSuite extends BaseHoverSuite {
         |""".stripMargin,
       """|String
          |def apply[T](a: T)(using Int): T
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `toplevel-left` =
@@ -184,7 +183,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |""".stripMargin,
       """|Left[String, Nothing]
          |def apply[A, B](value: A): Left[A, B]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `selectable` =
@@ -196,7 +195,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |val foo2 = sel.fo@@o2
          |""".stripMargin,
       """|def foo2: Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `selectable2` =
@@ -208,7 +207,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |val bar2 = sel.ba@@r2(3)
          |""".stripMargin,
       """|def bar2(x: Int): Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `selectable-full` =
@@ -222,7 +221,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |val bar2 = sel.fo@@o2
          |""".stripMargin,
       """|def foo2: Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `structural-types` =
@@ -248,7 +247,7 @@ class TypeHoverSuite extends BaseHoverSuite {
          |end StructuralTypes
          |""".stripMargin,
       """|def age: Int
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `structural-types1` =
@@ -274,6 +273,5 @@ class TypeHoverSuite extends BaseHoverSuite {
          |end StructuralTypes
          |""".stripMargin,
       """|def scalameta: String
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
-}

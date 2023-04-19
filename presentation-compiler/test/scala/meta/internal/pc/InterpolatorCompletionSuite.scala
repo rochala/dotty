@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class InterpolatorCompletionSuite extends BaseCompletionSuite {
+class InterpolatorCompletionSuite extends BaseCompletionSuite:
 
   @Test def `string` =
     checkEdit(
@@ -16,7 +16,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def message = s"Hello $myName$0, you are welcome"
          |}
          |""".stripMargin,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `string1` =
@@ -31,7 +31,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def message = s"$myName$0"
          |}
          |""".stripMargin,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `string2` =
@@ -46,7 +46,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def message = s"${myName$0}me"
          |}
          |""".stripMargin,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `multiline` =
@@ -61,7 +61,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def message = s'''${myName$0}me'''
          |}
          |""".stripMargin.triplequoted,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `multiline1` =
@@ -80,7 +80,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |    |'''.stripMargin
          |}
          |""".stripMargin.triplequoted,
-      filterText = "myName".triplequoted,
+      filterText = "myName".triplequoted
     )
 
   @Test def `escape` =
@@ -95,7 +95,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  s"$myName$0 $$"
          |}
          |""".stripMargin.triplequoted,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `not-escape-twice` =
@@ -110,7 +110,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  s"$myName $$"
          |}
          |""".stripMargin.triplequoted,
-      filterText = "myName",
+      filterText = "myName"
     )
 
   @Test def `escape-ident` =
@@ -124,7 +124,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val myName = ""
          |  s"Say $$myName is $myName$0"
          |}
-         |""".stripMargin.triplequoted,
+         |""".stripMargin.triplequoted
     )
 
   @Test def `interpolator` =
@@ -135,7 +135,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       """|myName: String
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `interpolator-in-object` =
@@ -157,7 +157,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |    }
          |  }
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `negative` =
@@ -166,7 +166,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$1@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative1` =
@@ -175,7 +175,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$ @@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative2` =
@@ -184,7 +184,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$-@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative3` =
@@ -193,7 +193,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$-@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative4` =
@@ -202,7 +202,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$hello-@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative5` =
@@ -211,7 +211,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$-hello@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `negative6` =
@@ -220,7 +220,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$he-llo@@"
          |}
          |""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `positive` =
@@ -230,7 +230,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  "$he11o@@"
          |}
          |""".stripMargin,
-      "he11o: String",
+      "he11o: String"
     )
 
   @Test def `positive1` =
@@ -244,7 +244,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val myName = "name"
          |  s"$$$myName$0"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `snippet` =
@@ -256,7 +256,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|object Main {
          |  s"${identity($0)}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `snippet2` =
@@ -268,7 +268,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|object Main {
          |  s"${toString()$0}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `snippet3` =
@@ -282,7 +282,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def empty: Boolean = true
          |  s"$empty$0"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `brace` =
@@ -296,7 +296,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val myName = ""
          |  s"${myName$0}"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `empty` =
@@ -312,7 +312,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|b: Int
          |a: String
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `empty-brace` =
@@ -328,7 +328,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|b: Int
          |a: String
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `member` =
@@ -342,7 +342,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def member = 42
          |  s"Hello ${Main.member$0}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member-label` =
@@ -356,7 +356,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |equals(x$0: Any): Boolean
          |""".stripMargin,
       topLines = Some(6),
-      includeDetail = false,
+      includeDetail = false
     )
 
   @Test def `member1` =
@@ -370,7 +370,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  def method(arg: Int) = 42
          |  s"Hello ${Main.method($0)}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member2` =
@@ -382,7 +382,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|object Main {
          |  s"Hello ${Main.toString()$0}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member3` =
@@ -396,7 +396,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|a: String
          |b: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `member-backtick` =
@@ -410,7 +410,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val `type` = ""
          |  s"Hello ${Main.`type`$0}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member-multiple` =
@@ -426,7 +426,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val dfg = ""
          |  s"Hello ${abc.toString()$0} from ${dfg.toString()}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member-multiple2` =
@@ -442,7 +442,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  val dfg = ""
          |  s"Hello $dfg ${abc.toString()$0} from ${dfg.toString()}!"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `member-f` =
@@ -456,7 +456,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|a: String
          |b: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `member-raw` =
@@ -470,7 +470,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|a: String
          |b: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `member-unknown` =
@@ -487,7 +487,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
       """|a: String
          |b: Int
          |""".stripMargin,
-      topLines = Some(2),
+      topLines = Some(2)
     )
 
   @Test def `member-multiline` =
@@ -501,7 +501,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin.triplequoted,
       """|member: String
          |""".stripMargin,
-      filter = s => s.contains("member"),
+      filter = s => s.contains("member")
     )
 
   @Test def `closing-brace` =
@@ -512,7 +512,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       """"Hello ${hell@@}"""".stripMargin,
-      """s"Hello ${hello$0}"""".stripMargin,
+      """s"Hello ${hello$0}"""".stripMargin
     )
 
   @Test def `closing-brace-negative` =
@@ -523,7 +523,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |}
          |""".stripMargin,
       """"Hello ${hell@@o}"""".stripMargin,
-      """s"Hello ${hello$0}o}"""".stripMargin,
+      """s"Hello ${hello$0}o}"""".stripMargin
     )
 
   // See https://github.com/scalameta/metals/issues/608
@@ -539,7 +539,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """s"Hello $hello@@"""".stripMargin,
       """s"Hello $helloMethod"""".stripMargin,
-      filter = _.contains("a: Int"),
+      filter = _.contains("a: Int")
     )
 
   @Test def `token-error` =
@@ -551,7 +551,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """s"Hello $@@"""".stripMargin,
       """s"Hello $hello"""".stripMargin,
-      filter = _.contains("hello"),
+      filter = _.contains("hello")
     )
 
   @Test def `brace-token-error-pos` =
@@ -563,7 +563,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """s"Hello ${@@"""".stripMargin,
       """s"Hello ${hello"""".stripMargin,
-      filter = _.contains("hello"),
+      filter = _.contains("hello")
     )
 
   @Test def `brace-token-error` =
@@ -575,7 +575,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """s"Hello ${@@}"""".stripMargin,
       """s"Hello ${hello}"""".stripMargin,
-      filter = _.contains("hello"),
+      filter = _.contains("hello")
     )
 
   @Test def `backtick` =
@@ -590,7 +590,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  s"Hello ${`type`$0}"
          |}
          |""".stripMargin,
-      filterText = "type",
+      filterText = "type"
     )
 
   @Test def `backtick2` =
@@ -605,7 +605,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |  s"Hello ${`hello world`$0}"
          |}
          |""".stripMargin,
-      filterText = "hello world",
+      filterText = "hello world"
     )
 
   @Test def `auto-imports` =
@@ -618,7 +618,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |object Main {
          |  s"this is an interesting $Paths$0"
          |}
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `auto-imports-prefix` =
@@ -654,7 +654,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       // Scala 3 has an additional Paths object completion
       itemIndex = 1,
-      assertSingleItem = false,
+      assertSingleItem = false
     )
 
   @Test def `extension` =
@@ -678,7 +678,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |def main = s" ${aaa.incr$0}"
          |""".stripMargin,
       // simulate issues with VS Code
-      filterText = "aaa.incr",
+      filterText = "aaa.incr"
     )
 
   @Test def `extension2` =
@@ -703,7 +703,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |def aaa = 123
          |def main = s"  ${aaa.plus($0)}"
          |""".stripMargin,
-      filterText = "aaa.plus",
+      filterText = "aaa.plus"
     )
 
   @Test def `filter-by-type` =
@@ -721,7 +721,7 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |""".stripMargin,
       """|identity: String (extension)
          |""".stripMargin, // incr won't be available
-      filter = _.contains("(extension)"),
+      filter = _.contains("(extension)")
     )
 
   @Test def `apply-method` =
@@ -733,6 +733,5 @@ class InterpolatorCompletionSuite extends BaseCompletionSuite {
          |object Main {
          |  val a = s"${ListBuffer($0)}""
          |}""".stripMargin,
-      filter = _.contains("[A]"),
+      filter = _.contains("[A]")
     )
-}

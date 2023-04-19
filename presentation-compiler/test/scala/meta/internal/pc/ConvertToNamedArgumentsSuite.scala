@@ -9,7 +9,7 @@ import scala.meta.pc.DisplayableException
 import org.eclipse.{lsp4j => l}
 import org.junit.Test
 
-class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
+class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite:
 
   @Test def `scala-std-lib` =
     checkEdit(
@@ -19,7 +19,7 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
       List(0, 1),
       """|object A{
          |  val a = scala.math.max(x = 1, y = 2)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `backticked-name` =
@@ -32,7 +32,7 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
       """|object A{
          |  final case class Foo(`type`: Int, arg: String)
          |  val a = Foo(`type` = 1, arg = "a")
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `backticked-name-method` =
@@ -45,7 +45,7 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
       """|object A{
          |  def foo(`type`: Int, arg: String) = "a"
          |  val a = foo(`type` = 1, arg = "a")
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `new-apply` =
@@ -58,7 +58,7 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
       """|object Something {
          |  class Foo(param1: Int, param2: Int)
          |  val a = new Foo(param1 = 1, param2 = 2)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `new-apply-multiple` =
@@ -71,7 +71,7 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
       """|object Something {
          |  class Foo(param1: Int, param2: Int)(param3: Int)
          |  val a = new Foo(param1 = 1, param2 = 2)(param3 = 3)
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `java-object` =
@@ -81,32 +81,29 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
          |}
          |""".stripMargin,
       List(0, 1),
-      CodeActionErrorMessages.ConvertToNamedArguments.IsJavaObject,
+      CodeActionErrorMessages.ConvertToNamedArguments.IsJavaObject
     )
 
   def checkError(
       original: String,
       argIndices: List[Int],
-      expectedErrorMsg: String,
-  ): Unit = {
-    try {
+      expectedErrorMsg: String
+  ): Unit =
+    try
       val edits = convertToNamedArgs(original, argIndices)
       val (code, _, _) = params(original)
       val obtained = TextEdits.applyEdits(code, edits)
       fail(s"No error. Result: \n $obtained")
-    } catch {
+    catch
       case e: ExecutionException =>
-        e.getCause() match {
+        e.getCause() match
           case cause: DisplayableException =>
             assertNoDiff(expectedErrorMsg, cause.getMessage)
-        }
-    }
-  }
 
   def checkEdit(
       original: String,
       argIndices: List[Int],
-      expected: String,
+      expected: String
   ): Unit =
     val edits = convertToNamedArgs(original, argIndices)
     val (code, _, _) = params(original)
@@ -116,16 +113,13 @@ class ConvertToNamedArgumentsSuite extends BaseCodeActionSuite {
   def convertToNamedArgs(
       original: String,
       argIndices: List[Int],
-      filename: String = "file:/A.scala",
-  ): List[l.TextEdit] = {
+      filename: String = "file:/A.scala"
+  ): List[l.TextEdit] =
     val (code, _, offset) = params(original)
     val result = presentationCompiler
       .convertToNamedArguments(
         CompilerOffsetParams(URI.create(filename), code, offset, cancelToken),
-        argIndices.map(Integer.valueOf).asJava,
+        argIndices.map(Integer.valueOf).asJava
       )
       .get()
     result.asScala.toList
-  }
-
-}

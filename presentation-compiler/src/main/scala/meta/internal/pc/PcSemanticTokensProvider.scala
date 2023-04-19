@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.SemanticTokenTypes
  */
 final class PcSemanticTokensProvider(
     driver: InteractiveDriver,
-    params: VirtualFileParams,
+    params: VirtualFileParams
 ):
   object Collector extends PcCollector[Option[Node]](driver, params):
     override def collect(
@@ -44,7 +44,7 @@ final class PcSemanticTokensProvider(
 
   def makeNode(
       sym: Symbol,
-      pos: SourcePosition,
+      pos: SourcePosition
   ): Node =
 
     var mod: Int = 0
@@ -57,24 +57,17 @@ final class PcSemanticTokensProvider(
       then
         addPwrToMod(SemanticTokenModifiers.Readonly)
         getTypeId(SemanticTokenTypes.Parameter)
-      else if sym.isTypeParam || sym.isSkolem then
-        getTypeId(SemanticTokenTypes.TypeParameter)
+      else if sym.isTypeParam || sym.isSkolem then getTypeId(SemanticTokenTypes.TypeParameter)
       else if sym.is(Flags.Enum) || sym.isAllOf(Flags.EnumVal)
       then getTypeId(SemanticTokenTypes.Enum)
-      else if sym.is(Flags.Trait) then
-        getTypeId(SemanticTokenTypes.Interface) // "interface"
+      else if sym.is(Flags.Trait) then getTypeId(SemanticTokenTypes.Interface) // "interface"
       else if sym.isClass then getTypeId(SemanticTokenTypes.Class) // "class"
-      else if sym.isType && !sym.is(Flags.Param) then
-        getTypeId(SemanticTokenTypes.Type) // "type"
-      else if sym.is(Flags.Mutable) then
-        getTypeId(SemanticTokenTypes.Variable) // "var"
-      else if sym.is(Flags.Package) then
-        getTypeId(SemanticTokenTypes.Namespace) // "package"
-      else if sym.is(Flags.Module) then
-        getTypeId(SemanticTokenTypes.Class) // "object"
+      else if sym.isType && !sym.is(Flags.Param) then getTypeId(SemanticTokenTypes.Type) // "type"
+      else if sym.is(Flags.Mutable) then getTypeId(SemanticTokenTypes.Variable) // "var"
+      else if sym.is(Flags.Package) then getTypeId(SemanticTokenTypes.Namespace) // "package"
+      else if sym.is(Flags.Module) then getTypeId(SemanticTokenTypes.Class) // "object"
       else if sym.isRealMethod then
-        if sym.isGetter | sym.isSetter then
-          getTypeId(SemanticTokenTypes.Variable)
+        if sym.isGetter | sym.isSetter then getTypeId(SemanticTokenTypes.Variable)
         else getTypeId(SemanticTokenTypes.Method) // "def"
       else if sym.isTerm &&
         (!sym.is(Flags.Param) || sym.is(Flags.ParamAccessor))

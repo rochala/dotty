@@ -13,13 +13,11 @@ import org.eclipse.lsp4j.CompletionList
 import scala.meta.internal.metals.{CompilerOffsetParams, EmptyCancelToken}
 import org.junit.Test
 import org.junit._
-import org.junit.Assert.assertEquals
 import org.junit.rules.ExpectedException
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
-import scala.runtime.Scala3RunTime.assertFailed
 import org.hamcrest.CoreMatchers._
 import org.hamcrest.MatcherAssert
 import org.jline.utils.DiffHelper
@@ -30,13 +28,13 @@ import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
 import java.awt.image.PackedColorModel
 
-abstract class BaseCompletionSuite extends BasePCSuite {
+abstract class BaseCompletionSuite extends BasePCSuite:
 
   private def cancelToken: CancelToken = EmptyCancelToken
 
   private def resolvedCompletions(
       params: CompilerOffsetParams
-  ): CompletionList = {
+  ): CompletionList =
     val result = presentationCompiler.complete(params).get()
     val newItems = result.getItems.asScala.map { item =>
       item.data
@@ -47,25 +45,23 @@ abstract class BaseCompletionSuite extends BasePCSuite {
     }
     result.setItems(newItems.asJava)
     result
-  }
 
   private def getItems(
       original: String,
-      filename: String = "A.scala",
-  ): Seq[CompletionItem] = {
+      filename: String = "A.scala"
+  ): Seq[CompletionItem] =
     val (code, offset) = params(original)
     val result = resolvedCompletions(
       CompilerOffsetParams(
         Paths.get(filename).toUri(),
         code,
         offset,
-        cancelToken,
+        cancelToken
       )
     )
     result.getItems.asScala
       .sortBy(item => Option(item.getSortText).getOrElse(item.getLabel()))
       .toSeq
-  }
 
   /**
    * Check completions using `fn` returned at @@ cursor position indicated in the `original` string.
@@ -76,7 +72,7 @@ abstract class BaseCompletionSuite extends BasePCSuite {
    */
   def checkItems(
       original: String,
-      fn: Seq[CompletionItem] => Boolean,
+      fn: Seq[CompletionItem] => Boolean
   ): Unit =
     assert(fn(getItems(original)))
 
@@ -101,17 +97,16 @@ abstract class BaseCompletionSuite extends BasePCSuite {
       filterText: String = "",
       assertSingleItem: Boolean = true,
       filter: String => Boolean = _ => true,
-      command: Option[String] = None,
-  ): Unit = {
+      command: Option[String] = None
+  ): Unit =
     checkEdit(
       original = template.replace("___", original),
       expected = template.replace("___", expected),
       filterText = filterText,
       assertSingleItem = assertSingleItem,
       filter = filter,
-      command = command,
+      command = command
     )
-  }
 
   /**
    * Check the results of applying the first completion suggested at a cursor position
@@ -133,32 +128,33 @@ abstract class BaseCompletionSuite extends BasePCSuite {
       filter: String => Boolean = _ => true,
       command: Option[String] = None,
       itemIndex: Int = 0,
-      filename: String = "A.scala",
-  ): Unit = {
-    val items = getItems(original, filename).filter(item => filter(item.getLabel))
+      filename: String = "A.scala"
+  ): Unit =
+    val items =
+      getItems(original, filename).filter(item => filter(item.getLabel))
 
     assertNonEmpty(items, "Obtained empty completions, can't check for edits.")
 
     if (assertSingleItem && items.length != 1) then
-      fail(s"expected single completion item, obtained ${items.length} items.\n${items}")
+      fail(
+        s"expected single completion item, obtained ${items.length} items.\n${items}"
+      )
 
-    if (items.size <= itemIndex) then
-      fail(s"Not enough completion items: $items")
+    if (items.size <= itemIndex) then fail(s"Not enough completion items: $items")
     val item = items(itemIndex)
     val (code, _) = params(original)
     val obtained = TextEdits.applyEdits(code, item)
 
     assertNoDiff(expected, obtained)
 
-
     if (filterText.nonEmpty) then
       assertEquals(item.getFilterText, filterText, "Invalid filter text")
+
     assertEquals(
-      "Invalid command",
       command.getOrElse(""),
       Option(item.getCommand).fold("")(_.getCommand),
+      "Invalid command"
     )
-  }
 
   /**
    * Check snippet syntax returned in the completions. Snippets show the editor where the cursor should end up ($0).
@@ -171,27 +167,26 @@ abstract class BaseCompletionSuite extends BasePCSuite {
       original: String,
       expected: String,
       topLines: Option[Int] = None,
-      includeDetail: Boolean = false,
-  ): Unit = {
-      val baseItems = getItems(original)
-      val items = topLines match
-        case Some(top) => baseItems.take(top)
-        case None => baseItems
+      includeDetail: Boolean = false
+  ): Unit =
+    val baseItems = getItems(original)
+    val items = topLines match
+      case Some(top) => baseItems.take(top)
+      case None => baseItems
 
-      val obtained = items
-        .map { item =>
-          val results = item
-            .getLeftTextEdit()
-            .map(_.getNewText)
-            .orElse(Option(item.getInsertText()))
-            .getOrElse(item.getLabel)
-          if (includeDetail) results + " - " + item.getDetail()
-          else results
-        }
-        .mkString("\n")
+    val obtained = items
+      .map { item =>
+        val results = item
+          .getLeftTextEdit()
+          .map(_.getNewText)
+          .orElse(Option(item.getInsertText()))
+          .getOrElse(item.getLabel)
+        if (includeDetail) results + " - " + item.getDetail()
+        else results
+      }
+      .mkString("\n")
 
-      assertCompletions(expected, obtained, Some(original))
-  }
+    assertCompletions(expected, obtained, Some(original))
 
   /**
    * Check completions that will be shown in original param after `@@` marker
@@ -225,17 +220,16 @@ abstract class BaseCompletionSuite extends BasePCSuite {
       includeDetail: Boolean = true,
       filename: String = "A.scala",
       filter: String => Boolean = _ => true,
-      enablePackageWrap: Boolean = true,
-  ): Unit = {
+      enablePackageWrap: Boolean = true
+  ): Unit =
     val out = new StringBuilder()
     val withPkg =
       if (original.contains("package") || !enablePackageWrap) original
       else s"package test\n$original"
     val baseItems = getItems(withPkg, filename)
-    val items = topLines match {
+    val items = topLines match
       case Some(top) => baseItems.take(top)
       case None => baseItems
-    }
     val filteredItems = items.filter(item => filter(item.getLabel))
     filteredItems.foreach { item =>
       val label = TestCompletions.getFullyQualifiedLabel(item)
@@ -259,15 +253,17 @@ abstract class BaseCompletionSuite extends BasePCSuite {
               .contains(item.getDetail)
           ) {
             item.getDetail
-          } else {
+          } else
             ""
-          }
         })
         .append(commitCharacter)
         .append("\n")
     }
     val expectedResult = sortLines(stableOrder, expected)
-    val actualResult = sortLines(stableOrder, postProcessObtained(trimTrailingSpace(out.toString())))
+    val actualResult = sortLines(
+      stableOrder,
+      postProcessObtained(trimTrailingSpace(out.toString()))
+    )
 
     assertCompletions(expectedResult, actualResult, Some(original))
 
@@ -276,23 +272,18 @@ abstract class BaseCompletionSuite extends BasePCSuite {
         assertEquals(
           item.getFilterText,
           filterText,
-          s"Invalid filter text for item:\n$item",
+          s"Invalid filter text for item:\n$item"
         )
       }
     }
-  }
 
-  private def computeDiffMessageEditLines(expected: String, actual: String): String =
+  private def computeDiffMessageEditLines(
+      expected: String,
+      actual: String
+  ): String =
     "\n\n" + DiffUtil.mkColoredCodeDiff(actual, expected, true) + "\n"
 
   private def trimTrailingSpace(string: String): String =
     string.linesIterator
       .map(_.replaceFirst("\\s++$", ""))
       .mkString("\n")
-
-
-
-}
-
-
-

@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
+class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite:
 
   @Test def `type1` =
     check(
@@ -11,7 +10,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type <<NotI@@nt>> = Int
         |  val set = Set.empty[<<NotInt>>]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type2` =
@@ -20,7 +19,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type <<NotInt>> = Int
         |  val set = Set.empty[<<Not@@Int>>]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type3` =
@@ -29,7 +28,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type NotInt = <<In@@t>>
         |  val set = Set.empty[<<Int>>]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type4` =
@@ -38,7 +37,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type NotInt = <<Int>>
         |  val set = Set.empty[<<I@@nt>>]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-in-def2` =
@@ -47,7 +46,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  var bspSession: Option[<<Stri@@ng>>] =
         |    Option.empty[<<String>>]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-in-def3` =
@@ -56,7 +55,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  var bspSession: <<Op@@tion>>[String] =
         |    <<Option>>.empty[String]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-in-def4` =
@@ -65,7 +64,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  var bspSession: <<Option>>[String] =
         |    <<Opt@@ion>>.empty[String]
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds1` =
@@ -74,7 +73,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: <<It@@erable>>[Int]]
         |  val a : <<Iterable>>[Int] = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds2` =
@@ -83,7 +82,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: <<Iterable>>[Int]]
         |  val a : <<Ite@@rable>>[Int] = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds3` =
@@ -92,7 +91,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: scala.<<Enumerati@@on>>]
         |  val a : scala.<<Enumeration>> = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds4` =
@@ -101,7 +100,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: scala.<<Enumeration>>]
         |  val a : scala.<<Enumer@@ation>> = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds5` =
@@ -110,7 +109,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: Iterable[<<In@@t>>]]
         |  val a : Iterable[<<Int>>] = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `type-bounds6` =
@@ -119,7 +118,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |object Test {
         |  type A = List[_ <: Iterable[<<Int>>]]
         |  val a : Iterable[<<In@@t>>] = ???
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `annot1` =
@@ -131,7 +130,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |
         |  @<<deprecated>>(since = "1.23")
         |  val hello2 = 123
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `annot2` =
@@ -143,7 +142,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |
         |  @deprecated(<<si@@nce>> = "1.23")
         |  val hello2 = 123
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `projection1` =
@@ -154,7 +153,7 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  }
          |  object Test {
          |    val b1: A#<<BB>> = 12
-         |}""".stripMargin,
+         |}""".stripMargin
     )
 
   @Test def `projection2` =
@@ -165,7 +164,5 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite {
          |  }
          |  object Test {
          |    val b1: A#<<B@@B>> = 12
-         |}""".stripMargin,
+         |}""".stripMargin
     )
-
-}

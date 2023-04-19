@@ -25,7 +25,7 @@ object HoverProvider:
   def hover(
       params: OffsetParams,
       driver: InteractiveDriver,
-      search: SymbolSearch,
+      search: SymbolSearch
   ): ju.Optional[HoverSignature] =
     val uri = params.uri
     val sourceFile = CompilerInterfaces.toSource(params.uri, params.text)
@@ -61,13 +61,13 @@ object HoverProvider:
       val printer = MetalsPrinter.standard(
         IndexedContext(printerContext),
         search,
-        includeDefaultParam = MetalsPrinter.IncludeDefaultParam.Include,
+        includeDefaultParam = MetalsPrinter.IncludeDefaultParam.Include
       )
       MetalsInteractive.enclosingSymbolsWithExpressionType(
         enclosing,
         pos,
         indexedContext,
-        skipCheckOnName,
+        skipCheckOnName
       ) match
         case Nil =>
           fallbackToDynamics(path, printer)
@@ -112,7 +112,7 @@ object HoverProvider:
                   expressionType = Some(expressionType),
                   symbolSignature = Some(hoverString),
                   docstring = Some(docString),
-                  forceExpressionType = forceExpressionType,
+                  forceExpressionType = forceExpressionType
                 )
               )
             case _ =>
@@ -122,12 +122,11 @@ object HoverProvider:
     end if
   end hover
 
-  extension (pos: SourcePosition)
-    private def isPoint: Boolean = pos.start == pos.end
+  extension (pos: SourcePosition) private def isPoint: Boolean = pos.start == pos.end
 
   private def fallbackToDynamics(
       path: List[Tree],
-      printer: MetalsPrinter,
+      printer: MetalsPrinter
   )(using Context): ju.Optional[HoverSignature] = path match
     case SelectDynamicExtractor(sel, n, name) =>
       def findRefinement(tp: Type): ju.Optional[HoverSignature] =
@@ -139,7 +138,7 @@ object HoverProvider:
             ju.Optional.of(
               new ScalaHover(
                 expressionType = Some(tpeString),
-                symbolSignature = Some(s"def $name$tpeString"),
+                symbolSignature = Some(s"def $name$tpeString")
               )
             )
           case RefinedType(info, _, _) =>
@@ -157,12 +156,12 @@ object SelectDynamicExtractor:
     path match
       case Apply(
             Select(sel, n),
-            List(Literal(Constant(name: String))),
+            List(Literal(Constant(name: String)))
           ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
         Some(sel, n, name)
       case Select(_, _) :: Apply(
             Select(sel, n),
-            List(Literal(Constant(name: String))),
+            List(Literal(Constant(name: String)))
           ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
         Some(sel, n, name)
       case _ => None

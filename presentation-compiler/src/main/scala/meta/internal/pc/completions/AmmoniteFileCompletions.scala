@@ -35,7 +35,7 @@ object AmmoniteFileCompletions:
       posRange: l.Range,
       rawPath: String,
       workspace: Option[Path],
-      rawFileName: String,
+      rawFileName: String
   )(using Context): List[CompletionValue] =
 
     val fileName = rawFileName
@@ -62,7 +62,7 @@ object AmmoniteFileCompletions:
       CompletionValue.FileSystemMember(
         name,
         editRange,
-        isDirectory = true,
+        isDirectory = true
       )
 
     (split, workspace) match
@@ -95,7 +95,7 @@ object AmmoniteFileCompletions:
               CompletionValue.FileSystemMember(
                 file.getFileName.toString,
                 editRange,
-                isDirectory = Files.isDirectory(file),
+                isDirectory = Files.isDirectory(file)
               )
           } ++ parentTextEdit
       case _ =>

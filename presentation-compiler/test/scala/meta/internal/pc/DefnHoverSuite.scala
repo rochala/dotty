@@ -2,7 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-class DefnHoverSuite extends BaseHoverSuite {
+class DefnHoverSuite extends BaseHoverSuite:
   @Test def `val` =
     check(
       """object a {
@@ -10,7 +10,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|val x: List[Int]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `var` =
@@ -20,7 +20,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|var x: List[Int]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `def-nullary` =
@@ -30,7 +30,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def x: List[Int]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `def-params` =
@@ -40,7 +40,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def method(x: Int): List[Int]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `def-tparams` =
@@ -50,7 +50,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |}
         |""".stripMargin,
       """|def empty[T]: Option[T]
-         |""".stripMargin.hover,
+         |""".stripMargin.hover
     )
 
   @Test def `context-bound` =
@@ -59,7 +59,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |  <<def @@empty[T:Ordering] = Option.empty[T]>>
         |}
         |""".stripMargin,
-      "def empty[T: Ordering]: Option[T]".hover,
+      "def empty[T: Ordering]: Option[T]".hover
     )
 
   @Test def `lambda-param` =
@@ -71,7 +71,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |x: Int
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `param` =
@@ -83,7 +83,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |x: Int
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `ctor` =
@@ -95,7 +95,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |def this(x: Int): a
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `ctor-param` =
@@ -107,7 +107,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |x: Int
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit-param` =
@@ -119,7 +119,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |implicit x: Int
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `implicit-param2` =
@@ -131,7 +131,7 @@ class DefnHoverSuite extends BaseHoverSuite {
       """|```scala
          |implicit x: Int
          |```
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `object` =
@@ -139,21 +139,21 @@ class DefnHoverSuite extends BaseHoverSuite {
       """package `object`
         |object M@@yObject
         |""".stripMargin,
-        "object MyObject: `object`".hover
+      "object MyObject: `object`".hover
     )
 
   @Test def `trait` =
     check(
       """trait M@@yTrait
         |""".stripMargin,
-        "trait MyTrait: MyTrait".hover
+      "trait MyTrait: MyTrait".hover
     )
 
   @Test def `class` =
     check(
       """trait M@@yClass
         |""".stripMargin,
-        "trait MyClass: MyClass".hover
+      "trait MyClass: MyClass".hover
     )
 
   @Test def `package` =
@@ -161,8 +161,8 @@ class DefnHoverSuite extends BaseHoverSuite {
       """package b.p@@kg
         |object Main
         |""".stripMargin,
-        // TODO, doesn's show information on packages
-        "",
+      // TODO, doesn's show information on packages
+      ""
     )
 
   @Test def `pat-bind` =
@@ -174,7 +174,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |  }
         |}
         |""".stripMargin,
-        "val head: Int".hover
+      "val head: Int".hover
     )
 
   @Test def `pat-bind2` =
@@ -186,7 +186,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |  }
         |}
         |""".stripMargin,
-        "val value: Int".hover
+      "val value: Int".hover
     )
 
   @Test def `val-int-literal` =
@@ -195,8 +195,8 @@ class DefnHoverSuite extends BaseHoverSuite {
         |  <<val @@x : 1 = 1>>
         |}
         |""".stripMargin,
-     """|Int
-        |val x: 1""".stripMargin.hover,
+      """|Int
+         |val x: 1""".stripMargin.hover
     )
 
   @Test def `val-int-literal-union` =
@@ -205,7 +205,7 @@ class DefnHoverSuite extends BaseHoverSuite {
         |  <<val @@x : 1 | 2 = 1>>
         |}
         |""".stripMargin,
-      "val x: 1 | 2".hover,
+      "val x: 1 | 2".hover
     )
 
   @Test def `dealias-appliedtype-params` =
@@ -232,4 +232,3 @@ class DefnHoverSuite extends BaseHoverSuite {
          |```
          |""".stripMargin.hover
     )
-}

@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class SelectionRangeSuite extends BaseSelectionRangeSuite {
+class SelectionRangeSuite extends BaseSelectionRangeSuite:
 
   @Test def `match` =
     check(
@@ -49,7 +48,7 @@ class SelectionRangeSuite extends BaseSelectionRangeSuite {
            |    case Some(name) => println("Hello! " + name)
            |    case None =>
            |  }
-           |}<<region<<""".stripMargin,
+           |}<<region<<""".stripMargin
       )
     )
 
@@ -97,7 +96,6 @@ class SelectionRangeSuite extends BaseSelectionRangeSuite {
            |    a <- Some(1)
            |    b <- Some(2)
            |  } yield a + b
-           |}<<region<<""".stripMargin,
+           |}<<region<<""".stripMargin
       )
     )
-}

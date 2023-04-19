@@ -83,7 +83,7 @@ object MtagsEnrichments extends CommonMtagsEnrichments:
     def toLsp: l.Range =
       new l.Range(
         offsetToPos(pos.start),
-        offsetToPos(pos.end),
+        offsetToPos(pos.end)
       )
 
     def withEnd(end: Int): SourcePosition =
@@ -158,14 +158,13 @@ object MtagsEnrichments extends CommonMtagsEnrichments:
         if source ne sym.source then
           !source.content.startsWith(
             sym.decodedName.toString(),
-            sym.sourcePos.span.point,
+            sym.sourcePos.span.point
           )
         else false
       }
   end extension
 
-  extension (name: Name)(using Context)
-    def decoded: String = name.stripModuleClassSuffix.show
+  extension (name: Name)(using Context) def decoded: String = name.stripModuleClassSuffix.show
 
   extension (s: String)
     def backticked: String =
@@ -179,14 +178,13 @@ object MtagsEnrichments extends CommonMtagsEnrichments:
     ): Option[SymbolDocumentation] =
       def toSemanticdbSymbol(symbol: Symbol) =
         SemanticdbSymbols.symbolName(
-          if !symbol.is(JavaDefined) && symbol.isPrimaryConstructor then
-            symbol.owner
+          if !symbol.is(JavaDefined) && symbol.isPrimaryConstructor then symbol.owner
           else symbol
         )
       val sym = toSemanticdbSymbol(symbol)
       val documentation = search.documentation(
         sym,
-        () => symbol.allOverriddenSymbols.map(toSemanticdbSymbol).toList.asJava,
+        () => symbol.allOverriddenSymbols.map(toSemanticdbSymbol).toList.asJava
       )
       if documentation.isPresent then Some(documentation.get())
       else None
@@ -221,7 +219,7 @@ object MtagsEnrichments extends CommonMtagsEnrichments:
         case MultiDenotation(denot1, denot2) =>
           List(
             denot1.allSymbols,
-            denot2.allSymbols,
+            denot2.allSymbols
           ).flatten
         case NoDenotation => Nil
         case _ =>

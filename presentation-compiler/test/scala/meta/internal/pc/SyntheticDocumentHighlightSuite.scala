@@ -2,8 +2,7 @@ package scala.meta.internal.pc
 
 import org.junit.Test
 
-
-class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
+class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite:
 
   @Test def `advanced1` =
     check(
@@ -16,7 +15,7 @@ class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |} yield {
         |   <<add>>.toString.toList.map(_.toChar)
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `advanced2` =
@@ -30,7 +29,7 @@ class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |} yield {
         |   <<ad@@d>>.toString.toList.map(_.toChar)
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `advanced3` =
@@ -44,7 +43,7 @@ class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |} yield {
         |   <<abc>>.toString.toList.map(_.toChar)
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `advanced4` =
@@ -58,7 +57,7 @@ class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |} yield {
         |   <<abc>>.toString.toList.map(_.toChar)
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
 
   @Test def `advanced5` =
@@ -72,7 +71,5 @@ class SyntheticsDocumentHighlightSuite extends BaseDocumentHighlightSuite {
         |} yield {
         |   <<ab@@c>>.toString.toList.map(_.toChar)
         |  }
-        |}""".stripMargin,
+        |}""".stripMargin
     )
-
-}

@@ -4,7 +4,7 @@ import org.junit.Test
 import scala.meta.internal.pc.PresentationCompilerConfigImpl
 import scala.meta.pc.PresentationCompilerConfig
 
-class CaseCompletionSuite extends BaseCompletionSuite {
+class CaseCompletionSuite extends BaseCompletionSuite:
 
   def paramHint: Option[String] = Some("param-hint")
 
@@ -23,7 +23,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `typed` =
@@ -44,16 +44,16 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    @@
         |  }
         |}""".stripMargin,
-     """|case _: Animal => pkg
-        |case Bird(name) => pkg
-        |case _: Cat => pkg
-        |case _: Dog => pkg
-        |case Elephant => pkg
-        |case _: HasFeet[?, ?] => pkg
-        |case _: HasMouth[?] => pkg
-        |case HasWings(e) => pkg
-        |case Seal => pkg
-        |""".stripMargin
+      """|case _: Animal => pkg
+         |case Bird(name) => pkg
+         |case _: Cat => pkg
+         |case _: Dog => pkg
+         |case Elephant => pkg
+         |case _: HasFeet[?, ?] => pkg
+         |case _: HasMouth[?] => pkg
+         |case HasWings(e) => pkg
+         |case Seal => pkg
+         |""".stripMargin
     )
 
   @Test def `case` =
@@ -66,7 +66,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `trailing` =
@@ -80,7 +80,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `trailing-block` =
@@ -94,7 +94,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `either` =
@@ -107,7 +107,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case Left(value) => scala.util
          |case Right(value) => scala.util
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `sealed-import` =
@@ -121,7 +121,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case Failure(exception) => scala.util
          |case Success(value) => scala.util
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `sealed-two` =
@@ -140,7 +140,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       // Assert we don't include AdtTwo in the results.
       """|case Cls(a, b) => test.Outer
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   // TODO: `Left` has conflicting name in Scope, we should fix it so the result is the same as for scala 2
@@ -157,7 +157,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case scala.util.Left(value) =>
          |case Right(value) => scala.util
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `sealed-import-edit` =
@@ -178,7 +178,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    case Failure(exception) => $0
         |  }
         |}""".stripMargin,
-      filter = _.contains("Failure"),
+      filter = _.contains("Failure")
     )
 
   @Test def `local-case` =
@@ -204,7 +204,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    case Failure(exception) => $0
         |  }
         |}""".stripMargin,
-      filter = _.contains("Failure"),
+      filter = _.contains("Failure")
     )
 
   @Test def `apply-type` =
@@ -218,7 +218,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `lambda-function1` =
@@ -232,7 +232,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `lambda-function2` =
@@ -245,7 +245,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |  }
         |}""".stripMargin,
       """|case (Int, Int) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `lambda` =
@@ -256,10 +256,10 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    ca@@
         |  }
         |}""".stripMargin,
-     """|case None => scala
-        |case Some(value) => scala
-        |case (exhaustive) Option (2 cases)
-        |""".stripMargin
+      """|case None => scala
+         |case Some(value) => scala
+         |case (exhaustive) Option (2 cases)
+         |""".stripMargin
     )
 
   @Test def `lambda-case` =
@@ -273,7 +273,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `lambda-case-block` =
@@ -287,7 +287,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `lambda-curry` =
@@ -312,10 +312,10 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    ca@@
         |  }
         |}""".stripMargin,
-     """|case None => scala
-        |case Some(value) => scala
-        |case (exhaustive) Option (2 cases)
-        |""".stripMargin
+      """|case None => scala
+         |case Some(value) => scala
+         |case (exhaustive) Option (2 cases)
+         |""".stripMargin
     )
 
   @Test def `partial-case` =
@@ -329,7 +329,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `partial-case-block` =
@@ -343,7 +343,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case None => scala
          |case Some(value) => scala
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `infix` =
@@ -356,7 +356,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}""".stripMargin,
       """|case head :: next => scala.collection.immutable
          |case Nil => scala.collection.immutable
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `brace` =
@@ -369,7 +369,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
       "List(1 -> 2).map { c@@ }",
       "List(1 -> 2).map { case ($0) => }",
       assertSingleItem = false,
-      command = paramHint,
+      command = paramHint
     )
 
   @Test def `brace-label` =
@@ -381,7 +381,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       """|case (Int, Int) => scala
          |""".stripMargin,
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `brace-negative` =
@@ -392,7 +392,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "f = : A => B",
-      topLines = Some(1),
+      topLines = Some(1)
     )
 
   @Test def `brace-function2` =
@@ -405,7 +405,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
       "List(1).foldLeft(0) { cas@@ }",
       "List(1).foldLeft(0) { case ($0) => }",
       assertSingleItem = false,
-      command = paramHint,
+      command = paramHint
     )
 
   @Test def `infix-custom` =
@@ -424,7 +424,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |}
         |""".stripMargin,
       "cas@@",
-      "case a :+: b => $0",
+      "case a :+: b => $0"
     )
 
   @Test def `infix-conflict` =
@@ -443,7 +443,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |""".stripMargin,
       "cas@@",
       // Assert we don't use infix syntax because `::` resolves to conflicting symbol in scope.
-      "case Outer.::(a, b) => $0",
+      "case Outer.::(a, b) => $0"
     )
 
   @Test def `scala-enum` =
@@ -461,7 +461,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
       """|case Color.Blue =>
          |case Color.Green =>
          |case Color.Red =>
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `scala-enum2` =
@@ -480,7 +480,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
          |Color.Green
          |Color.Red
          |""".stripMargin,
-      topLines = Some(3),
+      topLines = Some(3)
     )
 
   @Test def `scala-enum-with-param` =
@@ -511,7 +511,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |  x match
         |    case Foo.Buzz(arg1, arg2) => $0
         |}""".stripMargin,
-      filter = _.contains("Buzz"),
+      filter = _.contains("Buzz")
     )
 
   @Test def `single-case-class` =
@@ -525,7 +525,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |  List(Foo(1,2)).map{ cas@@ }
         |}""".stripMargin,
       """|case Foo(a, b) => example
-         |""".stripMargin,
+         |""".stripMargin
     )
 
   @Test def `private-member` =
@@ -539,7 +539,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    ca@@
         |  }
         |}""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `private-member-2` =
@@ -554,7 +554,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |      cas@@
         |}""".stripMargin,
       """|case A.B =>
-         |case A.C =>""".stripMargin,
+         |case A.C =>""".stripMargin
     )
 
   @Test def `same-line` =
@@ -565,7 +565,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
         |    case Some(a) => cas@@
         |  }
         |}""".stripMargin,
-      "",
+      ""
     )
 
   @Test def `exhaustive-enum-tags` =
@@ -594,7 +594,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
           |""".stripMargin,
       """|case Cleaning =>Activity & Physical & Chore
          |case DishWashing(amount) => test.Activity
-         |case Sports(time, intensity) => test.Activity""".stripMargin,
+         |case Sports(time, intensity) => test.Activity""".stripMargin
     )
 
   @Test def `exhaustive-enum-tags2` =
@@ -622,7 +622,7 @@ class CaseCompletionSuite extends BaseCompletionSuite {
           |
           |""".stripMargin,
       """|case Cleaning =>Activity & Physical & Chore
-         |case Sports(time, intensity) => test.Activity""".stripMargin,
+         |case Sports(time, intensity) => test.Activity""".stripMargin
     )
 
   @Test def `exhaustive-enum-tags3` =
@@ -652,7 +652,5 @@ class CaseCompletionSuite extends BaseCompletionSuite {
       """|case Cleaning =>Activity & Physical & Chore
          |case Reading(book, author) => test.Activity
          |case Singing(song) => test.Activity
-         |case Sports(time, intensity) => test.Activity""".stripMargin,
+         |case Sports(time, intensity) => test.Activity""".stripMargin
     )
-
-}

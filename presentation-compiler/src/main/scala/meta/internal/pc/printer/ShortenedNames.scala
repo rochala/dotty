@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.TextEdit
 
 class ShortenedNames(
     val indexedContext: IndexedContext,
-    renames: Map[Symbol, String] = Map.empty,
+    renames: Map[Symbol, String] = Map.empty
 ):
 
   import ShortenedNames.*
@@ -111,15 +111,14 @@ class ShortenedNames(
           // designator is not necessarily an instance of `Symbol` and it's an instance of `Name`
           // this can be seen, for example, when we are shortening the signature of 3rd party APIs.
           val sym =
-            if designator.isInstanceOf[Symbol] then
-              designator.asInstanceOf[Symbol]
+            if designator.isInstanceOf[Symbol] then designator.asInstanceOf[Symbol]
             else tpe.typeSymbol
 
           @tailrec
           def processOwners(
               sym: Symbol,
               prev: List[Symbol],
-              ownersLeft: List[Symbol],
+              ownersLeft: List[Symbol]
           ): Type =
             ownersLeft match
               case Nil =>
@@ -143,15 +142,13 @@ class ShortenedNames(
           renames.get(sym.owner) match
             case Some(rename) =>
               val short = ShortName(Names.termName(rename), sym.owner)
-              if tryShortenName(short) then
-                PrettyType(s"$rename.${sym.name.show}")
+              if tryShortenName(short) then PrettyType(s"$rename.${sym.name.show}")
               else shortened
             case _ => shortened
 
         case TermRef(prefix, designator) =>
           val sym =
-            if designator.isInstanceOf[Symbol] then
-              designator.asInstanceOf[Symbol]
+            if designator.isInstanceOf[Symbol] then designator.asInstanceOf[Symbol]
             else tpe.termSymbol
           val short = ShortName(sym)
           if tryShortenName(short) then TermRef(NoPrefix, sym)
@@ -165,7 +162,7 @@ class ShortenedNames(
           ImplicitMethodType(
             pnames,
             ptypes.map(loop(_, None)),
-            loop(restpe, None),
+            loop(restpe, None)
           )
         case mt @ MethodTpe(pnames, ptypes, restpe) =>
           MethodType(pnames, ptypes.map(loop(_, None)), loop(restpe, None))
@@ -173,10 +170,8 @@ class ShortenedNames(
         case pl @ PolyType(_, restpe) =>
           PolyType(
             pl.paramNames,
-            pl.paramInfos.map(bound =>
-              TypeBounds(loop(bound.lo, None), loop(bound.hi, None))
-            ),
-            loop(restpe, None),
+            pl.paramInfos.map(bound => TypeBounds(loop(bound.lo, None), loop(bound.hi, None))),
+            loop(restpe, None)
           )
         case SuperType(thistpe, supertpe) =>
           SuperType(loop(thistpe, None), loop(supertpe, None))
@@ -212,7 +207,7 @@ object ShortenedNames:
 
   case class ShortName(
       name: Name,
-      symbol: Symbol,
+      symbol: Symbol
   ):
     def isRename(using Context): Boolean = symbol.name.show != name.show
 
