@@ -176,6 +176,7 @@ object Build {
   val ideTestsCompilerVersion = taskKey[String]("Compiler version to use in IDE tests")
   val ideTestsCompilerArguments = taskKey[Seq[String]]("Compiler arguments to use in IDE tests")
   val ideTestsDependencyClasspath = taskKey[Seq[File]]("Dependency classpath to use in IDE tests")
+  val ideTestsDependencySourcepath = taskKey[Seq[File]]("Dependency sourcepath to use in IDE tests")
 
   val fetchScalaJSSource = taskKey[File]("Fetch the sources of Scala.js")
 
@@ -1118,14 +1119,7 @@ object Build {
         } (Set(mtagsSharedSourceJar)).toSeq
       }.taskValue,
       ideTestsDependencyClasspath := {
-        val scala3Lib = (`scala3-library-bootstrapped` / Compile / classDirectory).value
-        val scalaLib  = (`stdlib-bootstrapped` / Compile / classDirectory).value
-          // (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
-          //   .value
-          //   .map(_.data)
-          //   .filter(_.getName.matches("scala-library.*\\.jar"))
-          //   .toList
-        List(scala3Lib, scalaLib)
+        Seq((`stdlib-bootstrapped` / Compile / classDirectory).value.toPath.normalize.toFile)
       },
       Compile / buildInfoKeys := Seq[BuildInfoKey](scalaVersion, ideTestsDependencyClasspath),
       Compile / buildInfoPackage := "dotty.tools.pc.util",
@@ -1149,7 +1143,8 @@ object Build {
       ideTestsCompilerVersion := (`scala3-compiler` / version).value,
       ideTestsCompilerArguments := Seq(),
       ideTestsDependencyClasspath := {
-        val dottyLib = (`scala3-library-bootstrapped` / Compile / classDirectory).value
+        val dottyLibPath = (`scala3-library-bootstrapped` / Compile / classDirectory).value.toPath.normalize
+        val dottyLib = dottyLibPath.toFile
         val scalaLib =
           (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
             .value
@@ -1157,6 +1152,7 @@ object Build {
             .filter(_.getName.matches("scala-library.*\\.jar"))
             .toList
         dottyLib :: scalaLib
+
       },
       Test / buildInfoKeys := Seq[BuildInfoKey](
         ideTestsCompilerVersion,
@@ -1856,7 +1852,7 @@ object Build {
     // FIXME: we do not aggregate `bin` because its tests delete jars, thus breaking other tests
     def asDottyRoot(implicit mode: Mode): Project = project.withCommonSettings.
       aggregate(`scala3-interfaces`, dottyLibrary, dottyCompiler, tastyCore, `scala3-sbt-bridge`).
-      bootstrappedAggregate(`scala3-language-server`, `scala3-staging`, `scala3-tasty-inspector`,
+      bootstrappedAggregate(`scala3-language-server`, `scala3-presentation-compiler`, `scala3-staging`, `scala3-tasty-inspector`,
         `scala3-library-bootstrappedJS`, scaladoc).
       dependsOn(tastyCore).
       dependsOn(dottyCompiler).

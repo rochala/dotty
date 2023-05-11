@@ -13,7 +13,7 @@ import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.core.Symbols.*
 
 class CompilerSearchVisitor(
-    val visitSymbol: Symbol => Boolean
+    visitSymbol: Symbol => Boolean
 )(using ctx: Context, reports: ReportContext)
     extends SymbolSearchVisitor:
 

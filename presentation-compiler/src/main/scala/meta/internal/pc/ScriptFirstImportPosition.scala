@@ -14,7 +14,12 @@ object ScriptFirstImportPosition:
   def scalaCliScStartOffset(text: String, comments: List[Comment]): Option[Int] =
     findStartOffset(text, comments, commentQuery = "/*<script>*/", usingDirectives)
 
-  def findStartOffset(text: String, comments: List[Comment], commentQuery: String, excludedComments: List[String]): Option[Int] =
+  def findStartOffset(
+      text: String,
+      comments: List[Comment],
+      commentQuery: String,
+      excludedComments: List[String]
+  ): Option[Int] =
     val startComment = Option(comments.indexWhere(_.raw == commentQuery)).filter(_ >= 0)
     startComment.flatMap { startIndex =>
       val commentsInsideScript = comments.drop(startIndex + 1)
