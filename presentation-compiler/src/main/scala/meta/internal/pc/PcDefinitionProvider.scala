@@ -43,7 +43,6 @@ class PcDefinitionProvider(
       SourceFile.virtual(filePath.toString, params.text)
     )
     val unit = driver.currentCtx.run.units.head
-    val tree = unit.tpdTree
 
     val pos = driver.sourcePosition(params)
     val path =

@@ -22,6 +22,7 @@ import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.Symbols.NoSymbol
 import dotty.tools.dotc.core.Symbols.Symbol
+import dotty.tools.dotc.core.StdNames
 import dotty.tools.dotc.core.Types.AndType
 import dotty.tools.dotc.core.Types.ClassInfo
 import dotty.tools.dotc.core.Types.NoType
@@ -30,9 +31,6 @@ import dotty.tools.dotc.core.Types.Type
 import dotty.tools.dotc.core.Types.TypeRef
 import dotty.tools.dotc.util.SourcePosition
 import org.eclipse.{lsp4j as l}
-import dotty.tools.dotc.core.StdNames.tpnme
-import com.sourcegraph.semanticdb_javac.SemanticdbBuilders
-import dotty.tools.dotc.semanticdb.SemanticSymbolBuilder
 
 object CaseKeywordCompletion:
 
@@ -150,7 +148,7 @@ object CaseKeywordCompletion:
       indexedContext.scopeSymbols
         .foreach(s =>
           val ts = s.info.metalsDealias.typeSymbol
-          if (isValid(ts)) then visit(autoImportsGen.inferSymbolImport(ts))
+          if isValid(ts) then visit(autoImportsGen.inferSymbolImport(ts))
         )
       // Step 2: walk through known subclasses of sealed types.
       val sealedDescs = subclassesForType(parents.selector.widen.bounds.hi)
@@ -309,14 +307,14 @@ object CaseKeywordCompletion:
         defnSymbols.getOrElse(semancticName, -1)
       }
 
-  private def sealedStrictDescendants(
-      sym: Symbol
-  )(using Context): List[Symbol] =
-    sym.sealedStrictDescendants.filter(child =>
-      !(child.is(Sealed) && (child.is(Abstract) || child.is(Trait)))
-        && (child.isPublic || child.isAccessibleFrom(sym.info)) &&
-        child.name != tpnme.LOCAL_CHILD
-    )
+  def sealedStrictDescendants(sym: Symbol)(using Context): List[Symbol] =
+    sym.sealedStrictDescendants
+      .filter(child =>
+        !(child.is(Sealed) && (child.is(Abstract) || child.is(Trait)))
+          && (child.isPublic || child.isAccessibleFrom(sym.info)) &&
+          child.name != StdNames.tpnme.LOCAL_CHILD
+      )
+      .map(_.sourceSymbol)
 
   def subclassesForType(tpe: Type)(using Context): List[Symbol] =
     /**

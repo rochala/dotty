@@ -13,13 +13,13 @@ import dotty.tools.dotc.core.Names.*
 import dotty.tools.dotc.core.Symbols.*
 
 class CompilerSearchVisitor(
-    visitSymbol: Symbol => Boolean
+    val visitSymbol: Symbol => Boolean
 )(using ctx: Context, reports: ReportContext)
     extends SymbolSearchVisitor:
 
   val logger: Logger = Logger.getLogger(classOf[CompilerSearchVisitor].getName)
 
-  private def isAccessible(sym: Symbol): Boolean = try sym != NoSymbol && sym.isPublic
+  def isAccessible(sym: Symbol): Boolean = try sym != NoSymbol && sym.isPublic
   catch
     case NonFatal(e) =>
       reports.incognito.createReport(
@@ -69,6 +69,16 @@ class CompilerSearchVisitor(
       symbol: String,
       kind: org.eclipse.lsp4j.SymbolKind,
       range: org.eclipse.lsp4j.Range
+  ): Int =
+    val gsym = SemanticdbSymbols.inverseSemanticdbSymbol(symbol).headOption
+    gsym
+      .filter(isAccessible)
+      .map(visitSymbol)
+      .map(_ => 1)
+      .getOrElse(0)
+
+  def visitWorkspaceSymbol(
+      symbol: String
   ): Int =
     val gsym = SemanticdbSymbols.inverseSemanticdbSymbol(symbol).headOption
     gsym

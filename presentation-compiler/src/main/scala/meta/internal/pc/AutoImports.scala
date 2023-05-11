@@ -314,9 +314,11 @@ object AutoImports extends AutoImportsBackticks:
 
     def skipUsingDirectivesOffset =
       comments
-        .takeWhile(comment => comment.span.end < tree.span.start)
+        .takeWhile(comment =>
+          !comment.isDocComment && comment.span.end < firstObjectBody(tree).fold(0)(_.span.start)
+        )
         .lastOption
-        .fold(0)(_.span.end)
+        .fold(0)(_.span.end + 1)
 
     def forScalaSource: Option[AutoImportPosition] =
       lastPackageDef(None, tree).map { pkg =>
@@ -347,10 +349,9 @@ object AutoImports extends AutoImportsBackticks:
             val offset = pos.source.lineToOffset(stm.endPos.line + 1)
             offset
           case None =>
-            val scriptOffset = Some(0)
-            // if isAmmonite then
-            //   ScriptFirstImportPosition.ammoniteScStartOffset(text)
-            // else ScriptFirstImportPosition.scalaCliScStartOffset(text)
+            val scriptOffset =
+              if isAmmonite then ScriptFirstImportPosition.ammoniteScStartOffset(text, comments)
+              else ScriptFirstImportPosition.scalaCliScStartOffset(text, comments)
 
             scriptOffset.getOrElse(
               pos.source.lineToOffset(tmpl.self.srcPos.line)

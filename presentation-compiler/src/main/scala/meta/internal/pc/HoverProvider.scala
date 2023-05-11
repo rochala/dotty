@@ -145,24 +145,30 @@ object HoverProvider:
             findRefinement(info)
           case _ => ju.Optional.empty()
 
-      findRefinement(sel.tpe.termSymbol.info)
+      findRefinement(sel.tpe.termSymbol.info.dealias)
     case _ =>
       ju.Optional.empty()
 
 end HoverProvider
 
 object SelectDynamicExtractor:
-  def unapply(path: List[Tree]) =
+  def unapply(path: List[Tree])(using Context) =
     path match
-      case Apply(
-            Select(sel, n),
+      // tests `structural-types` and `structural-types1` in HoverScala3TypeSuite
+      case Select(_, _) :: Apply(
+            Select(Apply(reflSel, List(sel)), n),
             List(Literal(Constant(name: String)))
-          ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
+          ) :: _
+          if (n == nme.selectDynamic || n == nme.applyDynamic) &&
+            nme.reflectiveSelectable == reflSel.symbol.name =>
         Some(sel, n, name)
+      // tests `selectable`,  `selectable2` and `selectable-full` in HoverScala3TypeSuite
       case Select(_, _) :: Apply(
             Select(sel, n),
             List(Literal(Constant(name: String)))
           ) :: _ if n == nme.selectDynamic || n == nme.applyDynamic =>
         Some(sel, n, name)
       case _ => None
+    end match
+  end unapply
 end SelectDynamicExtractor

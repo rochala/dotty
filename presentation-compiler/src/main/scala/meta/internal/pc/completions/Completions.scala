@@ -12,7 +12,6 @@ import scala.meta.internal.mtags.CoursierComplete
 import scala.meta.internal.mtags.MtagsEnrichments.*
 import scala.meta.internal.pc.AutoImports.AutoImportsGenerator
 import scala.meta.internal.pc.completions.OverrideCompletions.OverrideExtractor
-import scala.meta.internal.semver.SemVer
 import scala.meta.pc.*
 
 import dotty.tools.dotc.ast.tpd.*
@@ -54,10 +53,6 @@ class Completions(
   implicit val context: Context = ctx
 
   val coursierComplete = new CoursierComplete(BuildInfo.scalaVersion)
-
-  // versions prior to 3.1.0 sometimes didn't manage to detect properly Java objects
-  val canDetectJavaObjectsCorrectly =
-    SemVer.isLaterVersion("3.1.0", BuildInfo.scalaVersion)
 
   private lazy val shouldAddSnippet =
     path match

@@ -1,6 +1,5 @@
 package scala.meta.internal.pc.completions
 
-import scala.meta.internal.mtags.MtagsEnrichments.given
 import scala.meta.internal.pc.Keyword
 
 import dotty.tools.dotc.ast.tpd.*
@@ -10,12 +9,8 @@ import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.dotc.core.Comments
 import dotty.tools.dotc.core.Comments.Comment
 import dotty.tools.dotc.ast.NavigateAST
-import dotty.tools.dotc.core.Decorators.splitWhere
-import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.util.Spans.Span
 import dotty.tools.dotc.transform.SymUtils._
-import dotty.tools.dotc.interactive.Interactive
-import dotty.tools.dotc.core.Symbols
 
 object KeywordsCompletions:
 
@@ -26,9 +21,7 @@ object KeywordsCompletions:
   )(using ctx: Context): List[CompletionValue] =
     lazy val notInComment =
       checkIfNotInComment(completionPos.cursorPos, path, comments)
-    // lazy val untpdPath: Option[untpd.Tree] = NavigateAST.untypedPath(completionPos.cursorPos.span) match
-    // case (utree: untpd.Tree) :: _ => Some(utree)
-    // case _ => None
+
     path match
       case Nil if completionPos.query.isEmpty =>
         Keyword.all.collect {

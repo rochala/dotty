@@ -110,6 +110,21 @@ object DiffUtil {
     expectedDiff + pad + "  |  " + actualDiff
   }
 
+  private def ensureLineSeparator(str: String): String =
+    if str.endsWith(System.lineSeparator) then
+      str
+    else
+      str + System.lineSeparator
+
+  /**
+   * Returns a colored diffs by comparison of lines instead of tokens.
+   * It will automatically group subsequential pairs of `Insert` and `Delete`
+   * in order to improve the readability
+   *
+   * @param expected The expected lines
+   * @param actual   The actual lines
+   * @return A string with colored diffs between `expected` and `actual` grouped whenever possible
+   */
   def mkColoredHorizontalLineDiff(expected: String, actual: String): String = {
     val indent = 2
     val tab = " " * indent
@@ -118,7 +133,10 @@ object DiffUtil {
 
     if actual.isEmpty then
       (expected.linesIterator.map(line => added(insertIndent + line)).toList :+ deleted("--- EMPTY OUTPUT ---"))
-        .mkString(System.lineSeparator)
+        .map(ensureLineSeparator).mkString
+    else if expected.isEmpty then
+      (added("--- NO VALUE EXPECTED ---") +: actual.linesIterator.map(line => deleted(deleteIndent + line)).toList)
+        .map(ensureLineSeparator).mkString
     else
       lazy val diff = {
         val expectedTokens = expected.linesWithSeparators.toArray
@@ -127,7 +145,9 @@ object DiffUtil {
       }.toList
 
       val transformedDiff = diff.flatMap {
-        case Modified(original, str) => Seq(Inserted(original), Deleted(str))
+        case Modified(original, str) => Seq(
+          Inserted(ensureLineSeparator(original)), Deleted(ensureLineSeparator(str))
+        )
         case other => Seq(other)
       }
 
@@ -136,9 +156,12 @@ object DiffUtil {
       val (acc, inserts, deletions) = zipped.foldLeft((Seq[Patch](), Seq[Inserted](), Seq[Deleted]())): (acc, patches) =>
         val (currAcc, inserts, deletions) = acc
         patches match
-          case (currentPatch: Inserted, nextPatch: Deleted) => (currAcc, inserts :+ currentPatch, deletions)
-          case (currentPatch: Deleted, nextPatch: Inserted) => (currAcc, inserts, deletions :+ currentPatch)
-          case (currentPatch, nextPatch) => (currAcc :++ inserts :++ deletions :+ currentPatch, Seq.empty, Seq.empty)
+          case (currentPatch: Inserted, nextPatch: Deleted) =>
+            (currAcc, inserts :+ currentPatch, deletions)
+          case (currentPatch: Deleted, nextPatch: Inserted) =>
+            (currAcc, inserts, deletions :+ currentPatch)
+          case (currentPatch, nextPatch) =>
+            (currAcc :++ inserts :++ deletions :+ currentPatch, Seq.empty, Seq.empty)
 
       val stackedDiff = acc :++ inserts :++ deletions :+ diff.last
 
@@ -146,7 +169,7 @@ object DiffUtil {
         case Unmodified(str) => tab + str
         case Inserted(str) => added(insertIndent + str)
         case Deleted(str) => deleted(deleteIndent + str)
-      }.mkString
+      }.map(ensureLineSeparator).mkString
 
   }
 
