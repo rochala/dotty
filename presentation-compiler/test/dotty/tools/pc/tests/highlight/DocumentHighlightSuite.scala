@@ -741,6 +741,23 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite:
         |}""".stripMargin
     )
 
+  @Test def `for-comp-bind` =
+   check(
+      """
+        |object Main {
+        |  case class Bar(fooBar: Int, goo: Int)
+        |  val abc = for {
+        |    foo <- List(1)
+        |    _ = Option(1)
+        |    Bar(<<fooBar>>, goo) <- List(Bar(foo, 123))
+        |    baz = <<fooBar>> + goo
+        |  } yield {
+        |    val x = foo + <<foo@@Bar>> + baz
+        |    x
+        |  }
+        |}""".stripMargin,
+    )
+
   @Test def `enum1` =
     check(
       """|enum FooEnum:
@@ -924,4 +941,59 @@ class DocumentHighlightSuite extends BaseDocumentHighlightSuite:
     check(
       """|given <<`given_D`>>:Double = 4.0
          |val a = <<`giv@@en_D`>>""".stripMargin
+    )
+
+  @Test def `extension-with-type-param1` =
+    check(
+      """|extension [<<E@@F>>](xs: List[<<EF>>])
+         |    def double(ys: List[<<EF>>]) = xs ++ ys
+         |    def double2(ys: List[<<EF>>]) = xs ++ ys
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param2` =
+    check(
+      """|extension [EF, <<E@@M>>](xs: Either[<<EM>>, EF])
+         |    def id() = xs
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param3` =
+    check(
+      """|extension [<<EF>>](xs: List[<<E@@F>>])
+         |    def double(ys: List[<<EF>>]) = xs ++ ys
+         |    def double2(ys: List[<<EF>>]) = xs ++ ys
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param4` =
+    check(
+      """|val i: <<Int>> = 3
+         |extension (xs: List[<<In@@t>>])
+         |  def id() = xs
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param5` =
+    check(
+      """|extension [<<EF>>](xs: List[<<EF>>])
+         |    def double(ys: List[<<E@@F>>]) = xs ++ ys
+         |    def double2(ys: List[<<EF>>]) = xs ++ ys
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param6` =
+    check(
+      """|extension [EF](xs: List[EF])
+         |    def double(<<y@@s>>: List[EF]) = xs ++ <<ys>>
+         |    def double2(ys: List[EF]) = xs ++ ys
+         |end extension""".stripMargin,
+    )
+
+  @Test def `extension-with-type-param7` =
+    check(
+      """|extension [EF](<<xs>>: List[EF])
+         |    def double(ys: List[EF]) = <<x@@s>> ++ ys
+         |    def double2(ys: List[EF]) = <<xs>> ++ ys
+         |end extension""".stripMargin,
     )

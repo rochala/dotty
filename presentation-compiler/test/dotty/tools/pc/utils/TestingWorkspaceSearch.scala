@@ -49,6 +49,6 @@ class TestingWorkspaceSearch(classpath: Seq[String]):
             .filter((symbol, _) => filter(symbol))
             .filter((_, name) => Fuzzy.matches(query.query, name))
             .map(symbol => semanticSymbolBuilder.symbolName(symbol._1))
-            .map(visitor.visitWorkspaceSymbol)
+            .map(visitor.visitWorkspaceSymbol(Paths.get(""), _, null, null)) // adjust it
         }
       case _ =>

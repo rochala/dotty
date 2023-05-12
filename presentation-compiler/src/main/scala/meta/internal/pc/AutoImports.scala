@@ -327,8 +327,7 @@ object AutoImports extends AutoImportsBackticks:
         val (lineNumber, padTop) = lastImportStatement match
           case Some(stm) => (stm.endPos.line + 1, false)
           case None if pkg.pid.symbol.isEmptyPackage =>
-            val offset = skipUsingDirectivesOffset
-            (pos.source.offsetToLine(offset), false)
+            (pos.source.offsetToLine(skipUsingDirectivesOffset), false)
           case None =>
             val pos = pkg.pid.endPos
             val line =

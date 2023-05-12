@@ -146,7 +146,7 @@ class Completions(
             var i = span.end
             while i < (text.length() - 1) && text(i).isWhitespace do i = i + 1
 
-            if (i < text.length()) then text(i) == '['
+            if i < text.length() then text(i) == '['
             else false
           else false
 
@@ -183,8 +183,7 @@ class Completions(
     val (all, result) =
       if exclusive then (advanced, SymbolSearch.Result.COMPLETE)
       else
-        val keywords =
-          KeywordsCompletions.contribute(path, completionPos, comments)
+        val keywords = KeywordsCompletions.contribute(path, completionPos, comments)
         val allAdvanced = advanced ++ keywords
         path match
           // should not show completions for toplevel
@@ -306,15 +305,14 @@ class Completions(
     // find the apply completion that would need a snippet
     val methodSymbols =
       if shouldAddSnippet &&
-        (sym.is(Flags.Module) || sym.isClass && !sym.is(Flags.Trait)) && !sym
-          .is(Flags.JavaDefined)
+        (sym.is(Flags.Module) || sym.isClass && !sym.is(Flags.Trait)) && !sym.is(Flags.JavaDefined)
       then
         val info =
           /* Companion will be added even for normal classes now,
            * but it will not show up from classpath. We can suggest
            * constructors based on those synthetic applies.
            */
-          if (sym.isClass && companionSynthetic) then sym.companionModule.info
+          if sym.isClass && companionSynthetic then sym.companionModule.info
           else sym.info
         val applSymbols = info.member(nme.apply).allSymbols
         sym :: applSymbols

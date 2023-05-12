@@ -5,6 +5,7 @@ import java.util.logging.Logger
 
 import scala.util.control.NonFatal
 
+import scala.meta.internal.metals.Report
 import scala.meta.internal.metals.ReportContext
 import scala.meta.pc.*
 
@@ -19,13 +20,15 @@ class CompilerSearchVisitor(
 
   val logger: Logger = Logger.getLogger(classOf[CompilerSearchVisitor].getName)
 
-  def isAccessible(sym: Symbol): Boolean = try sym != NoSymbol && sym.isPublic
+  private def isAccessible(sym: Symbol): Boolean = try sym != NoSymbol && sym.isPublic
   catch
     case NonFatal(e) =>
-      reports.incognito.createReport(
-        "is_public",
-        s"""Symbol: $sym""".stripMargin,
-        e
+      reports.incognito.create(
+        Report(
+          "is_public",
+          s"""Symbol: $sym""".stripMargin,
+          e
+        )
       )
       logger.log(Level.SEVERE, e.getMessage(), e)
       false
@@ -69,16 +72,6 @@ class CompilerSearchVisitor(
       symbol: String,
       kind: org.eclipse.lsp4j.SymbolKind,
       range: org.eclipse.lsp4j.Range
-  ): Int =
-    val gsym = SemanticdbSymbols.inverseSemanticdbSymbol(symbol).headOption
-    gsym
-      .filter(isAccessible)
-      .map(visitSymbol)
-      .map(_ => 1)
-      .getOrElse(0)
-
-  def visitWorkspaceSymbol(
-      symbol: String
   ): Int =
     val gsym = SemanticdbSymbols.inverseSemanticdbSymbol(symbol).headOption
     gsym

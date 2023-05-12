@@ -278,7 +278,7 @@ object OverrideCompletions:
 
     val caseClassOwners = Set("Product", "Equals")
     val overridables =
-      if (defn.symbol.is(Flags.CaseClass)) then
+      if defn.symbol.is(Flags.CaseClass) then
         abstractMembers.filter(sym => !caseClassOwners(sym.owner.decodedName))
       else abstractMembers
 

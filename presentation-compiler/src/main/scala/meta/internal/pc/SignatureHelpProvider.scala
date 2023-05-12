@@ -11,7 +11,6 @@ import scala.meta.pc.SymbolSearch
 import dotty.tools.dotc.ast.Trees.AppliedTypeTree
 import dotty.tools.dotc.ast.Trees.TypeApply
 import dotty.tools.dotc.ast.tpd
-import dotty.tools.pc.util.BuildInfo
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Symbols.*
@@ -23,12 +22,6 @@ import dotty.tools.dotc.util.SourcePosition
 import org.eclipse.{lsp4j as l}
 
 object SignatureHelpProvider:
-
-  private val versionSupportsTypeParams =
-    SemVer.isCompatibleVersion(
-      "3.2.1-RC1-bin-20220628-65a86ae-NIGHTLY",
-      BuildInfo.scalaVersion
-    )
 
   def signatureHelp(
       driver: InteractiveDriver,

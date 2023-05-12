@@ -11,7 +11,7 @@ import dotty.tools.dotc.semanticdb._
 object SemanticdbSymbols:
 
   def inverseSemanticdbSymbol(sym: String)(using ctx: Context): List[Symbol] =
-    import Scala3.StringOps
+    import Scala3.StringOps.*
 
     val defns = ctx.definitions
     import defns.*
@@ -125,7 +125,7 @@ object SemanticdbSymbols:
         b.append('('); addName(sym.name); b.append(')')
       else if sym.isRoot then b.append(Symbols.RootPackage)
       else if sym.isEmptyPackage then b.append(Symbols.EmptyPackage)
-      else if (sym.isScala2PackageObject) then b.append(Symbols.PackageObjectDescriptor)
+      else if sym.isScala2PackageObject then b.append(Symbols.PackageObjectDescriptor)
       else
         addName(sym.name)
         if sym.is(Package) then b.append('/')

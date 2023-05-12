@@ -11,7 +11,10 @@ import scala.meta.pc.OffsetParams
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.interactive.Interactive
 import dotty.tools.dotc.interactive.InteractiveDriver
+import dotty.tools.dotc.semanticdb.Scala3
 import dotty.tools.dotc.util.SourceFile
+import dotty.tools.dotc.util.SourcePosition
+import org.eclipse.lsp4j
 import org.eclipse.lsp4j.SelectionRange
 
 /**
@@ -85,3 +88,55 @@ class SelectionRangeProvider(
       child
 
 end SelectionRangeProvider
+
+// FIXME: update with latest mtags implementation, requires rewrite to dotty because fo scalameta
+
+// object SelectionRangeProvider:
+
+//   import dotty.tools.dotc.ast.tpd
+
+//   def commentRangesFromTokens(
+//       tokenList: List[Token],
+//       cursorStart: SourcePosition,
+//       offsetStart: Int
+//   ) =
+//     val cursorStartShifted = cursorStart.start - offsetStart
+
+//     tokenList
+//       .collect { case x: Comment =>
+//         (x.start, x.end, x.pos)
+//       }
+//       .collect {
+//         case (commentStart, commentEnd, _)
+//             if commentStart <= cursorStartShifted && cursorStartShifted <= commentEnd =>
+//           cursorStart
+//             .withStart(commentStart + offsetStart)
+//             .withEnd(commentEnd + offsetStart)
+//             .toLsp
+
+//       }
+//   end commentRangesFromTokens
+
+//   /** get comments under cursor */
+//   def getCommentRanges(
+//       cursor: SourcePosition,
+//       path: List[tpd.Tree],
+//       srcText: String
+//   )(using Context): List[lsp4j.Range] =
+//     val (treeStart, treeEnd) = path.headOption
+//       .map(t => (t.sourcePos.start, t.sourcePos.end))
+//       .getOrElse((0, srcText.size))
+
+//     // only parse comments from first range to reduce computation
+//     val srcSliced = srcText.slice(treeStart, treeEnd)
+
+//     val tokens = srcSliced.tokenize.toOption
+//     if tokens.isEmpty then Nil
+//     else
+//       commentRangesFromTokens(
+//         tokens.toList.flatten,
+//         cursor,
+//         treeStart
+//       )
+//   end getCommentRanges
+// end SelectionRangeProvider

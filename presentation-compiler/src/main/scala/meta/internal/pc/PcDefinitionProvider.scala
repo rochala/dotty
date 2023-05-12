@@ -43,6 +43,7 @@ class PcDefinitionProvider(
       SourceFile.virtual(filePath.toString, params.text)
     )
     val unit = driver.currentCtx.run.units.head
+    val tree = unit.tpdTree
 
     val pos = driver.sourcePosition(params)
     val path =
@@ -54,7 +55,7 @@ class PcDefinitionProvider(
       if findTypeDef then findTypeDefinitions(path, pos, indexedContext)
       else findDefinitions(path, pos, indexedContext)
 
-    if (result.locations().isEmpty()) then fallbackToUntyped(unit, pos)(using ctx)
+    if result.locations().isEmpty() then fallbackToUntyped(unit, pos)(using ctx)
     else result
   end definitions
 

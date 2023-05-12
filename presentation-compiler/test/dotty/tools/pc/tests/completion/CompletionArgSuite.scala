@@ -2,8 +2,11 @@ package dotty.tools.pc.tests.completion
 
 import org.junit.Test
 import dotty.tools.pc.base.BaseCompletionSuite
+import org.junit.FixMethodOrder
+import org.junit.runners.MethodSorters
 
-class ArgCompletionSuite extends BaseCompletionSuite:
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+class CompletionArgSuite extends BaseCompletionSuite:
 
   // In scala3, we get NoSymbol for `assert`, so we get no completions here.
   // This might be because the `assert` method has multiple overloaded methods, and that's why we can't retrieve a specfic symbol.
@@ -472,4 +475,68 @@ class ArgCompletionSuite extends BaseCompletionSuite:
           |""".stripMargin,
       """|x: Int
          |""".stripMargin
+    )
+
+  @Test def `contructor-param` =
+    check(
+      """|class Foo (xxx: Int)
+         |
+         |object Main {
+         |  val foo = new Foo(x@@)
+         |}
+         |""".stripMargin,
+      """|xxx = : Int
+         |""".stripMargin,
+    )
+
+  @Test def `contructor-param2` =
+    check(
+      """|class Foo ()
+         |
+         |object Foo {
+         |  def apply(xxx: Int): Foo = ???
+         |}
+         |object Main {
+         |  val foo = Foo(x@@)
+         |}
+         |""".stripMargin,
+      """|xxx = : Int
+         |""".stripMargin,
+  )
+
+  @Test def `context-function-as-param` =
+    check(
+      s"""|case class Context()
+          |
+          |def foo(arg1: (Context) ?=> Int, arg2: Int): String = ???
+          |val m = foo(ar@@)
+          |""".stripMargin,
+      """|arg1 = : (Context) ?=> Int
+         |arg2 = : Int
+         |""".stripMargin,
+      topLines = Some(2),
+    )
+
+  @Test def `context-function-as-param2` =
+    check(
+      s"""|case class Context()
+          |
+          |def foo(arg1: Context ?=> Int, arg2: Context ?=> Int): String = ???
+          |val m = foo(arg1 = ???, a@@)
+          |""".stripMargin,
+      """|arg2 = : (Context) ?=> Int
+         |""".stripMargin,
+      topLines = Some(1),
+    )
+
+  @Test def `context-function-as-param3` =
+    check(
+      s"""|case class Context()
+          |
+          |def foo(arg1: (Boolean, Context) ?=> Int ?=> String, arg2: (Boolean, Context) ?=> Int ?=> String): String = ???
+          |val m = foo(arg1 = ???, a@@)
+          |""".stripMargin,
+      """|arg2 = : (Boolean, Context) ?=> (Int) ?=> String
+         |""".stripMargin,
+      topLines = Some(1),
     )

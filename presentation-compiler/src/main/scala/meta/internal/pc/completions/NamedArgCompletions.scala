@@ -23,14 +23,6 @@ object NamedArgCompletions:
       clientSupportsSnippets: Boolean
   )(using ctx: Context): List[CompletionValue] =
     path match
-      case (ident: Ident) :: (app: Apply) :: _
-          if !isInfix(pos, app) => // fun(arg@@) if isNotInfix(pos, app)
-        contribute(
-          Some(ident),
-          app,
-          indexedContext,
-          clientSupportsSnippets
-        )
       case (ident: Ident) :: ValDef(_, _, _) :: Block(_, app: Apply) :: _ if !isInfix(pos, app) =>
         contribute(
           Some(ident),
@@ -38,6 +30,27 @@ object NamedArgCompletions:
           indexedContext,
           clientSupportsSnippets
         )
+      case (ident: Ident) :: rest =>
+        def getApplyForContextFunctionParam(path: List[Tree]): Option[Apply] =
+          path match
+            // fun(arg@@)
+            case (app: Apply) :: _ => Some(app)
+            // fun(arg@@), where fun(argn: Context ?=> SomeType)
+            // recursively matched for multiple context arguments, e.g. Context1 ?=> Context2 ?=> SomeType
+            case (_: DefDef) :: Block(List(_), _: Closure) :: rest =>
+              getApplyForContextFunctionParam(rest)
+            case _ => None
+        val contribution =
+          for
+            app <- getApplyForContextFunctionParam(rest)
+            if !isInfix(pos, app)
+          yield contribute(
+            Some(ident),
+            app,
+            indexedContext,
+            clientSupportsSnippets
+          )
+        contribution.getOrElse(Nil)
       case _ =>
         Nil
     end match
@@ -45,7 +58,9 @@ object NamedArgCompletions:
 
   private def isInfix(pos: SourcePosition, apply: Apply)(using ctx: Context) =
     apply.fun match
-      // is a select statement without a dot `qual.name` and is not a synthetic apply etc.
+      case Select(New(_), _) => false
+      case Select(_, name) if name.decoded == "apply" => false
+      // is a select statement without a dot `qual.name`
       case sel @ Select(qual, _) if !sel.symbol.is(Flags.Synthetic) =>
         !(qual.span.end until sel.nameSpan.start)
           .map(pos.source.apply)
@@ -65,9 +80,22 @@ object NamedArgCompletions:
         case _ => false
 
     def collectArgss(a: Apply): List[List[Tree]] =
+      def stripContextFuntionArgument(argument: Tree): List[Tree] =
+        argument match
+          case Block(List(d: DefDef), _: Closure) =>
+            d.rhs match
+              case app: Apply =>
+                app.args
+              case b @ Block(List(_: DefDef), _: Closure) =>
+                stripContextFuntionArgument(b)
+              case _ => Nil
+          case v => List(v)
+
+      val args = a.args.flatMap(stripContextFuntionArgument)
       a.fun match
-        case app: Apply => collectArgss(app) :+ a.args
-        case _ => List(a.args)
+        case app: Apply => collectArgss(app) :+ args
+        case _ => List(args)
+    end collectArgss
 
     val method = apply.fun
     val methodSym = method.symbol
@@ -130,7 +158,7 @@ object NamedArgCompletions:
       completionSymbols
         .collect {
           case sym
-              if sym.info <:< paramType && sym.isTerm && !sym.info.isNullType && !sym.info.isNothingType && !sym
+              if sym.info <:< paramType && sym.isTerm && !sym.info.isErroneous && !sym.info.isNullType && !sym.info.isNothingType && !sym
                 .is(Flags.Method) && !sym.is(Flags.Synthetic) =>
             sym.decodedName
         }

@@ -167,3 +167,29 @@ class TypeDocumentHighlightSuite extends BaseDocumentHighlightSuite:
          |    val b1: A#<<B@@B>> = 12
          |}""".stripMargin
     )
+
+  @Test def `trait-param1` =
+   check(
+      """|trait Zg[<<T@@T>>]{
+         |  def doZ: List[<<TT>>]
+         |}
+         |""".stripMargin,
+    )
+
+  @Test def `trait-param2` =
+    check(
+      """|trait Zg[<<TT>>]{
+         |  def doZ: List[<<T@@T>>]
+         |}
+         |""".stripMargin,
+    )
+
+  @Test def `symbolic-type` =
+    check(
+      """|object A {
+         |  type <<!!>>[+T, -U] = Int
+         |  def m(x: Int <<!@@!>> String) = ???
+         |}
+         |""".stripMargin,
+  )
+
