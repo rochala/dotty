@@ -4,6 +4,7 @@ package completions
 import scala.meta.internal.pc.CompletionItemData
 
 import dotty.tools.dotc.core.Contexts.Context
+import dotty.tools.dotc.core.Denotations.SingleDenotation
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.Symbols.Symbol
 import dotty.tools.dotc.core.Types.Type
@@ -95,28 +96,27 @@ object CompletionValue:
         s"${label}${printedParams.mkString("[", ",", "]")}"
       else label
 
-    override def description(printer: ShortenedTypePrinter)(
-      using Context
-    ): String =
+    override def description(printer: ShortenedTypePrinter)(using Context): String =
       printer.completionSymbol(symbol)
   end Symbolic
 
   case class Compiler(
-      label: String,
-      symbol: Symbol,
-      override val snippetSuffix: CompletionSuffix
-  ) extends Symbolic
-  case class Scope(
-      label: String,
-      symbol: Symbol,
-      override val snippetSuffix: CompletionSuffix,
-  ) extends Symbolic
-  case class Workspace(
-      label: String,
-      symbol: Symbol,
-      override val snippetSuffix: CompletionSuffix,
-      override val importSymbol: Symbol
+    label: String, denotation: SingleDenotation, override val snippetSuffix: CompletionSuffix
   ) extends Symbolic:
+    val symbol: Symbol = denotation.symbol
+
+    override def description(printer: ShortenedTypePrinter)(using Context): String =
+      printer.completionSymbol(symbol, Some(denotation.info.widenTermRefExpr))
+
+  case class Scope(
+      label: String, symbol: Symbol, override val snippetSuffix: CompletionSuffix,
+  ) extends Symbolic
+
+  case class Workspace(
+      label: String, denotation: SingleDenotation, override val snippetSuffix: CompletionSuffix, override val importSymbol: Symbol
+  ) extends Symbolic:
+    val symbol: Symbol = denotation.symbol
+
     override def isFromWorkspace: Boolean = true
 
   /**
@@ -124,9 +124,11 @@ object CompletionValue:
    */
   case class Extension(
       label: String,
-      symbol: Symbol,
+      denotation: SingleDenotation,
       override val snippetSuffix: CompletionSuffix
   ) extends Symbolic:
+    val symbol: Symbol = denotation.symbol
+
     override def completionItemKind(using Context): CompletionItemKind =
       CompletionItemKind.Method
     override def description(printer: ShortenedTypePrinter)(using Context): String =
