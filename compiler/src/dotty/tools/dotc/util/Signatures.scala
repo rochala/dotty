@@ -478,8 +478,8 @@ object Signatures {
         res.isImplicitMethod &&
         (
           res.paramNames.forall(name =>
-            name.startsWith(NameKinds.ContextBoundParamName.separator) ||
-            name.startsWith(NameKinds.ContextFunctionParamName.separator)) ||
+            name.toString.startsWith(NameKinds.ContextBoundParamName.separator) ||
+            name.toString.startsWith(NameKinds.ContextFunctionParamName.separator)) ||
           res.paramInfos.forall(info =>
             info.classSymbol.derivesFrom(ctx.definitions.DummyImplicitClass))
         )
@@ -495,8 +495,8 @@ object Signatures {
         case res => List(tpe)
 
     def isSyntheticEvidence(name: String) =
-      if !name.startsWith(NameKinds.ContextBoundParamName.separator) then false else
-        symbol.paramSymss.flatten.find(_.name.show == name).exists(_.flags.is(Flags.Implicit))
+      if !name.toString.startsWith(NameKinds.ContextBoundParamName.separator) then false
+      else symbol.paramSymss.flatten.find(_.name.show == name).exists(_.flags.is(Flags.Implicit))
 
     def toTypeParam(tpe: PolyType): List[Param] =
       val evidenceParams = (tpe.paramNamess.flatten zip tpe.paramInfoss.flatten).flatMap:

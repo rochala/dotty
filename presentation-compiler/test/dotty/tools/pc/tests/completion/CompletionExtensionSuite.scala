@@ -20,6 +20,20 @@ class CompletionExtensionSuite extends BaseCompletionSuite:
          |""".stripMargin
     )
 
+  @Test def `extension-with-type-var` =
+    check(
+      """|package example
+         |
+         |object enrichments:
+         |  extension [T](xs: List[T])
+         |    def addedTest(y: T): List[T] = xs.appended(y)
+         |
+         |def main = List(1,2,3).addedTes@@
+         |""".stripMargin,
+      """|addedTest(y: Int): List[Int] (extension)
+         |""".stripMargin
+    )
+
   @Test def `simple-old-syntax` =
     check(
       """|package example

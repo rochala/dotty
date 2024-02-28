@@ -12,7 +12,8 @@ import dotty.tools.pc.completions.CompletionSource
 import dotty.tools.pc.utils.MtagsEnrichments.*
 import dotty.tools.pc.utils.{TestCompletions, TextEdits}
 
-import org.eclipse.lsp4j.{CompletionItem, CompletionList}
+import org.eclipse.lsp4j.{CompletionItem, CompletionList, CompletionItemTag}
+import scala.meta.internal.pc.CompletionItemData
 
 abstract class BaseCompletionSuite extends BasePCSuite:
 
@@ -173,7 +174,12 @@ abstract class BaseCompletionSuite extends BasePCSuite:
       }
       .mkString("\n")
 
-    assertWithDiff(expected, obtained, includeSources = false, Some(original))
+    val completionSources = items
+      .map(_.data.map(data => CompletionSource.fromOrdinal(data.kind))
+      .getOrElse(CompletionSource.Empty))
+      .toList
+
+    assertWithDiff(expected, obtained, includeSources = true, Some(original), completionSources)
 
   /**
    * Check completions that will be shown in original param after `@@` marker
@@ -207,7 +213,8 @@ abstract class BaseCompletionSuite extends BasePCSuite:
       includeDetail: Boolean = true,
       filename: String = "A.scala",
       filter: String => Boolean = _ => true,
-      enablePackageWrap: Boolean = true
+      enablePackageWrap: Boolean = true,
+      includeDeprecatedInformation: Boolean = false,
   ): Unit =
     val out = new StringBuilder()
     val withPkg =
@@ -227,6 +234,10 @@ abstract class BaseCompletionSuite extends BasePCSuite:
             .asScala
             .mkString(" (commit: '", " ", "')")
         else ""
+      val deprecatedInformation =
+        if includeDeprecatedInformation && item.getTags.asScala.contains(CompletionItemTag.Deprecated) then
+          " deprecated"
+        else ""
       val documentation = doc(item.getDocumentation)
       if (includeDocs && documentation.nonEmpty) {
         out.append("> ").append(documentation).append("\n")
@@ -244,6 +255,7 @@ abstract class BaseCompletionSuite extends BasePCSuite:
             ""
         })
         .append(commitCharacter)
+        .append(deprecatedInformation)
         .append("\n")
     }
     val completionSources = filteredItems

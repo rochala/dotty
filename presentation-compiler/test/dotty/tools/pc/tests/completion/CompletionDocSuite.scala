@@ -107,7 +107,7 @@ class CompletionDocSuite extends BaseCompletionSuite:
         |  List(1).iterator.sliding@@
         |}
       """.stripMargin,
-      """|sliding[B >: Int](size: Int, step: Int = 1): List[Int]#iterator.GroupedIterator[B]
+      """|sliding[B >: Int](size: Int, step: Int = 1): Iterator[Int]#GroupedIterator[B]
          |""".stripMargin
     )
 

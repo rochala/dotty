@@ -1,13 +1,8 @@
 package dotty.tools.pc.printer
 
-import scala.collection.mutable
-import scala.meta.internal.jdk.CollectionConverters.*
-import scala.meta.internal.metals.ReportContext
-import scala.meta.pc.SymbolDocumentation
-import scala.meta.pc.SymbolSearch
-
 import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.core.Denotations.Denotation
+import dotty.tools.dotc.core.Denotations.SingleDenotation
 import dotty.tools.dotc.core.Flags
 import dotty.tools.dotc.core.Flags.*
 import dotty.tools.dotc.core.NameKinds.ContextBoundParamName
@@ -18,10 +13,11 @@ import dotty.tools.dotc.core.Names.NameOrdering
 import dotty.tools.dotc.core.StdNames
 import dotty.tools.dotc.core.Symbols.NoSymbol
 import dotty.tools.dotc.core.Symbols.Symbol
-import dotty.tools.dotc.core.Types.*
 import dotty.tools.dotc.core.Types.Type
-import dotty.tools.dotc.printing.RefinedPrinter
+import dotty.tools.dotc.core.Types.*
+import dotty.tools.dotc.core.Variances.varianceSign
 import dotty.tools.dotc.printing.Texts.Text
+import dotty.tools.dotc.printing.*
 import dotty.tools.pc.AutoImports.AutoImportsGenerator
 import dotty.tools.pc.AutoImports.ImportSel
 import dotty.tools.pc.AutoImports.ImportSel.Direct
@@ -29,9 +25,16 @@ import dotty.tools.pc.AutoImports.ImportSel.Rename
 import dotty.tools.pc.IndexedContext
 import dotty.tools.pc.IndexedContext.Result
 import dotty.tools.pc.Params
+import dotty.tools.pc.SemanticdbSymbols
 import dotty.tools.pc.utils.MtagsEnrichments.*
-
 import org.eclipse.lsp4j.TextEdit
+
+import scala.collection.mutable
+import scala.meta.internal.jdk.CollectionConverters.*
+import scala.meta.internal.metals.ReportContext
+import scala.meta.pc.SymbolDocumentation
+import scala.meta.pc.SymbolSearch
+import dotty.tools.pc.printer.ShortenedTypePrinter.IncludeDefaultParam
 
 /**
  * A type printer that shortens types by replacing fully qualified names with shortened versions.
@@ -41,36 +44,24 @@ import org.eclipse.lsp4j.TextEdit
  */
 class ShortenedTypePrinter(
     symbolSearch: SymbolSearch,
-    includeDefaultParam: ShortenedTypePrinter.IncludeDefaultParam =
-      IncludeDefaultParam.ResolveLater,
+    includeDefaultParam: ShortenedTypePrinter.IncludeDefaultParam = IncludeDefaultParam.ResolveLater,
     isTextEdit: Boolean = false,
     renameConfigMap: Map[Symbol, String] = Map.empty
 )(using indexedCtx: IndexedContext, reportCtx: ReportContext) extends RefinedPrinter(indexedCtx.ctx):
   private val missingImports: mutable.Set[ImportSel] = mutable.LinkedHashSet.empty
   private val defaultWidth = 1000
 
-  private val methodFlags =
-    Flags.commonFlags(
-      Private,
-      Protected,
-      Final,
-      Implicit,
-      Given,
-      Override,
-      Transparent,
-      Erased,
-      Inline,
-      AbsOverride,
-      Lazy
-    )
+  def flagsFilter(sym: Symbol) =
+    if sym.isType then sym.flags & TypeSourceModifierFlags &~ JavaStatic
+    else if sym.isPatternBound then sym.flags & TermSourceModifierFlags &~ Case &~ JavaStatic
+    else sym.flags & TermSourceModifierFlags &~ JavaStatic
 
   private val foundRenames = collection.mutable.LinkedHashMap.empty[Symbol, String]
 
   def getUsedRenames: Map[Symbol, String] = foundRenames.toMap
 
   def getUsedRenamesInfo(using Context): List[String] =
-    foundRenames.map { (from, to) =>
-      s"type $to = ${from.showName}"
+    foundRenames.map { (from, to) => s"type $to = ${from.showName}"
     }.toList
 
   def expressionType(tpw: Type)(using Context): Option[String] =
@@ -201,6 +192,20 @@ class ShortenedTypePrinter(
   override def toText(tp: Type): Text =
     tp match
       case c: ConstantType => toText(c.value)
+      case tp: MethodType if tp.paramNames.nonEmpty && tp.paramNames.forall(_.toString.startsWith(ContextBoundParamName.separator)) =>
+        (Str(": ") provided !tp.resultType.isInstanceOf[MethodOrPoly])
+        ~ super.toText(tp.resultType)
+
+      case tp: MethodType =>
+        changePrec(GlobalPrec) {
+          "("
+          ~ keywordText("using ").provided(tp.isContextualMethod)
+          ~ keywordText("implicit ").provided(tp.isImplicitMethod && !tp.isContextualMethod)
+          ~ paramsText(tp)
+          ~ ")"
+          ~ (Str(": ") provided !tp.resultType.isInstanceOf[MethodOrPoly])
+          ~ toText(tp.resultType)
+        }
       case tp if tp.isError => super.toText(indexedCtx.ctx.definitions.AnyType)
       case _ => super.toText(tp)
 
@@ -235,7 +240,7 @@ class ShortenedTypePrinter(
       case o if typeSymbol.is(Flags.Module) => // enum
         s"${keyString(o)} $name: $ownerTypeString"
       case m if m.is(Flags.Method) =>
-        defaultMethodSignature(m, info)
+        dclText(m.mapInfo(_ => info)).mkString(1000, false)
       case _ =>
         val implicitKeyword =
           if sym.is(Flags.Implicit) then List("implicit") else Nil
@@ -265,8 +270,7 @@ class ShortenedTypePrinter(
     if isImportedByDefault(sym) then typeEffectiveOwner
     else if sym.is(Flags.Package) || sym.isClass then " " + fullNameString(sym.effectiveOwner)
     else if sym.is(Flags.Module) || typeSymbol.is(Flags.Module) then typeEffectiveOwner
-    else if sym.is(Flags.Method) then
-      defaultMethodSignature(sym, info, onlyMethodParams = true)
+    else if sym.is(Flags.Method) then toRichText(denotation.asSingleDenotation).mkString(1000, false)
     else if sym.isType then
       info match
         case TypeAlias(t) => " = " + tpe(t.resultType)
@@ -275,286 +279,184 @@ class ShortenedTypePrinter(
     end if
   end completionSymbol
 
-  /**
-   * Compute method signature for the given (method) symbol.
-   *
-   * @return shortened name for types or the type for terms
-   *         e.g. "[A: Ordering](a: A, b: B): collection.mutable.Map[A, B]"
-   *              ": collection.mutable.Map[A, B]" for no-arg method
-   */
-  def defaultMethodSignature(
-      gsym: Symbol,
-      gtpe: Type,
-      onlyMethodParams: Boolean = false,
-      additionalMods: List[String] = Nil
-  ): String =
-    val namess = gtpe.paramNamess
-    val infoss = gtpe.paramInfoss
-    val nameToInfo: Map[Name, Type] = namess.flatten.lazyZip(infoss.flatten).toMap
+  override protected def toTextRHS(tp: Type, isParameter: Boolean = false): Text = controlled {
+    tp match
+      case tp: MethodType if tp.paramNames.nonEmpty && tp.paramNames.forall(_.toString.startsWith(ContextBoundParamName.separator)) =>
+        (Str(": ") provided !tp.resultType.isInstanceOf[MethodOrPoly])
+        ~ super.toText(tp.resultType)
+      case tp: PolyType => toText(tp)
+      case _ => super.toTextRHS(tp, isParameter)
+  }
 
-    val (methodParams, extParams) = splitExtensionParamss(gsym)
-    val paramss = methodParams ++ extParams
-    lazy val implicitParams: List[Symbol] =
-      paramss.flatMap(params => params.filter(p => p.is(Flags.Implicit)))
+  def mapTypeToSymbol(denot: SingleDenotation): List[List[(Name, Type)]] =
+    def iter(acc: List[List[(Name, Type)]], tpe: Type): List[List[(Name, Type)]] =
+      tpe match
+        case methodOrPoly: MethodOrPoly =>
+          iter(acc :+ (methodOrPoly.paramNames zip methodOrPoly.paramInfos), methodOrPoly.resultType)
+        case _ => acc
+    iter(Nil, denot.info)
 
-    lazy val implicitEvidenceParams: Set[Symbol] =
-      implicitParams
-        .filter(p => p.name.toString.startsWith(ContextBoundParamName.separator))
-        .toSet
+  override def toTextFlags(sym: Symbol): Text =
+    val symbolFlags = if sym.isType then sym.flags.toTypeFlags else sym.flags.toTermFlags
+    toTextFlags(sym, symbolFlags & flagsFilter(sym))
 
-    lazy val implicitEvidencesByTypeParam: Map[Symbol, List[String]] =
-      constructImplicitEvidencesByTypeParam(
-        implicitEvidenceParams.toList
-      )
+  override def dclText(sym: Symbol): Text =
+    toRichDclText(sym.denot)
 
-    lazy val paramsDocs =
-      symbolSearch.symbolDocumentation(gsym) match
-        case Some(info) =>
-          (info.typeParameters().nn.asScala ++ info.parameters().nn.asScala).toSeq
-        case _ =>
-          Seq.empty
+  override def dclText(d: SingleDenotation): Text =
+    toRichDclText(d)
 
-    def label(paramss: List[List[Symbol]]) = {
-      var index = 0
-      paramss.flatMap { params =>
-        val labels = params.flatMap { param =>
-          // Don't show implicit evidence params
-          // e.g.
-          // from [A: Ordering](a: A, b: A)(implicit evidence$1: Ordering[A])
-          // to   [A: Ordering](a: A, b: A): A
-          val lab =
-            if implicitEvidenceParams.contains(param) then Nil
-            else
-              paramLabel(
-                param,
-                implicitEvidencesByTypeParam,
-                index,
-                if !onlyMethodParams then paramsDocs else Seq.empty,
-                nameToInfo
-              ) :: Nil
-          index += 1
-          lab
+  def infoParamssDenotations(denot: SingleDenotation): List[List[SingleDenotation]] =
+    val denotParamTypeMap = mapTypeToSymbol(denot)
 
-        }
-        // Remove empty params
-        if labels.isEmpty then Nil
-        else labels.iterator :: Nil
-      }
-    }.iterator
-    val paramLabelss = label(methodParams)
-    val extLabelss = label(extParams)
+    val firstList = denotParamTypeMap.headOption.getOrElse(Nil).map(_._1)
 
-    val returnType = tpe(gtpe.finalResultType)
-    def extensionSignatureString =
-      val extensionSignature = paramssString(extLabelss, extParams)
-      if extParams.nonEmpty then
-        extensionSignature.mkString("extension ", "", " ")
-      else ""
-    val paramssSignature = paramssString(paramLabelss, methodParams)
-      .mkString("", "", s": ${returnType}")
+    denot.symbol.paramSymss.dropWhile: symss =>
+      symss.map(_.name).diff(firstList).nonEmpty
+    .zip(denotParamTypeMap)
+    .map: (symss, infos) =>
+      symss.zip(infos).map: (sym, info) =>
+        sym.mapInfo(_ => info._2)
 
-    val flags = (gsym.flags & methodFlags)
-    val flagsSeq =
-      if !flags.isEmpty then
-        val privateWithin =
-          if gsym.privateWithin != NoSymbol then gsym.privateWithin.name.show
-          else ""
-        flags.flagStrings(privateWithin)
-      else Nil
-    val mods = (additionalMods ++ flagsSeq).distinct match
-      case Nil => ""
-      case xs => xs.mkString("", " ", " ")
+  def toRichText(denot: SingleDenotation): Text =
+    val paramss = infoParamssDenotations(denot)
+    val evidenceMap = findDesugaredContextBounds(paramss.flatten.map(sym => sym.name -> sym.info))
 
-    if onlyMethodParams then paramssSignature
+    (paramssText(paramss, denot, evidenceMap)
+    ~ toTextRHS(denot.info.finalResultType)).close
+
+  def splitExtensionParamss(
+    denot: Denotation, paramss: List[List[SingleDenotation]]
+  ): (List[List[SingleDenotation]], List[List[SingleDenotation]]) =
+    val methodNamePosition = denot.symbol.span.point
+    val (extSymbols, methodSymbols) = paramss
+      .map: params =>
+        params.filter(!_.name.toString.startsWith(ContextBoundParamName.separator))
+      .partition:
+        case head :: _ => head.symbol.span.end < methodNamePosition
+        case Nil => false
+
+    extSymbols -> methodSymbols
+
+  def toRichDclText(denot: SingleDenotation): Text =
+    val paramss = infoParamssDenotations(denot)
+    val evidenceMap = findDesugaredContextBounds(paramss.flatten.map(sym => sym.name -> sym.info))
+
+    if denot.symbol.is(ExtensionMethod) then
+      val (extSymbols, methodSymbols) = splitExtensionParamss(denot, paramss)
+
+      Str("extension ")
+        ~ paramssText(extSymbols, denot, evidenceMap)
+        ~ " "
+        ~ (toTextFlags(denot.symbol) ~~ keyString(denot.symbol) ~~ nameString(denot.symbol))
+        ~ paramssText(methodSymbols, denot, evidenceMap)
+        ~ toTextRHS(denot.info.finalResultType).close
     else
-      // For Scala2 compatibility, show "this" instead of <init> for constructor
-      val name = if gsym.isConstructor then StdNames.nme.this_ else gsym.name
-      extensionSignatureString +
-        s"${mods}def $name" +
-        paramssSignature
-  end defaultMethodSignature
+      (toTextFlags(denot.symbol) ~~ keyString(denot.symbol) ~~ (varianceSign(denot.symbol.variance) ~ nameString(denot.symbol))
+        ~ paramssText(paramss, denot, evidenceMap)
+        ~ toTextRHS(denot.info.finalResultType)).close
 
-  def defaultValueSignature(
-      gsym: Symbol,
-      gtpe: Type,
-      additionalMods: List[String] = Nil
-  ): String =
-    val flags = (gsym.flags & methodFlags)
-    val flagString =
-      if !flags.isEmpty then
-        val privateWithin =
-          if gsym.privateWithin != NoSymbol then gsym.privateWithin.name.show
-          else ""
-        flags.flagStrings(privateWithin).mkString(" ") + " "
-      else ""
-    val mods =
-      if additionalMods.isEmpty then flagString
-      else additionalMods.mkString(" ") + " " + flagString
-    val prefix = if gsym.is(Mutable) then "var" else "val"
-    s"${mods}$prefix ${gsym.name.show}: ${tpe(gtpe)}"
-  end defaultValueSignature
-
-  /*
-   * Check if a method is an extension method and in that case separate the parameters
-   * into 2 groups to make it possible to print extensions properly.
-   */
-  private def splitExtensionParamss(
-      gsym: Symbol
-  ): (List[List[Symbol]], List[List[Symbol]]) =
-
-    def headHasFlag(params: List[Symbol], flag: Flags.Flag): Boolean =
-      params match
-        case sym :: _ => sym.is(flag)
-        case _ => false
-    def isUsingClause(params: List[Symbol]): Boolean =
-      headHasFlag(params, Flags.Given)
-    def isTypeParamClause(params: List[Symbol]): Boolean =
-      headHasFlag(params, Flags.TypeParam)
-    def isUsingOrTypeParamClause(params: List[Symbol]): Boolean =
-      isUsingClause(params) || isTypeParamClause(params)
-
-    val paramss =
-      if gsym.rawParamss.length != 0 then gsym.rawParamss else gsym.paramSymss
-    if gsym.is(Flags.ExtensionMethod) then
-      val filteredParams =
-        if gsym.name.isRightAssocOperatorName then
-          val (leadingTyParamss, rest1) = paramss.span(isTypeParamClause)
-          val (leadingUsing, rest2) = rest1.span(isUsingClause)
-          val (rightTyParamss, rest3) = rest2.span(isTypeParamClause)
-          val (rightParamss, rest4) = rest3.splitAt(1)
-          val (leftParamss, rest5) = rest4.splitAt(1)
-          val (trailingUsing, rest6) = rest5.span(isUsingClause)
-          if leftParamss.nonEmpty then
-            leadingTyParamss ::: leadingUsing ::: leftParamss ::: rightTyParamss ::: rightParamss ::: trailingUsing ::: rest6
-          else paramss // it wasn't a binary operator, after all.
-        else paramss
-      val trailingParamss = filteredParams
-        .dropWhile(isUsingOrTypeParamClause)
-        .drop(1)
-
-      val leadingParamss =
-        filteredParams.take(paramss.length - trailingParamss.length)
-      (trailingParamss, leadingParamss)
-    else (paramss, Nil)
-    end if
-  end splitExtensionParamss
-
-  private def paramssString(
-      paramLabels: Iterator[Iterator[String]],
-      paramss: List[List[Symbol]]
-  )(using Context): Iterator[String] =
-    paramLabels
-      .zipAll(paramss, Nil, Nil)
-      .map { case (params, syms) =>
-        Params.paramsKind(syms) match
-          case Params.Kind.TypeParameter if params.iterator.nonEmpty =>
-            params.iterator.mkString("[", ", ", "]")
-          case Params.Kind.Normal =>
-            params.iterator.mkString("(", ", ", ")")
-          case Params.Kind.Using if params.iterator.nonEmpty =>
-            params.iterator.mkString(
-              "(using ",
-              ", ",
-              ")"
-            )
-          case Params.Kind.Implicit if params.iterator.nonEmpty =>
-            params.iterator.mkString(
-              "(implicit ",
-              ", ",
-              ")"
-            )
-          case _ => ""
-      }
-  end paramssString
+  /** The name of the symbol without a unique id. */
+  protected override def simpleNameString(sym: Symbol): String =
+    if sym.name.isConstructorName then nameString(StdNames.nme.this_) else nameString(sym.name)
 
   /**
-   * Construct param (both value params and type params) label string (e.g. "param1: TypeOfParam", "A: Ordering")
-   * for the given parameter's symbol.
-   */
-  private def paramLabel(
-      param: Symbol,
-      implicitEvidences: Map[Symbol, List[String]],
-      index: Int,
-      defaultValues: => Seq[SymbolDocumentation],
-      nameToInfo: Map[Name, Type]
-  )(using ReportContext): String =
-    val docInfo = defaultValues.lift(index)
-    val rawKeywordName = nameString(param)
-    val keywordName = docInfo match
-      case Some(info) if rawKeywordName.startsWith("x$") =>
-        info.displayName()
-      case _ => rawKeywordName
-    val info = nameToInfo
-      .get(param.name)
-      .flatMap { info =>
-        // In some cases, paramInfo becomes Nothing (e.g. CompletionOverrideSuite#cake)
-        // which is meaningless, in that case, fallback to param.info
-        if info.isNothingType then None
-        else Some(info)
-      }
-      .getOrElse(param.info)
-
-    // use `nameToInfo.get(param.name)` instead of `param.info` because
-    // param.info loses `asSeenFrom` information:
-    // parameter `f` of `foreach[U](f: A => U)` in `new scala.Traversable[Int]` should be `foreach[U](f: Int => U)`
-    val paramTypeString = tpe(info)
-    if param.isTypeParam then
-      // pretty context bounds
-      // e.g. f[A](a: A, b: A)(implicit evidence$1: Ordering[A])
-      // to   f[A: Ordering](a: A, b: A)(implicit evidence$1: Ordering[A])
-      val bounds = implicitEvidences.getOrElse(param, Nil) match
-        case Nil => ""
-        case head :: Nil => s": $head"
-        case many => many.mkString(": ", ": ", "")
-      s"$keywordName$paramTypeString$bounds"
-    else if param.isAllOf(Given | Param) && param.name.startsWith("x$") then
-      // For Anonymous Context Parameters
-      // print only type string
-      // e.g. "using Ord[T]" instead of "using x$0: Ord[T]"
-      paramTypeString
-    else
-      val isDefaultParam = param.isAllOf(DefaultParameter)
-      val default =
-        if includeDefaultParam == ShortenedTypePrinter.IncludeDefaultParam.Include && isDefaultParam
-        then
-          val defaultValue = docInfo match
-            case Some(value) if !value.defaultValue().nn.isEmpty() =>
-              value.defaultValue()
-            case _ => "..."
-          s" = $defaultValue"
-        // to be populated later, otherwise we would spend too much time in completions
-        else if includeDefaultParam == ShortenedTypePrinter.IncludeDefaultParam.ResolveLater && isDefaultParam
-        then " = ..."
-        else "" // includeDefaultParam == Never or !isDefaultParam
-      s"$keywordName: ${paramTypeString}$default"
-    end if
-  end paramLabel
-
-  /**
-   * Create a mapping from type parameter symbol to its context bound string representations.
+   * Create a mapping from type parameter symbol to its context bound.
    *
-   * @param implicitEvidenceParams - implicit evidence params (e.g. evidence$1: Ordering[A])
-   * @return mapping from type param to its context bounds (e.g. Map(A -> List("Ordering")) )
+   * @param paramsWithInfos all parameter names and types of a symbol
+   * @return mapping from type param to its context bounds (e.g. Map(T -> List(Ordering[T])) )
    */
-  private def constructImplicitEvidencesByTypeParam(
-      implicitEvidenceParams: List[Symbol]
-  ): Map[Symbol, List[String]] =
-    val result = mutable.Map.empty[Symbol, mutable.ListBuffer[String]]
-    implicitEvidenceParams.iterator
-      .map(_.info)
-      .collect {
-        // AppliedType(TypeRef(ThisType(TypeRef(NoPrefix,module class reflect)),trait ClassTag),List(TypeRef(NoPrefix,type T)))
-        case AppliedType(tycon, TypeRef(_, tparam) :: Nil)
-            if tparam.isInstanceOf[Symbol] =>
-          (tycon, tparam.asInstanceOf[Symbol])
-      }
-      .foreach { case (tycon, tparam) =>
-        val buf =
-          result.getOrElseUpdate(tparam, mutable.ListBuffer.empty[String])
-        buf += tpe(tycon)
-      }
-    result.map(kv => (kv._1, kv._2.toList)).toMap
-  end constructImplicitEvidencesByTypeParam
+  private def findDesugaredContextBounds(paramsWithInfos: List[(Name, Type)]): Map[Name, List[Type]] =
+    val evidenceParams = paramsWithInfos.filter(_._1.toString.startsWith(ContextBoundParamName.separator))
+    evidenceParams.map(_._2).collect:
+      case AppliedType(tycon, (ref: TypeRef) :: Nil)      => (ref.name, tycon) // info from symbol
+      case AppliedType(tycon, (ref: TypeParamRef) :: Nil) => (ref.paramName, tycon) // info from tree
+    .groupMap(_._1)(_._2)
+
+  private def findDesugaredContextBounds(poly: Type): Map[Name, List[Type]] =
+    poly match
+      case tpe if tpe.isImplicitMethod =>
+        val paramsWithInfos = tpe.paramNamess.flatten zip tpe.paramInfoss.flatten
+        findDesugaredContextBounds(paramsWithInfos)
+
+      case methodOrPoly: MethodOrPoly => findDesugaredContextBounds(methodOrPoly.resType)
+      case _ => Map.empty
+
+
+  override def paramsText(lam: LambdaType): Text =
+    val result = lam match
+      case polyType: PolyType =>
+        val evidenceMap = findDesugaredContextBounds(polyType)
+
+        polyType.paramRefs.map: paramRef =>
+          val ctxBounds = evidenceMap.getOrElse(paramRef.paramName, Nil).map(toText)
+          val ctxBoundsString: Text = Str(": ").provided(ctxBounds.nonEmpty) ~ Text(ctxBounds, ": ")
+
+          ParamRefNameString(paramRef) ~ toTextRHS(paramRef.underlying, isParameter = true) ~ ctxBoundsString
+      case lam =>
+        lam.paramRefs.map: ref =>
+          if ref.paramName.toString.startsWith(ContextBoundParamName.separator) then Text()
+          else if lam.isContextualMethod && ref.paramName.toString.startsWith("x$") then toText(ref.underlying)
+          else ParamRefNameString(ref) ~ toTextRHS(ref.underlying, isParameter = true)
+
+    Text(result, ", ")
+
+
+  private def paramssText(paramss: List[List[SingleDenotation]], defnDenot: SingleDenotation, evidenceMap: Map[Name, List[Type]])(using Context): Text =
+    import scala.jdk.CollectionConverters.*
+
+    lazy val defnDoc: Option[SymbolDocumentation] = symbolSearch.symbolDocumentation(defnDenot.symbol)
+    lazy val paramDocs: List[SymbolDocumentation] = defnDoc.fold(List.empty): defnDoc =>
+      defnDoc.parameters().nn.asScala.toList
+
+    def withReplacedJavaNamed(paramDenot: SingleDenotation, index: Int): Text =
+      if defnDenot.symbol.flags.is(JavaDefined) && defnDoc.isDefined then
+        val paramSemanticdbSymbol = SemanticdbSymbols.symbolName(paramDenot.symbol)
+        val doc: Option[SymbolDocumentation] = paramDocs.lift(index)
+        doc.map(_.displayName().nn).getOrElse(nameString(paramDenot.symbol))
+      else nameString(paramDenot.symbol)
+
+    def defaultParameter(paramDenot: SingleDenotation, index: Int): Text =
+      val hasDefault = paramDenot.symbol.flags.is(HasDefault)
+      includeDefaultParam match
+        case IncludeDefaultParam.Include if hasDefault && defnDoc.isDefined =>
+          val paramSemanticdbSymbol = SemanticdbSymbols.symbolName(paramDenot.symbol)
+          val maybeDoc: Option[SymbolDocumentation] = paramDocs.lift(index)
+          maybeDoc.map(doc => Str(" = ") ~ doc.defaultValue().nn).getOrElse(" = ...")
+        case IncludeDefaultParam.ResolveLater if hasDefault => Str(" = ...")
+        case _ => ""
+
+    def typeParamsText(syms: List[SingleDenotation]) =
+      val result = syms.map: denot =>
+        evidenceMap.get(denot.name) match
+          case Some(ctxBounds) =>
+            val ctxBoundString: Text = Str(": ").provided(ctxBounds.nonEmpty) ~ Text(ctxBounds.map(toText), ": ")
+            ParamRefNameString(denot.name) ~ toTextRHS(denot.info, isParameter = true) ~ ctxBoundString
+          case None =>
+            (varianceSign(denot.symbol.variance) ~ nameString(denot.symbol)) ~ toTextRHS(denot.info, isParameter = true).close
+      Text(result, ", ")
+
+    def paramsText(syms: List[SingleDenotation]) =
+      val result = syms
+        .filter(!_.name.toString.startsWith(ContextBoundParamName.separator))
+        .zipWithIndex
+        .map: (denot, i) =>
+          if denot.symbol.is(Given) && denot.name.toString.startsWith("x$") then toText(denot.info).close
+          else
+            withReplacedJavaNamed(denot, i)
+            ~ toTextRHS(denot.info, isParameter = true)
+            ~ defaultParameter(denot, i).close
+      Text(result, ", ")
+
+    val result = paramss.map: params =>
+      Params.paramsKind(params) match
+        case Params.Kind.TypeParameter => (Str("[") ~ typeParamsText(params) ~ Str("]"))
+        case Params.Kind.Normal        => (Str("(") ~ paramsText(params) ~ Str(")"))
+        case Params.Kind.Using         => (Str("(using ") ~ paramsText(params) ~ Str(")"))
+        case Params.Kind.Implicit      => (Str("(implicit ") ~ paramsText(params) ~ Str(")"))
+        case Params.Kind.Synthetic     => Str("")
+    Text(result, "")
+
 end ShortenedTypePrinter
 
 object ShortenedTypePrinter:

@@ -714,11 +714,11 @@ class AutoImplementAbstractMembersSuite extends BaseCodeActionSuite:
          |object Test {
          |   class Concrete extends Base {
          |
-         |     override protected[a] def f(): Unit = ???
+         |     protected[a] override def f(): Unit = ???
          |
-         |     override protected def d(): Unit = ???
+         |     protected override def d(): Unit = ???
          |
-         |     override protected[a] val s: Unit = ???
+         |     protected[a] override val s: Unit = ???
          |
          |     override implicit val a: String = ???
          |

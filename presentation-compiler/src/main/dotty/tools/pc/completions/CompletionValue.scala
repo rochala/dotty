@@ -272,7 +272,7 @@ object CompletionValue:
     override def description(
         printer: ShortenedTypePrinter
     )(using Context): String =
-      if isExtension then s"${printer.completionSymbol(symbol)} (extension)"
+      if isExtension then s"${printer.completionSymbol(denotation)} (extension)"
       else super.description(printer)
     override def isExtensionMethod: Boolean = isExtension
   end Interpolator

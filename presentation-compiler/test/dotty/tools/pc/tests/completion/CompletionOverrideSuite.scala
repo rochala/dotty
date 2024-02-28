@@ -778,7 +778,7 @@ class CompletionOverrideSuite extends BaseCompletionSuite:
          |   override def hello@@
          |}
          |""".stripMargin,
-      "override protected def hello: Int",
+      "protected override def hello: Int",
       includeDetail = false
     )
 
@@ -1028,6 +1028,75 @@ class CompletionOverrideSuite extends BaseCompletionSuite:
          |
          |class Concrete extends Base:
          |  extension (x: Int) override def foo: Int = ${0:???}
+         |""".stripMargin,
+      filter = (str) => str.contains("foo")
+    )
+
+  @Test def `extension-override-2` =
+    checkEdit(
+      """|package a
+         |
+         |trait Base:
+         |  extension (x: Int)
+         |    def foo(y: Int): Int
+         |
+         |class Concrete extends Base:
+         |  over@@
+         |""".stripMargin,
+      """|package a
+         |
+         |trait Base:
+         |  extension (x: Int)
+         |    def foo(y: Int): Int
+         |
+         |class Concrete extends Base:
+         |  extension (x: Int) override def foo(y: Int): Int = ${0:???}
+         |""".stripMargin,
+      filter = (str) => str.contains("foo")
+    )
+
+  @Test def `extension-override-3` =
+    checkEdit(
+      """|package a
+         |
+         |trait Base:
+         |  extension [T](x: Int)(using String, Double)
+         |    def foo[Y](using List[String])(using Boolean)(y: Long)(using List[Int]): Int
+         |
+         |class Concrete extends Base:
+         |  over@@
+         |""".stripMargin,
+      """|package a
+         |
+         |trait Base:
+         |  extension [T](x: Int)(using String, Double)
+         |    def foo[Y](using List[String])(using Boolean)(y: Long)(using List[Int]): Int
+         |
+         |class Concrete extends Base:
+         |  extension [T](x: Int)(using String, Double) override def foo[Y](using List[String])(using Boolean)(y: Long)(using List[Int]): Int = ${0:???}
+         |""".stripMargin,
+      filter = (str) => str.contains("foo")
+    )
+
+  @Test def `extension-override-4` =
+    checkEdit(
+      """|package a
+         |
+         |trait Base:
+         |  extension [T: Ordering](x: Int)(using String, Double)
+         |    def foo[Y](using List[String])(using Boolean)(y: Long)(implicit aaa: List[Int]): Int
+         |
+         |class Concrete extends Base:
+         |  over@@
+         |""".stripMargin,
+      """|package a
+         |
+         |trait Base:
+         |  extension [T: Ordering](x: Int)(using String, Double)
+         |    def foo[Y](using List[String])(using Boolean)(y: Long)(implicit aaa: List[Int]): Int
+         |
+         |class Concrete extends Base:
+         |  extension [T: Ordering](x: Int)(using String, Double) override def foo[Y](using List[String])(using Boolean)(y: Long)(implicit aaa: List[Int]): Int = ${0:???}
          |""".stripMargin,
       filter = (str) => str.contains("foo")
     )

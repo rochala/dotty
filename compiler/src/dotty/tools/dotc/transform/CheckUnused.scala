@@ -716,7 +716,7 @@ object CheckUnused:
           val owner = sym.owner
           trivialDefs(owner) || // is a trivial def
           owner.isPrimaryConstructor ||
-          owner.annotations.exists ( // @depreacated
+          owner.annotations.exists ( // @deprecated
             _.symbol == ctx.definitions.DeprecatedAnnot
           ) ||
           owner.isAllOf(Synthetic | PrivateLocal) ||

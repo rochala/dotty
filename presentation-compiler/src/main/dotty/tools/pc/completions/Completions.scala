@@ -72,7 +72,7 @@ class Completions(
       case (_: Ident) :: (_: SeqLiteral) :: _ => false
       case _ => true
 
-  private lazy val allowTemplateSuffix: Boolean =
+  private lazy val isNew: Boolean =
     path match
       case _ :: New(selectOrIdent: (Select | Ident)) :: _ => true
       case _ => false
@@ -106,6 +106,15 @@ class Completions(
   end includeSymbol
 
   def completions(): (List[CompletionValue], SymbolSearch.Result) =
+    def compilerCompletions(qual: Tree = EmptyTree): (List[CompletionValue], SymbolSearch.Result) =
+      val compilerCompletions = Completion
+        .rawCompletions(completionPos.originalCursorPosition, completionMode, completionPos.query, path, adjustedPath)
+      val (compiler, result) = compilerCompletions
+        .toList
+        .flatMap(toCompletionValues)
+        .filterInteresting(qual)
+      compiler -> result
+
     val (advanced, exclusive) = advancedCompletions(path, completionPos)
     val (all, result) =
       if exclusive then (advanced, SymbolSearch.Result.COMPLETE)
@@ -120,26 +129,17 @@ class Completions(
           case Select(qual, _) :: _ if qual.typeOpt.isErroneous =>
             (allAdvanced, SymbolSearch.Result.COMPLETE)
           case Select(qual, _) :: _ =>
-            val compilerCompletions = Completion.rawCompletions(completionPos.originalCursorPosition, completionMode, completionPos.query, path, adjustedPath)
-            val (compiler, result) = compilerCompletions
-              .toList
-              .flatMap(toCompletionValues)
-              .filterInteresting(qual.typeOpt.widenDealias)
+            val (compiler, result) = compilerCompletions(qual)
             (allAdvanced ++ compiler, result)
           case _ =>
-            val compilerCompletions = Completion.rawCompletions(completionPos.originalCursorPosition, completionMode, completionPos.query, path, adjustedPath)
-            val (compiler, result) = compilerCompletions
-              .toList
-              .flatMap(toCompletionValues)
-              .filterInteresting()
+            val (compiler, result) = compilerCompletions()
             (allAdvanced ++ compiler, result)
         end match
 
     val application = CompletionApplication.fromPath(path)
     val ordering = completionOrdering(application)
     val sorted = all.sorted(ordering)
-    val values = application.postProcess(sorted)
-    (values, result)
+    (sorted, result)
   end completions
 
   private def toCompletionValues(
@@ -215,8 +215,7 @@ class Completions(
         else suffix
       }
       .chain { suffix => // for {} suffix
-        if shouldAddSnippet && allowTemplateSuffix
-          && isAbstractType(symbol)
+        if shouldAddSnippet && isNew && isAbstractType(symbol)
         then
           if suffix.hasSnippet then suffix.withNewSuffix(SuffixKind.Template)
           else suffix.withNewSuffixSnippet(SuffixKind.Template)
@@ -231,7 +230,6 @@ class Completions(
       toCompletionValue: (String, SingleDenotation, CompletionSuffix) => CompletionValue
   ): List[CompletionValue] =
     val sym = denot.symbol
-    // find the apply completion that would need a snippet
     val methodDenots: List[SingleDenotation] =
       if shouldAddSnippet && completionMode.is(Mode.Term) &&
         (sym.is(Flags.Module) || sym.isField || sym.isClass && !sym.is(Flags.Trait)) && !sym.is(Flags.JavaDefined)
@@ -282,11 +280,7 @@ class Completions(
       case ScalaCliCompletions(dependency) =>
         (ScalaCliCompletions.contribute(dependency), true)
 
-      case _
-          if MultilineCommentCompletion.isMultilineCommentCompletion(
-            pos,
-            text,
-          ) =>
+      case _ if MultilineCommentCompletion.isMultilineCommentCompletion(pos, text) =>
         val values = MultilineCommentCompletion.contribute(config)
         (values, true)
 
@@ -490,14 +484,17 @@ class Completions(
 
   private def enrichWithSymbolSearch(
       visit: CompletionValue => Boolean,
-      qualType: Type = ctx.definitions.AnyType
+      qual: Tree = EmptyTree,
   ): Option[SymbolSearch.Result] =
     val query = completionPos.query
     if completionMode.is(Mode.Scope) && query.nonEmpty then
       val visitor = new CompilerSearchVisitor(sym =>
-        if !(sym.is(Flags.ExtensionMethod) ||
-          (sym.maybeOwner.is(Flags.Implicit) && sym.maybeOwner.isClass))
-        then
+        val isValid = (completionMode.is(Mode.Term) && (sym.isTerm || sym.is(ModuleClass))
+        || (completionMode.is(Mode.Type) && (sym.isType || sym.isStableMember)))
+
+        if isValid && !(sym.is(Flags.ExtensionMethod) ||
+          (sym.maybeOwner.is(Flags.Implicit) && sym.maybeOwner.isClass)) then
+
           indexedContext.lookupSym(sym) match
             case IndexedContext.Result.InScope => false
             case _ =>
@@ -506,13 +503,11 @@ class Completions(
                 sym.decodedName,
                 CompletionValue.Workspace(_, _, _, sym)
               ).map(visit).forall(_ == true)
-        else false,
+        else false
       )
       Some(search.search(query, buildTargetIdentifier, visitor).nn)
     else if completionMode.is(Mode.Member) then
       val visitor = new CompilerSearchVisitor(sym =>
-        def isExtensionMethod = sym.is(ExtensionMethod) &&
-          qualType.widenDealias <:< sym.extensionParam.info.widenDealias
         def isImplicitClass(owner: Symbol) =
           val constructorParam =
             owner.info
@@ -524,7 +519,7 @@ class Completions(
               .map(_.info)
           owner.isClass && owner.is(Flags.Implicit) &&
           constructorParam.exists(p =>
-            qualType.widenDealias <:< p.widenDealias
+            qual.typeOpt.widenDealias <:< p.widenDealias
           )
         end isImplicitClass
 
@@ -533,12 +528,15 @@ class Completions(
           isImplicitClass(sym.maybeOwner) && !sym.is(Flags.Synthetic) && sym.isPublic
           && !sym.isConstructor && !isDefaultVariableSetter
 
-        if isExtensionMethod then
-          completionsWithSuffix(
-            sym,
-            sym.decodedName,
-            CompletionValue.Extension(_, _, _)
-          ).map(visit).forall(_ == true)
+        if sym.is(ExtensionMethod) then
+         Completion.tryApplyingReceiverToExtension(sym.termRef, qual).toList.flatMap: denot =>
+            completionsWithSuffix(
+              denot,
+              sym.decodedName,
+              CompletionValue.Extension(_, _, _)
+            )
+         .map(visit).forall(_ == true)
+
         else if isImplicitClassMember then
           completionsWithSuffix(
             sym,
@@ -571,7 +569,7 @@ class Completions(
 
   extension (l: List[CompletionValue])
     def filterInteresting(
-        qualType: Type = ctx.definitions.AnyType,
+        qual: Tree = EmptyTree,
         enrich: Boolean = true
     ): (List[CompletionValue], SymbolSearch.Result) =
 
@@ -615,7 +613,7 @@ class Completions(
 
       if enrich then
         val searchResult =
-          enrichWithSymbolSearch(visit, qualType).getOrElse(
+          enrichWithSymbolSearch(visit, qual).getOrElse(
             SymbolSearch.Result.COMPLETE
           )
         (buf.result, searchResult)
@@ -730,15 +728,12 @@ class Completions(
     def isImplicitConversion(symbol: Symbol): Boolean
     def isMember(symbol: Symbol): Boolean
     def isInherited(symbol: Symbol): Boolean
-    def postProcess(items: List[CompletionValue]): List[CompletionValue]
 
   object CompletionApplication:
     val empty = new CompletionApplication:
       def isImplicitConversion(symbol: Symbol): Boolean = false
       def isMember(symbol: Symbol): Boolean = false
       def isInherited(symbol: Symbol): Boolean = false
-      def postProcess(items: List[CompletionValue]): List[CompletionValue] =
-        items
 
     def forSelect(sel: Select): CompletionApplication =
       val tpe = sel.qualifier.typeOpt
@@ -750,21 +745,6 @@ class Completions(
         def isMember(symbol: Symbol): Boolean = members.contains(symbol)
         def isInherited(symbol: Symbol): Boolean =
           isMember(symbol) && symbol.owner != tpe.typeSymbol
-        def postProcess(items: List[CompletionValue]): List[CompletionValue] =
-          items.map {
-            case completion @ CompletionValue.Compiler(label, denot, suffix)
-                if isMember(completion.symbol) =>
-              CompletionValue.Compiler(
-                label,
-                substituteTypeVars(completion.symbol),
-                suffix
-              )
-            case other => other
-          }
-
-        private def substituteTypeVars(symbol: Symbol): Symbol =
-          val denot = symbol.asSeenFrom(tpe)
-          symbol.withUpdatedTpe(denot.info)
 
       end new
     end forSelect

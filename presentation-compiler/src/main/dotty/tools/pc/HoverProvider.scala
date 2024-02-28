@@ -113,15 +113,15 @@ object HoverProvider:
               case tpw: ImportType =>
                 printer.hoverSymbol(symbol, symbol.paramRef)
               case _ =>
-                val (tpe, sym) =
-                  if symbol.isType then (symbol.typeRef, symbol)
-                  else enclosing.head.seenFrom(symbol)
+                val tpe =
+                  if symbol.isType then symbol.typeRef
+                  else enclosing.head.seenFrom(symbol)._1
 
                 val finalTpe =
                   if tpe != NoType then tpe
                   else tpw
 
-                printer.hoverSymbol(sym, finalTpe)
+                printer.hoverSymbol(symbol, finalTpe)
             end match
           end hoverString
 

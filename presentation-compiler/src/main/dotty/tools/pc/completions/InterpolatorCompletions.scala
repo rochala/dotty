@@ -1,25 +1,26 @@
 package dotty.tools.pc.completions
 
+import dotty.tools.dotc.ast.tpd.*
+import dotty.tools.dotc.core.Contexts.Context
+import dotty.tools.dotc.core.Denotations.SingleDenotation
+import dotty.tools.dotc.core.Flags
+import dotty.tools.dotc.core.Flags.*
+import dotty.tools.dotc.core.Symbols.Symbol
+import dotty.tools.dotc.core.Types.Type
+import dotty.tools.dotc.interactive.Completion
+import dotty.tools.dotc.util.SourcePosition
+import dotty.tools.dotc.util.Spans
+import dotty.tools.pc.CompilerSearchVisitor
+import dotty.tools.pc.IndexedContext
+import dotty.tools.pc.utils.MtagsEnrichments.*
+import org.eclipse.lsp4j as l
+
 import scala.collection.mutable.ListBuffer
 import scala.meta.internal.metals.ReportContext
 import scala.meta.internal.pc.CompletionFuzzy
 import scala.meta.internal.pc.InterpolationSplice
 import scala.meta.pc.PresentationCompilerConfig
 import scala.meta.pc.SymbolSearch
-
-import dotty.tools.dotc.ast.tpd.*
-import dotty.tools.dotc.core.Contexts.Context
-import dotty.tools.dotc.core.Flags
-import dotty.tools.dotc.core.Flags.*
-import dotty.tools.dotc.core.Symbols.Symbol
-import dotty.tools.dotc.util.Spans
-import dotty.tools.dotc.core.Types.Type
-import dotty.tools.dotc.util.SourcePosition
-import dotty.tools.pc.CompilerSearchVisitor
-import dotty.tools.pc.IndexedContext
-import dotty.tools.pc.utils.MtagsEnrichments.*
-
-import org.eclipse.lsp4j as l
 
 object InterpolatorCompletions:
 
@@ -129,14 +130,13 @@ object InterpolatorCompletions:
         .toString
     end newText
 
-    def extensionMethods(qualType: Type) =
-      val buffer = ListBuffer.empty[Symbol]
+    def extensionMethods(qual: Tree) =
+      val buffer = ListBuffer.empty[SingleDenotation]
       val visitor = new CompilerSearchVisitor(sym =>
-        if sym.is(ExtensionMethod) &&
-          qualType.widenDealias <:< sym.extensionParam.info.widenDealias
-        then
-          buffer.append(sym)
-          true
+        if sym.is(ExtensionMethod) then
+          val appliedExtMethod = Completion.tryApplyingReceiverToExtension(sym.termRef, qual)
+          appliedExtMethod.foreach(buffer.append)
+          appliedExtMethod.isDefined
         else false,
       )
       search.searchMethods(completionPos.query, buildTargetIdentifier, visitor)
@@ -144,23 +144,19 @@ object InterpolatorCompletions:
     end extensionMethods
 
     def completionValues(
-        syms: Seq[Symbol],
+        denots: Seq[SingleDenotation],
         isExtension: Boolean,
         identOrSelect: Ident | Select
     ): Seq[CompletionValue] =
-      syms.collect {
-        case sym
-            if CompletionFuzzy.matches(
-              completionPos.query,
-              sym.name.toString()
-            ) =>
-          val label = sym.name.decoded
+      denots.collect {
+        case denot if CompletionFuzzy.matches(completionPos.query, denot.name.toString()) =>
+          val label = denot.name.decoded
           completions.completionsWithSuffix(
-            sym,
+            denot,
             label,
             (name, denot, suffix) =>
               CompletionValue.Interpolator(
-                denot.symbol,
+                denot,
                 label,
                 Some(newText(name, suffix.toEditOpt, identOrSelect)),
                 Nil,
@@ -183,8 +179,8 @@ object InterpolatorCompletions:
 
     qualType.flatMap(identOrSelect =>
       val tp = identOrSelect.symbol.info
-      val members = tp.allMembers.map(_.symbol)
-      val extensionSyms = extensionMethods(tp)
+      val members = tp.allMembers
+      val extensionSyms = extensionMethods(identOrSelect)
       completionValues(members, isExtension = false, identOrSelect) ++
         completionValues(extensionSyms, isExtension = true, identOrSelect)
     )

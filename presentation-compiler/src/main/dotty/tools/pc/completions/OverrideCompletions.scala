@@ -307,7 +307,7 @@ object OverrideCompletions:
     if edits.isEmpty then Nil
     else
       // A list of declarations in the class/object to implement
-      val decls = defn.typeOpt.decls.toList
+      val decls = defn.symbol.thisType.decls.toList
         .filter(sym =>
           !sym.isPrimaryConstructor &&
             !sym.isTypeParam &&
@@ -415,29 +415,15 @@ object OverrideCompletions:
       case _ => ""
 
     val signature =
-      // `iterator` method in `new Iterable[Int] { def iterato@@ }`
-      // should be completed as `def iterator: Iterator[Int]` instead of `Iterator[A]`.
-      val seenFrom =
-        val memInfo = defn.typeOpt.memberInfo(sym.symbol)
-        if memInfo.isErroneous || memInfo.finalResultType.isAny then
-          sym.info.widenTermRefExpr
-        else memInfo
+      val seenFromOwner  = sym.asSeenFrom(defn.symbol.thisType)
+      val recoveredSymbol = if seenFromOwner.info.isErroneous || seenFromOwner.info.finalResultType.isAny then sym
+      else seenFromOwner
 
-      if sym.is(Method) then
-        printer.defaultMethodSignature(
-          sym.symbol,
-          seenFrom,
-          additionalMods =
-            if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil,
-        )
-      else
-        printer.defaultValueSignature(
-          sym.symbol,
-          seenFrom,
-          additionalMods =
-            if overrideKeyword.nonEmpty then List(overrideKeyword) else Nil,
-        )
-      end if
+      if !recoveredSymbol.symbol.isOneOf(Deferred) || shouldAddOverrideKwd then
+        recoveredSymbol.symbol.setFlag(Override)
+
+      printer.dclText(recoveredSymbol).mkString(1000, false)
+
     end signature
 
     val label = s"$overrideDefLabel$signature"

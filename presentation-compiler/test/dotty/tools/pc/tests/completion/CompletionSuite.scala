@@ -432,6 +432,46 @@ class CompletionSuite extends BaseCompletionSuite:
          |""".stripMargin
     )
 
+  @Test def `implicit-evidence-many-2` =
+    check(
+      """
+        |object A {
+        |  object B {
+        |    def test[T: Ordering: Numeric](x: T)(using y: Int): T = ???
+        |  }
+        |  B.tes@@
+        |}
+      """.stripMargin,
+      """|test[T: Ordering: Numeric](x: T)(using y: Int): T
+         |""".stripMargin
+    )
+
+  @Test def `implicit-evidence-many-3` =
+    check(
+      """
+        |object A {
+        |  object B {
+        |    def test[T: Ordering: Numeric](x: T)(using y: Int)(using z: String): T = ???
+        |  }
+        |  B.tes@@
+        |}
+      """.stripMargin,
+      """|test[T: Ordering: Numeric](x: T)(using y: Int)(using z: String): T
+         |""".stripMargin
+    )
+
+  @Test def `colon-instead-of-arrow` =
+    check(
+      """
+        |object A {
+        |  def testMethod: String = ???
+        |  testMetho@@
+        |}
+      """.stripMargin,
+      """|testMethod: String
+         |""".stripMargin
+    )
+
   @Test def bounds =
     check(
       """
@@ -474,7 +514,8 @@ class CompletionSuite extends BaseCompletionSuite:
         |}
       """.stripMargin,
       """|DelayedLazyVal scala.concurrent
-         |DelayedLazyVal[T](f: () => T, body: => Unit)(exec: ExecutionContext): DelayedLazyVal[T]""".stripMargin
+         |DelayedLazyVal[T](f: () => T, body: => Unit)(exec: ExecutionContext): DelayedLazyVal[T]
+         """.stripMargin
     )
 
   @Test def local2 =
@@ -1859,5 +1900,48 @@ class CompletionSuite extends BaseCompletionSuite:
       """|Override java.lang
          |""".stripMargin,
       filter = _ == "Override java.lang"
+    )
+
+  @Test def `deprecated-method` =
+    check(
+      """|
+         |object M {
+         |  @deprecated
+         |  def hello(x: Int): Int = ???
+         |
+         |  hell@@
+         |}
+         |""".stripMargin,
+      """|hello(x: Int): Int deprecated
+         |""".stripMargin,
+      includeDeprecatedInformation = true
+    )
+
+  @Test def `deprecated-method-java` =
+    check(
+      """|
+         |object M {
+         |  val x: java.util.Date = ???
+         |
+         |  x.getSec@@
+         |}
+         |""".stripMargin,
+      """|getSeconds(): Int deprecated
+         |""".stripMargin,
+      includeDeprecatedInformation = true
+    )
+
+  @Test def `param-access-modifiers` =
+    check(
+      """|
+         |object M {
+         |  val x: java.util.Date = ???
+         |
+         |  x.getSec@@
+         |}
+         |""".stripMargin,
+      """|getSeconds(): Int deprecated
+         |""".stripMargin,
+      includeDeprecatedInformation = true
     )
 

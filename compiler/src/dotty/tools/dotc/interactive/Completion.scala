@@ -239,6 +239,19 @@ object Completion:
     else
       completion
 
+  /**
+   * Try appling receiver to extension method. This is necessary for inferred types in the exentsion method type.
+   */
+  def tryApplyingReceiverToExtension(termRef: TermRef, qual: tpd.Tree)(using Context): Option[SingleDenotation] =
+    ctx.typer.tryApplyingExtensionMethod(termRef, qual).map: tree =>
+      val tpe = asDefLikeType(tree.typeOpt.dealias)
+      termRef.denot.asSingleDenotation.mapInfo(_ => tpe)
+
+  def asDefLikeType(tpe: Type)(using Context): Type = tpe match
+    case _: MethodOrPoly => tpe
+    case _ => ExprType(tpe)
+
+
   // This borrows from Metals, which itself borrows from Ammonite. This uses
   // the same approach, but some of the utils that already exist in Dotty.
   // https://github.com/scalameta/metals/blob/main/mtags/src/main/scala/scala/meta/internal/mtags/KeywordWrapper.scala
@@ -476,17 +489,6 @@ object Completion:
 
     /** Completions from extension methods */
     private def extensionCompletions(qual: tpd.Tree)(using Context): CompletionMap =
-      def asDefLikeType(tpe: Type): Type = tpe match
-        case _: MethodOrPoly => tpe
-        case _ => ExprType(tpe)
-
-      def tryApplyingReceiverToExtension(termRef: TermRef): Option[SingleDenotation] =
-        ctx.typer.tryApplyingExtensionMethod(termRef, qual)
-          .map { tree =>
-            val tpe = asDefLikeType(tree.typeOpt.dealias)
-            termRef.denot.asSingleDenotation.mapInfo(_ => tpe)
-          }
-
       def extractMemberExtensionMethods(types: Seq[Type]): Seq[(TermRef, TermName)] =
         object DenotWithMatchingName:
           def unapply(denot: SingleDenotation): Option[(SingleDenotation, TermName)] =
@@ -524,7 +526,7 @@ object Completion:
       val extMethodsWithAppliedReceiver = availableExtMethods.flatMap {
         case (termRef, termName) =>
           if termRef.symbol.is(ExtensionMethod) && !qual.typeOpt.isBottomType then
-            tryApplyingReceiverToExtension(termRef)
+            tryApplyingReceiverToExtension(termRef, qual)
               .map(denot => termName -> denot)
           else None
       }

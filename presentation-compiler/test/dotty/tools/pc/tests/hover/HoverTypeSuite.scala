@@ -119,14 +119,6 @@ class HoverTypeSuite extends BaseHoverSuite:
       "extension (s: String) def double2: String".hover
     )
 
-  /* Currently there is no way to differentiate between
-   * trailing using params in extension parameter and the
-   * starting using params for the actual method.
-   * As user can actually supply params to them by hand when
-   * invoking the extension method, we always show them next to the
-   * method itself.
-   * https://github.com/lampepfl/dotty/issues/13123
-   */
   @Test def `extension-methods-complex` =
     check(
       """|class A
@@ -142,7 +134,7 @@ class HoverTypeSuite extends BaseHoverSuite:
          |    "".<<doub@@le(1)>>
          |end Foo
          |""".stripMargin,
-      "extension [T](using A)(s: T) def double(using B)[G <: Int](using C)(times: G): String".hover
+      "extension [T](using A)(s: T)(using B) def double[G <: Int](using C)(times: G): String".hover
     )
 
   @Test def `extension-methods-complex-binary` =
@@ -162,7 +154,7 @@ class HoverTypeSuite extends BaseHoverSuite:
          |end Foo
          |""".stripMargin,
       """|Int
-         |extension [T](using A)(main: T) def %:[R](res: R)(using B)(using C): R""".stripMargin.hover
+         |extension [T](using A)(main: T)(using B) def %:[R](res: R)(using C): R""".stripMargin.hover
     )
 
   @Test def `using` =
