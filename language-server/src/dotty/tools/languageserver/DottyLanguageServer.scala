@@ -934,38 +934,36 @@ object DottyLanguageServer {
   }
 
   /** Convert `signature` to a `SignatureInformation` */
-  def signatureToSignatureInformation(signature: Signatures.Signature): lsp4j.SignatureInformation = {
-    val paramInfoss =
-      (signature.paramss.flatten).map(paramToParameterInformation)
-    val paramLists =
-      signature.paramss
-        .map { paramList =>
-          val labels = paramList.map(_.show)
-          val isImplicit = paramList.exists:
-            case p: Signatures.MethodParam => p.isImplicit
-            case _ => false
-          val prefix = if isImplicit then "using " else ""
-          val isTypeParams = paramList.forall(_.isInstanceOf[Signatures.TypeParam]) && paramList.nonEmpty
-          val wrap: String => String = label => if isTypeParams then
-            s"[$label]"
-          else
-            s"($label)"
-          wrap(labels.mkString(prefix, ", ", ""))
-        }.mkString
-    val returnTypeLabel = signature.returnType.map(t => s": $t").getOrElse("")
-    val label = s"${signature.name}$paramLists$returnTypeLabel"
-    val documentation = signature.doc.map(DottyLanguageServer.markupContent)
-    val sig = new lsp4j.SignatureInformation(label)
-    sig.setParameters(paramInfoss.asJava)
-    documentation.foreach(sig.setDocumentation(_))
+  def signatureToSignatureInformation(signature: Signatures.Signature)(using Context): lsp4j.SignatureInformation = {
+    // val paramInfoss =
+    //   (signature.paramss.flatten).map(paramToParameterInformation)
+    // val paramLists =
+    //   signature.paramss
+    //     .map { paramList =>
+    //       val labels = paramList.map(_.show)
+    //       val isImplicit = paramList.exists { denot => denot.symbol.is(Implicit) }
+    //       val prefix = if isImplicit then "using " else ""
+    //       val isTypeParams = paramList.exists { denot => denot.symbol.isTypeParam }
+    //       val wrap: String => String = label => if isTypeParams then
+    //         s"[$label]"
+    //       else
+    //         s"($label)"
+    //       wrap(labels.mkString(prefix, ", ", ""))
+    //     }.mkString
+    // val returnTypeLabel = signature.returnType.map(t => s": $t").getOrElse("")
+    // val label = s"${signature.name}$paramLists$returnTypeLabel"
+    // val documentation = signature.doc.map(DottyLanguageServer.markupContent)
+    val sig = new lsp4j.SignatureInformation("")
+    // sig.setParameters(paramInfoss.asJava)
+    // documentation.foreach(sig.setDocumentation(_))
     sig
   }
 
   /** Convert `param` to `ParameterInformation` */
-  private def paramToParameterInformation(param: Signatures.Param): lsp4j.ParameterInformation = {
-    val documentation = param.doc.map(DottyLanguageServer.markupContent)
-    val info = new lsp4j.ParameterInformation(param.show)
-    documentation.foreach(info.setDocumentation(_))
-    info
-  }
+  // private def paramToParameterInformation(param: Signatures.Param): lsp4j.ParameterInformation = {
+  //   val documentation = param.doc.map(DottyLanguageServer.markupContent)
+  //   val info = new lsp4j.ParameterInformation(param.show)
+  //   documentation.foreach(info.setDocumentation(_))
+  //   info
+  // }
 }

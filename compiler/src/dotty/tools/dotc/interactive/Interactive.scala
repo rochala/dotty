@@ -11,6 +11,7 @@ import core.*
 import Decorators.*, ContextOps.*
 import Contexts.*, Flags.*, Names.*, NameOps.*, Symbols.*, Trees.*, Types.*
 import util.Spans.*, util.SourceFile, util.SourcePosition
+import dotty.tools.dotc.core.Denotations.SingleDenotation
 
 /** High-level API to get information out of typed trees, designed to be used by IDEs.
  *
@@ -464,6 +465,26 @@ object Interactive {
   def isImportedByDefault(sym: Symbol)(using Context): Boolean =
     val owner = sym.effectiveOwner
     owner == defn.ScalaPredefModuleClass || owner == defn.ScalaPackageClass || owner == defn.JavaLangPackageClass
+
+  def mapTypeToSymbol(denot: SingleDenotation)(using Context): List[List[(Name, Type)]] =
+    def iter(acc: List[List[(Name, Type)]], tpe: Type): List[List[(Name, Type)]] =
+      tpe match
+        case methodOrPoly: MethodOrPoly =>
+          iter(acc :+ (methodOrPoly.paramNames zip methodOrPoly.paramInfos), methodOrPoly.resultType)
+        case _ => acc
+    iter(Nil, denot.info)
+
+  def infoParamssDenotations(denot: SingleDenotation)(using Context): List[List[SingleDenotation]] =
+    val denotParamTypeMap = mapTypeToSymbol(denot)
+
+    val firstList = denotParamTypeMap.headOption.getOrElse(Nil).map(_._1)
+
+    denot.symbol.paramSymss.dropWhile: symss =>
+      symss.map(_.name).diff(firstList).nonEmpty
+    .zip(denotParamTypeMap)
+    .map: (symss, infos) =>
+      symss.zip(infos).map: (sym, info) =>
+        sym.mapInfo(_ => info._2)
 
   private[interactive] def safely[T](op: => List[T]): List[T] =
     try op catch { case ex: TypeError => Nil }

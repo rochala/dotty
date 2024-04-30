@@ -35,6 +35,7 @@ import scala.meta.internal.metals.ReportContext
 import scala.meta.pc.SymbolDocumentation
 import scala.meta.pc.SymbolSearch
 import dotty.tools.pc.printer.ShortenedTypePrinter.IncludeDefaultParam
+import dotty.tools.dotc.util.Signatures.Param
 
 /**
  * A type printer that shortens types by replacing fully qualified names with shortened versions.
@@ -50,6 +51,7 @@ class ShortenedTypePrinter(
 )(using indexedCtx: IndexedContext, reportCtx: ReportContext) extends RefinedPrinter(indexedCtx.ctx):
   private val missingImports: mutable.Set[ImportSel] = mutable.LinkedHashSet.empty
   private val defaultWidth = 1000
+
 
   def flagsFilter(sym: Symbol) =
     if sym.isType then sym.flags & TypeSourceModifierFlags &~ JavaStatic
@@ -240,7 +242,7 @@ class ShortenedTypePrinter(
       case o if typeSymbol.is(Flags.Module) => // enum
         s"${keyString(o)} $name: $ownerTypeString"
       case m if m.is(Flags.Method) =>
-        dclText(m.mapInfo(_ => info)).mkString(1000, false)
+        dclText(m.mapInfo(_ => info)).mkString(defaultWidth, false)
       case _ =>
         val implicitKeyword =
           if sym.is(Flags.Implicit) then List("implicit") else Nil
@@ -270,7 +272,7 @@ class ShortenedTypePrinter(
     if isImportedByDefault(sym) then typeEffectiveOwner
     else if sym.is(Flags.Package) || sym.isClass then " " + fullNameString(sym.effectiveOwner)
     else if sym.is(Flags.Module) || typeSymbol.is(Flags.Module) then typeEffectiveOwner
-    else if sym.is(Flags.Method) then toRichText(denotation.asSingleDenotation).mkString(1000, false)
+    else if sym.is(Flags.Method) then toRichText(denotation.asSingleDenotation).mkString(defaultWidth, false)
     else if sym.isType then
       info match
         case TypeAlias(t) => " = " + tpe(t.resultType)
@@ -288,14 +290,6 @@ class ShortenedTypePrinter(
       case _ => super.toTextRHS(tp, isParameter)
   }
 
-  def mapTypeToSymbol(denot: SingleDenotation): List[List[(Name, Type)]] =
-    def iter(acc: List[List[(Name, Type)]], tpe: Type): List[List[(Name, Type)]] =
-      tpe match
-        case methodOrPoly: MethodOrPoly =>
-          iter(acc :+ (methodOrPoly.paramNames zip methodOrPoly.paramInfos), methodOrPoly.resultType)
-        case _ => acc
-    iter(Nil, denot.info)
-
   override def toTextFlags(sym: Symbol): Text =
     val symbolFlags = if sym.isType then sym.flags.toTypeFlags else sym.flags.toTermFlags
     toTextFlags(sym, symbolFlags & flagsFilter(sym))
@@ -306,34 +300,23 @@ class ShortenedTypePrinter(
   override def dclText(d: SingleDenotation): Text =
     toRichDclText(d)
 
-  def infoParamssDenotations(denot: SingleDenotation): List[List[SingleDenotation]] =
-    val denotParamTypeMap = mapTypeToSymbol(denot)
-
-    val firstList = denotParamTypeMap.headOption.getOrElse(Nil).map(_._1)
-
-    denot.symbol.paramSymss.dropWhile: symss =>
-      symss.map(_.name).diff(firstList).nonEmpty
-    .zip(denotParamTypeMap)
-    .map: (symss, infos) =>
-      symss.zip(infos).map: (sym, info) =>
-        sym.mapInfo(_ => info._2)
 
   def toRichText(denot: SingleDenotation): Text =
     val paramss = infoParamssDenotations(denot)
     val evidenceMap = findDesugaredContextBounds(paramss.flatten.map(sym => sym.name -> sym.info))
+    val richParamss = enrichParamss(paramss, denot, evidenceMap, false)
 
-    (paramssText(paramss, denot, evidenceMap)
-    ~ toTextRHS(denot.info.finalResultType)).close
+    (toText(richParamss) ~ toTextRHS(denot.info.finalResultType)).close
 
-  def splitExtensionParamss(
-    denot: Denotation, paramss: List[List[SingleDenotation]]
-  ): (List[List[SingleDenotation]], List[List[SingleDenotation]]) =
+  private def splitExtensionParamss(
+    denot: Denotation, paramss: List[List[Param]]
+  ): (List[List[Param]], List[List[Param]]) =
     val methodNamePosition = denot.symbol.span.point
     val (extSymbols, methodSymbols) = paramss
       .map: params =>
-        params.filter(!_.name.toString.startsWith(ContextBoundParamName.separator))
+        params.filter(!_.denot.name.toString.startsWith(ContextBoundParamName.separator))
       .partition:
-        case head :: _ => head.symbol.span.end < methodNamePosition
+        case head :: _ => head.denot.symbol.span.end < methodNamePosition
         case Nil => false
 
     extSymbols -> methodSymbols
@@ -341,19 +324,22 @@ class ShortenedTypePrinter(
   def toRichDclText(denot: SingleDenotation): Text =
     val paramss = infoParamssDenotations(denot)
     val evidenceMap = findDesugaredContextBounds(paramss.flatten.map(sym => sym.name -> sym.info))
+    val richParamss = enrichParamss(paramss, denot, evidenceMap, false)
+    toRichDclText(denot, richParamss)
 
+  def toRichDclText(denot: SingleDenotation, paramss: List[List[Param]]): Text =
     if denot.symbol.is(ExtensionMethod) then
       val (extSymbols, methodSymbols) = splitExtensionParamss(denot, paramss)
 
       Str("extension ")
-        ~ paramssText(extSymbols, denot, evidenceMap)
+        ~ toText(extSymbols)
         ~ " "
         ~ (toTextFlags(denot.symbol) ~~ keyString(denot.symbol) ~~ nameString(denot.symbol))
-        ~ paramssText(methodSymbols, denot, evidenceMap)
+        ~ toText(methodSymbols)
         ~ toTextRHS(denot.info.finalResultType).close
     else
       (toTextFlags(denot.symbol) ~~ keyString(denot.symbol) ~~ (varianceSign(denot.symbol.variance) ~ nameString(denot.symbol))
-        ~ paramssText(paramss, denot, evidenceMap)
+        ~ toText(paramss)
         ~ toTextRHS(denot.info.finalResultType)).close
 
   /** The name of the symbol without a unique id. */
@@ -401,59 +387,76 @@ class ShortenedTypePrinter(
 
     Text(result, ", ")
 
-
-  private def paramssText(paramss: List[List[SingleDenotation]], defnDenot: SingleDenotation, evidenceMap: Map[Name, List[Type]])(using Context): Text =
+  def enrichParamss(
+    paramss: List[List[SingleDenotation]],
+    defnDenot: SingleDenotation,
+    evidenceMap: Map[Name, List[Type]],
+    includeDocs: Boolean
+  )(using Context): List[List[Param]] =
     import scala.jdk.CollectionConverters.*
 
     lazy val defnDoc: Option[SymbolDocumentation] = symbolSearch.symbolDocumentation(defnDenot.symbol)
     lazy val paramDocs: List[SymbolDocumentation] = defnDoc.fold(List.empty): defnDoc =>
       defnDoc.parameters().nn.asScala.toList
+    lazy val typeParamDocs: List[SymbolDocumentation] = defnDoc.fold(List.empty): defnDoc =>
+      defnDoc.typeParameters().nn.asScala.toList
 
     def withReplacedJavaNamed(paramDenot: SingleDenotation, index: Int): Text =
       if defnDenot.symbol.flags.is(JavaDefined) && defnDoc.isDefined then
-        val paramSemanticdbSymbol = SemanticdbSymbols.symbolName(paramDenot.symbol)
-        val doc: Option[SymbolDocumentation] = paramDocs.lift(index)
-        doc.map(_.displayName().nn).getOrElse(nameString(paramDenot.symbol))
+        paramDocs.lift(index).map(_.displayName().nn).getOrElse(nameString(paramDenot.symbol))
       else nameString(paramDenot.symbol)
 
     def defaultParameter(paramDenot: SingleDenotation, index: Int): Text =
       val hasDefault = paramDenot.symbol.flags.is(HasDefault)
       includeDefaultParam match
         case IncludeDefaultParam.Include if hasDefault && defnDoc.isDefined =>
-          val paramSemanticdbSymbol = SemanticdbSymbols.symbolName(paramDenot.symbol)
-          val maybeDoc: Option[SymbolDocumentation] = paramDocs.lift(index)
-          maybeDoc.map(doc => Str(" = ") ~ doc.defaultValue().nn).getOrElse(" = ...")
+          paramDocs.lift(index).map(doc => Str(" = ") ~ doc.defaultValue().nn).getOrElse(" = ...")
         case IncludeDefaultParam.ResolveLater if hasDefault => Str(" = ...")
         case _ => ""
 
-    def typeParamsText(syms: List[SingleDenotation]) =
-      val result = syms.map: denot =>
-        evidenceMap.get(denot.name) match
-          case Some(ctxBounds) =>
-            val ctxBoundString: Text = Str(": ").provided(ctxBounds.nonEmpty) ~ Text(ctxBounds.map(toText), ": ")
-            ParamRefNameString(denot.name) ~ toTextRHS(denot.info, isParameter = true) ~ ctxBoundString
-          case None =>
-            (varianceSign(denot.symbol.variance) ~ nameString(denot.symbol)) ~ toTextRHS(denot.info, isParameter = true).close
-      Text(result, ", ")
+    def typeParamsText(syms: List[SingleDenotation]): List[Param] =
+      syms
+        .zipWithIndex
+        .map: (denot, i) =>
+          evidenceMap.get(denot.name) match
+            case Some(ctxBounds) =>
+              val ctxBoundString: Text = Str(": ").provided(ctxBounds.nonEmpty) ~ Text(ctxBounds.map(toText), ": ")
+              val text = ParamRefNameString(denot.name) ~ toTextRHS(denot.info, isParameter = true) ~ ctxBoundString
+              Param(denot, text.mkString(defaultWidth, false), typeParamDocs.lift(i).map(_.docstring().nn))
+            case None =>
+              val text = (varianceSign(denot.symbol.variance) ~ nameString(denot.symbol)) ~ toTextRHS(denot.info, isParameter = true).close
+              Param(denot, text.mkString(defaultWidth, false), typeParamDocs.lift(i).map(_.docstring().nn))
 
-    def paramsText(syms: List[SingleDenotation]) =
-      val result = syms
+    def paramsText(syms: List[SingleDenotation]): List[Param] =
+      syms
         .filter(!_.name.toString.startsWith(ContextBoundParamName.separator))
         .zipWithIndex
         .map: (denot, i) =>
-          if denot.symbol.is(Given) && denot.name.toString.startsWith("x$") then toText(denot.info).close
+          val text = if denot.symbol.is(Given) && denot.name.toString.startsWith("x$") then toText(denot.info).close
           else
             withReplacedJavaNamed(denot, i)
             ~ toTextRHS(denot.info, isParameter = true)
             ~ defaultParameter(denot, i).close
-      Text(result, ", ")
+          Param(denot, text.mkString(defaultWidth, false), paramDocs.lift(i).map(_.docstring().nn))
 
-    val result = paramss.map: params =>
+    val buf = mutable.ListBuffer.empty[List[Param]]
+    paramss.foreach: params =>
       Params.paramsKind(params) match
-        case Params.Kind.TypeParameter => (Str("[") ~ typeParamsText(params) ~ Str("]"))
-        case Params.Kind.Normal        => (Str("(") ~ paramsText(params) ~ Str(")"))
-        case Params.Kind.Using         => (Str("(using ") ~ paramsText(params) ~ Str(")"))
-        case Params.Kind.Implicit      => (Str("(implicit ") ~ paramsText(params) ~ Str(")"))
+        case Params.Kind.TypeParameter => buf += typeParamsText(params)
+        case Params.Kind.Synthetic     =>
+        case _                         => buf += paramsText(params)
+
+    buf.toList
+
+
+  def toText(paramss: List[List[Param]]): Text =
+    val result = paramss.map: params =>
+      val paramsText = Text(params.map(_.text), ", ")
+      Params.paramsKind(params.map(_.denot)) match
+        case Params.Kind.TypeParameter => (Str("[") ~ paramsText ~ Str("]"))
+        case Params.Kind.Normal        => (Str("(") ~ paramsText ~ Str(")"))
+        case Params.Kind.Using         => (Str("(using ") ~ paramsText ~ Str(")"))
+        case Params.Kind.Implicit      => (Str("(implicit ") ~ paramsText ~ Str(")"))
         case Params.Kind.Synthetic     => Str("")
     Text(result, "")
 

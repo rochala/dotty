@@ -24,56 +24,7 @@ import reporting.*
 
 object Signatures {
 
-  /**
-   * Represent a method signature.
-   *
-   * @param name       The name of the method
-   * @param tparams    The type parameters and their bounds
-   * @param paramss    The parameter lists of this method
-   * @param returnType The return type of this method, if this is not a constructor.
-   * @param doc        The documentation for this method.
-   * @param denot      The function denotation
-   */
-  case class Signature(
-    name: String,
-    paramss: List[List[Param]],
-    returnType: Option[String],
-    doc: Option[String] = None,
-    denot: Option[SingleDenotation] = None
-  )
-
-  sealed trait Param:
-    def show: String
-    val doc: Option[String] = None
-
-  /**
-   * Represent a method's parameter.
-   *
-   * @param name        The name of the parameter
-   * @param tpe         The type of the parameter
-   * @param doc         The documentation of this parameter
-   * @param isImplicit  Is this parameter implicit?
-   * @param isReordered Is the parameter reordered in its parameter list?
-   */
-  case class MethodParam(
-    name: String,
-    tpe: String,
-    override val doc: Option[String] = None,
-    isImplicit: Boolean = false,
-    isReordered: Boolean = false
-  ) extends Param:
-    def show: String = if name.nonEmpty && !isReordered then s"$name: $tpe"
-    else if name.nonEmpty then s"[$name: $tpe]"
-    else tpe
-
-  /**
-   * Represent a type parameter.
-   *
-   * @param tpe         The type of the parameter
-   * @param doc         The documentation of this parameter
-   */
-  case class TypeParam(tpe: String, override val doc: Option[String] = None) extends Param:
-    def show = tpe
+  case class Signature(denot: SingleDenotation, paramss: List[List[SingleDenotation]])
 
   /**
    * Extract (current parameter index, function index, functions) method call for given position.
@@ -160,11 +111,11 @@ object Signatures {
     types: List[tpd.Tree]
   )(using Context): (Int, Int, List[Signature]) =
     val typeName = fun.symbol.name.show
-    val typeParams = fun.symbol.typeRef.typeParams.map(_.paramName.show).map(TypeParam.apply(_))
     val denot = fun.denot.asSingleDenotation
-    val activeParameter = findCurrentParamIndex(types, span, typeParams.length - 1)
+    val paramssDenots = Interactive.infoParamssDenotations(denot)
+    val activeParameter = findCurrentParamIndex(types, span, paramssDenots.length - 1)
 
-    val signature = Signature(typeName, List(typeParams), Some(typeName) , None, Some(denot))
+    val signature = Signature(denot, paramssDenots)
     (activeParameter, 0, List(signature))
 
   private def findOutermostCurriedApply(untpdPath: List[untpd.Tree]): Option[untpd.GenericApply] =
@@ -473,128 +424,130 @@ object Signatures {
     val symbol = denot.symbol
     val docComment = ParsedComment.docOf(symbol)
 
-    def isDummyImplicit(res: MethodType): Boolean =
-      res.resultType.isParameterless &&
-        res.isImplicitMethod &&
-        (
-          res.paramNames.forall(name =>
-            name.toString.startsWith(NameKinds.ContextBoundParamName.separator) ||
-            name.toString.startsWith(NameKinds.ContextFunctionParamName.separator)) ||
-          res.paramInfos.forall(info =>
-            info.classSymbol.derivesFrom(ctx.definitions.DummyImplicitClass))
-        )
+    // def isDummyImplicit(res: MethodType): Boolean =
+    //   res.resultType.isParameterless &&
+    //     res.isImplicitMethod &&
+    //     (
+    //       res.paramNames.forall(name =>
+    //         name.toString.startsWith(NameKinds.ContextBoundParamName.separator) ||
+    //         name.toString.startsWith(NameKinds.ContextFunctionParamName.separator)) ||
+    //       res.paramInfos.forall(info =>
+    //         info.classSymbol.derivesFrom(ctx.definitions.DummyImplicitClass))
+    //     )
 
-    def toApplyList(tree: untpd.GenericApply): List[untpd.GenericApply] =
-      tree match
-        case untpd.GenericApply(fun: untpd.GenericApply, args) => toApplyList(fun) :+ tree
-        case _ => List(tree)
+    // def toApplyList(tree: untpd.GenericApply): List[untpd.GenericApply] =
+    //   tree match
+    //     case untpd.GenericApply(fun: untpd.GenericApply, args) => toApplyList(fun) :+ tree
+    //     case _ => List(tree)
 
-    def toMethodTypeList(tpe: Type): List[Type] =
-      tpe.resultType match
-        case res: MethodOrPoly => toMethodTypeList(res) :+ tpe
-        case res => List(tpe)
+    // def toMethodTypeList(tpe: Type): List[Type] =
+    //   tpe.resultType match
+    //     case res: MethodOrPoly => toMethodTypeList(res) :+ tpe
+    //     case res => List(tpe)
 
-    def isSyntheticEvidence(name: String) =
-      if !name.toString.startsWith(NameKinds.ContextBoundParamName.separator) then false
-      else symbol.paramSymss.flatten.find(_.name.show == name).exists(_.flags.is(Flags.Implicit))
+    // def isSyntheticEvidence(name: String) =
+    //   if !name.toString.startsWith(NameKinds.ContextBoundParamName.separator) then false
+    //   else symbol.paramSymss.flatten.find(_.name.show == name).exists(_.flags.is(Flags.Implicit))
 
-    def toTypeParam(tpe: PolyType): List[Param] =
-      val evidenceParams = (tpe.paramNamess.flatten zip tpe.paramInfoss.flatten).flatMap:
-        case (name, AppliedType(tpe, (ref: TypeParamRef) :: _)) if isSyntheticEvidence(name.show) =>
-          Some(ref.paramName -> tpe)
-        case _ => None
+    // def toTypeParam(tpe: PolyType): List[SingleDenotation] =
+    //   val evidenceParams = (tpe.paramNamess.flatten zip tpe.paramInfoss.flatten).flatMap:
+    //     case (name, AppliedType(tpe, (ref: TypeParamRef) :: _)) if isSyntheticEvidence(name.show) =>
+    //       Some(ref.paramName -> tpe)
+    //     case _ => None
 
-      val tparams = tpe.paramNames.zip(tpe.paramInfos)
-      tparams.map: (name, info) =>
-        evidenceParams.find((evidenceName: TypeName, _: Type) => name == evidenceName).flatMap:
-          case (_, tparam) => tparam.show.split('.').lastOption
-        match
-          case Some(evidenceTypeName) => TypeParam(s"${name.show}: ${evidenceTypeName}")
-          case None => TypeParam(name.show + info.show)
+    //   val tparams = tpe.paramNames.zip(tpe.paramInfos)
+    //   tparams.map: (name, info) =>
+    //     evidenceParams.find((evidenceName: TypeName, _: Type) => name == evidenceName).flatMap:
+    //       case (_, tparam) => tparam.show.split('.').lastOption
+    //     match
+    //       case Some(evidenceTypeName) => TypeParam(s"${name.show}: ${evidenceTypeName}")
+    //       case None => TypeParam(name.show + info.show)
 
-    def toParamss(tp: Type, fun: Option[untpd.GenericApply])(using Context): List[List[Param]] =
-      val paramSymss = symbol.paramSymss
+    // def toParamss(tp: Type, fun: Option[untpd.GenericApply])(using Context): List[List[Param]] =
+    //   val paramSymss = symbol.paramSymss
 
-      def reduceToParamss(applies: List[untpd.Tree], types: List[Type], paramList: Int = 0): List[List[Param]] =
-        applies -> types match
-          case ((_: untpd.TypeApply) :: restTrees, (poly: PolyType) :: restTypes) =>
-            toTypeParam(poly) :: reduceToParamss(restTrees, restTypes, paramList + 1)
-          case (restTrees, (poly: PolyType) :: restTypes) =>
-            toTypeParam(poly) :: reduceToParamss(restTrees, restTypes, paramList + 1)
-          case ((apply: untpd.GenericApply) :: other, tpe :: otherType) =>
-            toParams(tpe, Some(apply), paramList) :: reduceToParamss(other, otherType, paramList + 1)
-          case (other, (tpe @ MethodTpe(names, _, _)) :: otherType) if !isDummyImplicit(tpe) =>
-            toParams(tpe, None, paramList) :: reduceToParamss(other, otherType, paramList + 1)
-          case _ => Nil
+    //   def reduceToParamss(applies: List[untpd.Tree], types: List[Type], paramList: Int = 0): List[List[Param]] =
+    //     applies -> types match
+    //       case ((_: untpd.TypeApply) :: restTrees, (poly: PolyType) :: restTypes) =>
+    //         toTypeParam(poly) :: reduceToParamss(restTrees, restTypes, paramList + 1)
+    //       case (restTrees, (poly: PolyType) :: restTypes) =>
+    //         toTypeParam(poly) :: reduceToParamss(restTrees, restTypes, paramList + 1)
+    //       case ((apply: untpd.GenericApply) :: other, tpe :: otherType) =>
+    //         toParams(tpe, Some(apply), paramList) :: reduceToParamss(other, otherType, paramList + 1)
+    //       case (other, (tpe @ MethodTpe(names, _, _)) :: otherType) if !isDummyImplicit(tpe) =>
+    //         toParams(tpe, None, paramList) :: reduceToParamss(other, otherType, paramList + 1)
+    //       case _ => Nil
 
-      def toParams(tp: Type, apply: Option[untpd.GenericApply], paramList: Int)(using Context): List[Param] =
-        val currentParams = (paramSymss.lift(paramList), tp.paramInfoss.headOption) match
-          case (Some(params), Some(infos)) => params zip infos
-          case _ => Nil
+    //   def toParams(tp: Type, apply: Option[untpd.GenericApply], paramList: Int)(using Context): List[Param] =
+    //     val currentParams = (paramSymss.lift(paramList), tp.paramInfoss.headOption) match
+    //       case (Some(params), Some(infos)) => params zip infos
+    //       case _ => Nil
 
-        val params = currentParams.map: (symbol, info) =>
-          // TODO after we migrate ShortenedTypePrinter into the compiler, it should rely on its api
-          val name = if symbol.isAllOf(Flags.Given | Flags.Param) && symbol.name.startsWith("x$") then nme.EMPTY else symbol.name.asTermName
+    //     val params = currentParams.map: (symbol, info) =>
+    //       // TODO after we migrate ShortenedTypePrinter into the compiler, it should rely on its api
+    //       val name = if symbol.isAllOf(Flags.Given | Flags.Param) && symbol.name.startsWith("x$") then nme.EMPTY else symbol.name.asTermName
 
-          Signatures.MethodParam(
-            name.show,
-            info.widenTermRefExpr.show,
-            docComment.flatMap(_.paramDoc(name)),
-            isImplicit = tp.isImplicitMethod,
-          )
+    //       Signatures.MethodParam(
+    //         name.show,
+    //         info.widenTermRefExpr.show,
+    //         docComment.flatMap(_.paramDoc(name)),
+    //         isImplicit = tp.isImplicitMethod,
+    //       )
 
-        val finalParams = apply.map: apply =>
-          apply.args match
-            case Nil => params
-            case n if n.length > params.length => params
-            case _ =>
-              // map argument order with their corresponding order so
-              //     def foo(a: Int, b: Int, c: Int, d: Int)
-              //     foo(b = 0, a = 0, d = 0, c = 0) order is List(1, 0, 3, 2)
-              //   and if there are missing arguments, they are set to -1 so for the same method:
-              //     foo(b= 0, d = 0, ) order is List(1, 3, -1, -1)
-              val argsWithOriginalIndices = apply.args.map:
-                case untpd.NamedArg(name, _) =>
-                  params.indexWhere(_.name == name.toString)
-                case param => -1
-              .padTo(params.length, -1)
+    //     val finalParams = apply.map: apply =>
+    //       apply.args match
+    //         case Nil => params
+    //         case n if n.length > params.length => params
+    //         case _ =>
+    //           // map argument order with their corresponding order so
+    //           //     def foo(a: Int, b: Int, c: Int, d: Int)
+    //           //     foo(b = 0, a = 0, d = 0, c = 0) order is List(1, 0, 3, 2)
+    //           //   and if there are missing arguments, they are set to -1 so for the same method:
+    //           //     foo(b= 0, d = 0, ) order is List(1, 3, -1, -1)
+    //           val argsWithOriginalIndices = apply.args.map:
+    //             case untpd.NamedArg(name, _) =>
+    //               params.indexWhere(_.name == name.toString)
+    //             case param => -1
+    //           .padTo(params.length, -1)
 
-              var remainingParams = params.zipWithIndex.filter: (param, index) =>
-                !argsWithOriginalIndices.contains(index)
-              .map(_._1)
+    //           var remainingParams = params.zipWithIndex.filter: (param, index) =>
+    //             !argsWithOriginalIndices.contains(index)
+    //           .map(_._1)
 
-              val result = argsWithOriginalIndices.map:
-                case -1 =>
-                  val h = remainingParams.head
-                  remainingParams = remainingParams.tail
-                  h
-                case n => params(n)
+    //           val result = argsWithOriginalIndices.map:
+    //             case -1 =>
+    //               val h = remainingParams.head
+    //               remainingParams = remainingParams.tail
+    //               h
+    //             case n => params(n)
 
-              val isReordered = params != result
-              val (ordered, reordered) = params.zip(result).span: (definitionMember, reorderedMember) =>
-                definitionMember == reorderedMember
+    //           val isReordered = params != result
+    //           val (ordered, reordered) = params.zip(result).span: (definitionMember, reorderedMember) =>
+    //             definitionMember == reorderedMember
 
-              ordered.map(_._2) ++ reordered.map(_._2.copy(isReordered = isReordered))
+    //           ordered.map(_._2) ++ reordered.map(_._2.copy(isReordered = isReordered))
 
 
-        finalParams.getOrElse(params)
-      end toParams
+    //     finalParams.getOrElse(params)
+    //   end toParams
 
-      val applies = untpdFun.map(toApplyList).getOrElse(Nil)
-      val types = toMethodTypeList(tp).reverse
+    //   val applies = untpdFun.map(toApplyList).getOrElse(Nil)
+    //   val types = toMethodTypeList(tp).reverse
 
-      reduceToParamss(applies, types)
+    //   reduceToParamss(applies, types)
 
-    val paramss = toParamss(denot.info, untpdFun)
-    val (name, returnType) =
-      if (symbol.isConstructor) then
-        (symbol.owner.name.show, None)
-      else
-        denot.symbol.defTree match
-          // if there is an error in denotation type, we will fallback to source tree
-          case defn: tpd.DefDef if denot.info.isErroneous => (denot.name.show, Some(defn.tpt.show))
-          case _ => (denot.name.show, Some(denot.info.finalResultType.widenTermRefExpr.show))
-    Some(Signatures.Signature(name, paramss, returnType, docComment.map(_.mainDoc), Some(denot)))
+
+    val paramssDenots = Interactive.infoParamssDenotations(denot)
+
+    // val (name, returnType) =
+    //   if (symbol.isConstructor) then
+    //     (symbol.owner.name.show, None)
+    //   else
+    //     denot.symbol.defTree match
+    //       // if there is an error in denotation type, we will fallback to source tree
+    //       case defn: tpd.DefDef if denot.info.isErroneous => (denot.name.show, Some(defn.tpt.show))
+    //       case _ => (denot.name.show, Some(denot.info.finalResultType.widenTermRefExpr.show))
+    Some(Signatures.Signature(denot, paramssDenots))
   }
 
   /**
@@ -611,13 +564,8 @@ object Signatures {
    * @return Signature if paramTypes is non empty, None otherwise
    */
   private def toUnapplySignature(denot: SingleDenotation, paramNames: List[Name], paramTypes: List[Type])(using Context): Option[Signature] =
-    val params = if paramNames.length == paramTypes.length then
-      (paramNames zip paramTypes).map((name, info) => MethodParam(name.show, info.show))
-    else
-      // even if we only show types of arguments, they are still method params
-      paramTypes.map(info => MethodParam("", info.show))
-
-    if params.nonEmpty then Some(Signature("", List(params), None, None, Some(denot)))
+    val paramssDenots = Interactive.infoParamssDenotations(denot)
+    if paramssDenots.nonEmpty then Some(Signature(denot, paramssDenots))
     else None
 
   /**
