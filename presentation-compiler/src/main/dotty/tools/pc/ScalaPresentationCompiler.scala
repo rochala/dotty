@@ -7,6 +7,7 @@ import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledExecutorService
+import java.util.Collections
 import java.util as ju
 
 import scala.concurrent.ExecutionContext
@@ -249,14 +250,11 @@ case class ScalaPresentationCompiler(
       new InferExpectedType(search, driver, params).infer().asJava
     }(params.toQueryContext)
 
-  def shutdown(): Unit =
-    compilerAccess.shutdown()
+  def shutdown(): Unit = compilerAccess.shutdown()
 
-  def restart(): Unit =
-    compilerAccess.shutdownCurrentCompiler()
+  def restart(): Unit = compilerAccess.shutdownCurrentCompiler()
 
-  def diagnosticsForDebuggingPurposes(): ju.List[String] =
-    List[String]().asJava
+  def diagnosticsForDebuggingPurposes(): ju.List[String] = Collections.emptyList()
 
   override def info(
       symbol: String
@@ -487,7 +485,10 @@ case class ScalaPresentationCompiler(
   override def didChange(
       params: VirtualFileParams
   ): CompletableFuture[ju.List[l.Diagnostic]] =
-    CompletableFuture.completedFuture(Nil.asJava)
+    compilerAccess.withNonInterruptableCompiler(Collections.emptyList(), params.token()) { access =>
+      val driver = access.compiler()
+      new DiagnosticProvider(driver, params).diagnostics().asJava
+    }(emptyQueryContext)
 
   override def didClose(uri: URI): Unit =
     compilerAccess.withNonInterruptableCompiler(
