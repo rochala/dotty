@@ -1,0 +1,6 @@
+-- [E129] Potential Issue Warning: tests/warn/i21557.scala:5:4 ---------------------------------------------------------
+5 |  1 + 2 // warning
+  |  ^^^^^
+  |  A pure expression does nothing in statement position
+  |
+  | longer explanation available when compiling with `-explain`

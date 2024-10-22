@@ -1166,6 +1166,8 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
         assignType(cpy.New(tree)(tpt1), tpt1)
     }
 
+  val TypedExpectingUnit: Property.StickyKey[Unit] = Property.StickyKey()
+
   def typedTyped(tree: untpd.Typed, pt: Type)(using Context): Tree = {
 
     /*  Handles three cases:
@@ -1181,20 +1183,32 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
           import untpd.*
           typed(Bind(id.name, Typed(Ident(wildName), tree.tpt)).withSpan(tree.span), pt)
         }
-      case _ => ifExpr
+      case _ =>
+        println("test")
+        println("test")
+        println("test")
+        println("test")
+        println("test")
+        println("test")
+        println("test")
+        ifExpr
     }
 
     def ascription(tpt: Tree, isWildcard: Boolean) = {
       val underlyingTreeTpe =
         if (isRepeatedParamType(tpt)) TypeTree(defn.SeqType.appliedTo(pt :: Nil))
         else tpt
+      // add attachment here
+
+      val exprWithAttachment = tree.expr.withAttachment(TypedExpectingUnit, ())
       val expr1 =
         if isWildcard then tree.expr.withType(underlyingTreeTpe.tpe)
-        else typed(tree.expr, underlyingTreeTpe.tpe.widenSkolem)
+        else typed(exprWithAttachment, underlyingTreeTpe.tpe.widenSkolem)
       assignType(cpy.Typed(tree)(expr1, tpt), underlyingTreeTpe)
         .withNotNullInfo(expr1.notNullInfo)
     }
 
+    // THis is start
     if (untpd.isWildcardStarArg(tree)) {
 
       def fromRepeated(pt: Type): Type = pt match
@@ -4560,7 +4574,20 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
         // so will take the code path that decides on inlining
         val tree1 = adapt(tree, WildcardType, locked)
         checkStatementPurity(tree1)(tree, ctx.owner, isUnitExpr = true)
+          println("===================")
+          println("===================")
+          println("===================")
+          println("aaaaaaaaaaaaaaaaaaaaaaaaa")
+          println("===================")
+          println("===================")
         if (!ctx.isAfterTyper && !tree.isInstanceOf[Inlined] && ctx.settings.Whas.valueDiscard && !isThisTypeResult(tree)) {
+          println("===================")
+          println("===================")
+          println("===================")
+          println("===================")
+          println("===================")
+          println("===================")
+          println("===================")
           report.warning(ValueDiscarding(tree.tpe), tree.srcPos)
         }
         return tpd.Block(tree1 :: Nil, unitLiteral)
@@ -4817,6 +4844,9 @@ class Typer(@constructorOnly nestingLevel: Int = 0) extends Namer
         // But taken together, the two criteria are quite accurate.
         missingArgs(tree, tree.tpe.widen)
       case _ if isUnitExpr =>
+        println(tree)
+        println(tree.span)
+        println(tree.span.isSynthetic)
         report.warning(PureUnitExpression(original, tree.tpe), original.srcPos)
       case _ =>
         report.warning(PureExpressionInStatementPosition(original, exprOwner), original.srcPos)

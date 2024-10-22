@@ -64,6 +64,8 @@ object Linter:
             case _ => thenpart
           }
         case _ => t
+      println("===================")
+      println(where)
       report.warning(UnusedNonUnitValue(where.tpe), t.srcPos)
       true
     else false
