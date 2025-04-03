@@ -17,6 +17,7 @@ import scala.concurrent.duration.*
 import java.util.Collections
 import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
+import dotty.tools.pc.LspRequest
 
 
 class CompilerCachingSuite extends BasePCSuite:
@@ -26,8 +27,8 @@ class CompilerCachingSuite extends BasePCSuite:
   private def checkCompilationCount(expected: Int): Unit =
     presentationCompiler match
       case pc: ScalaPresentationCompiler =>
-        val compilations = pc.compilerAccess.withNonInterruptableCompiler(None)(-1, EmptyCancelToken) { driver =>
-          driver.compiler().currentCtx.runId
+        val compilations = pc.driverAccess.lookup(LspRequest.Unknown) { driver =>
+          driver.currentCtx.runId
         }.get(timeout.length, timeout.unit)
         assertEquals(expected, compilations, s"Expected $expected compilations but got $compilations")
       case _ => throw IllegalStateException("Presentation compiler should always be of type of ScalaPresentationCompiler")
@@ -35,8 +36,8 @@ class CompilerCachingSuite extends BasePCSuite:
   private def getContext(): Context =
     presentationCompiler match
       case pc: ScalaPresentationCompiler =>
-        pc.compilerAccess.withNonInterruptableCompiler(None)(null, EmptyCancelToken) { driver =>
-          driver.compiler().currentCtx
+        pc.driverAccess.lookup(LspRequest.Unknown) { driver =>
+          driver.currentCtx
         }.get(timeout.length, timeout.unit)
       case _ => throw IllegalStateException("Presentation compiler should always be of type of ScalaPresentationCompiler")
 

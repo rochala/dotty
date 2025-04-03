@@ -30,8 +30,32 @@ import dotty.tools.dotc.util.Spans.Span
 import dotty.tools.pc.SemanticdbSymbols
 
 import org.eclipse.lsp4j as l
+import dotty.tools.dotc.util.SourceFile
 
 object InteractiveEnrichments extends CommonMtagsEnrichments:
+  extension (source: SourceFile)
+    def sourcePositionF(
+        params: OffsetParams,
+        isZeroExtent: Boolean = true
+    ): SourcePosition =
+      val uri = params.uri()
+      val span = params match
+        case p: RangeParams if p.offset() != p.endOffset() =>
+          p.trimWhitespaceInRange.fold {
+            Spans.Span(p.offset(), p.endOffset())
+          } {
+            case trimmed: RangeParams =>
+              Spans.Span(trimmed.offset(), trimmed.endOffset())
+            case offset =>
+              Spans.Span(p.offset(), p.offset())
+          }
+        case _ if !isZeroExtent => Spans.Span(params.offset(), params.offset() + 1)
+        case _ => Spans.Span(params.offset())
+
+      new SourcePosition(source, span)
+    end sourcePositionF
+  end extension
+
 
   extension (driver: InteractiveDriver)
 
