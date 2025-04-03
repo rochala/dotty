@@ -19,7 +19,7 @@ import org.eclipse.lsp4j.DiagnosticTag
 class DiagnosticProvider(driver: InteractiveDriver, params: VirtualFileParams):
 
   def diagnostics(): List[lsp4j.Diagnostic] =
-    val diags = driver.run(params.uri().nn, params.text().nn)
+    val diags = driver.currentCtx.reporter.allErrors ++ driver.currentCtx.reporter.allWarnings
     given Context = driver.currentCtx
     diags.flatMap(toLsp)
 

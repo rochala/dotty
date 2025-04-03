@@ -33,7 +33,7 @@ class DiagnosticProviderSuite extends BasePCSuite with RangeReplace {
     check(
       """|class Bar(i: It)
          |""".stripMargin,
-      List(TestDiagnostic(13, 15, "Not found: type It - did you mean Int.type? or perhaps Int?", DiagnosticSeverity.Error))
+      List(TestDiagnostic(13, 15, "Not found: type It - did you mean Int? or perhaps Int.type?", DiagnosticSeverity.Error))
     )
 
   @Test def warning =
@@ -51,7 +51,7 @@ class DiagnosticProviderSuite extends BasePCSuite with RangeReplace {
          |  1 + 1
          |""".stripMargin,
       List(
-        TestDiagnostic(13 ,15, "Not found: type It - did you mean Int.type? or perhaps Int?", DiagnosticSeverity.Error),
+        TestDiagnostic(13 ,15, "Not found: type It - did you mean Int? or perhaps Int.type?", DiagnosticSeverity.Error),
         TestDiagnostic(29, 34, "A pure expression does nothing in statement position", DiagnosticSeverity.Warning)
       )
     )
