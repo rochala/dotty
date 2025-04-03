@@ -22,12 +22,9 @@ import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.pc.utils.InteractiveEnrichments.*
 
 import org.eclipse.lsp4j.Location
+import dotty.tools.dotc.CompilationUnit
 
-class PcDefinitionProvider(
-    driver: InteractiveDriver,
-    params: OffsetParams,
-    search: SymbolSearch
-):
+class PcDefinitionProvider(driver: InteractiveDriver, params: OffsetParams, search: SymbolSearch):
 
   def definitions(): DefinitionResult =
     definitions(findTypeDef = false)
@@ -39,22 +36,21 @@ class PcDefinitionProvider(
     val uri = params.uri().nn
     val text = params.text().nn
     val filePath = Paths.get(uri)
-    driver.run(
-      uri,
-      SourceFile.virtual(filePath.toString, text)
-    )
+    val unit = driver.compilationUnits(uri)
+    val newCtx = driver.currentCtx.fresh.setCompilationUnit(unit)
 
     val pos = driver.sourcePosition(params)
-    val path =
-      Interactive.pathTo(driver.openedTrees(uri), pos)(using driver.currentCtx)
+    val path = Interactive.pathTo(unit.tpdTree, pos.span)(using newCtx)
 
-    given ctx: Context = driver.localContext(params)
-    val indexedContext = IndexedContext(ctx)
+    // TODO create method that does the below in single step
+    given localCtx: Context = Interactive.contextOfPath(path)(using newCtx)
+    val indexedContext = IndexedContext(newCtx)
+
     val result =
       if findTypeDef then findTypeDefinitions(path, pos, indexedContext)
       else findDefinitions(path, pos, indexedContext)
 
-    if result.locations().nn.isEmpty() then fallbackToUntyped(pos)(using ctx)
+    if result.locations().nn.isEmpty() then fallbackToUntyped(pos)
     else result
   end definitions
 
@@ -70,9 +66,7 @@ class PcDefinitionProvider(
    * @param pos cursor position
    * @return definition result
    */
-  private def fallbackToUntyped(pos: SourcePosition)(
-    using ctx: Context
-  ) =
+  private def fallbackToUntyped(pos: SourcePosition)(using ctx: Context) =
     lazy val untpdPath = NavigateAST
       .untypedPath(pos.span)
       .collect { case t: untpd.Tree => t }

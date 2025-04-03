@@ -35,20 +35,30 @@ class CompletionCancelSuite extends BaseCompletionSuite:
    */
   class AlwaysCancelToken extends CancelToken:
     val cancel = new CompletableFuture[lang.Boolean]()
-    var isCancelled = new AtomicBoolean(false)
     override def onCancel(): CompletionStage[lang.Boolean] = cancel
     override def checkCanceled(): Unit =
-      if (isCancelled.compareAndSet(false, true)) {
+      cancel.complete(true)
+      throw new CancellationException("Always Cancel Token")
+
+  /**
+   * A cancel token that cancels after 5 `checkCancelled` calls.
+   */
+  class DelayedCancelToken extends CancelToken:
+    val cancel = new CompletableFuture[lang.Boolean]()
+    override def onCancel(): CompletionStage[lang.Boolean] = cancel
+    var i = 0
+    override def checkCanceled(): Unit =
+      i += 1
+      if i > 5 then
         cancel.complete(true)
-      } else
-        Thread.sleep(10)
+        throw new CancellationException("Delayed Cancel Token")
 
   def checkCancelled(
+      token: CancelToken,
       query: String,
-      expected: String
+      expected: String,
   ): Unit =
     val (code, offset) = params(query)
-    val token = new AlwaysCancelToken
     try
       presentationCompiler
         .complete(
@@ -62,8 +72,8 @@ class CompletionCancelSuite extends BaseCompletionSuite:
         .get()
       fail("Expected completion request to be interrupted")
     catch
-      case InterruptException() =>
-        assert(token.isCancelled.get())
+      case _ =>
+        assert(token.onCancel().toCompletableFuture.get())
 
     // assert that regular completion works as expected.
     val completion = presentationCompiler
@@ -83,11 +93,25 @@ class CompletionCancelSuite extends BaseCompletionSuite:
 
     assertNoDiff(expected, obtained)
 
-  @Test def `basic` =
+  @Test def `cancel-before-start` =
     checkCancelled(
+      AlwaysCancelToken(),
       """
         |object A {
         |  val x = asser@@
+        |}
+      """.stripMargin,
+      """|assert(inline assertion: Boolean): Unit
+         |assert(inline assertion: Boolean, inline message: => Any): Unit
+         |""".stripMargin
+    )
+
+  @Test def `cancel-during-compilation` =
+    checkCancelled(
+      DelayedCancelToken(),
+      """
+        |object A {
+        |  val x = asse@@
         |}
       """.stripMargin,
       """|assert(inline assertion: Boolean): Unit
@@ -101,14 +125,17 @@ class CompletionCancelSuite extends BaseCompletionSuite:
   object FreezeCancelToken extends CancelToken:
     val cancel = new CompletableFuture[lang.Boolean]()
     var isCancelled = new AtomicBoolean(false)
+    var count = 0
     override def onCancel(): CompletionStage[lang.Boolean] = cancel
     override def checkCanceled(): Unit =
-      var hello = true
+      var hello = false
       var i = 0
+      count += 1
+      if count > 2 then hello = true
       while (hello) i += 1
       hello = false
 
-  @Test def `break-compilation` =
+  @Test def `zombie-task-detection` =
     val query = """
                   |object A {
                   |  val x = asser@@
