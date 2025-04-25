@@ -28,6 +28,7 @@ import dotty.tools.pc.utils.InteractiveEnrichments.*
 
 import org.eclipse.lsp4j.TextEdit
 import org.eclipse.lsp4j as l
+import dotty.tools.dotc.transform.CheckUnused.isSynthetic
 
 /**
  * Tries to calculate edits needed to insert the inferred type annotation
@@ -85,8 +86,8 @@ final class InferredTypeProvider(
       config
     )
 
-    def removeType(nameEnd: Int, tptEnd: Int) =
-      sourceText.substring(0, nameEnd).nn +
+    def removeType(colonIndex: Int, tptEnd: Int) =
+      sourceText.substring(0, colonIndex).nn +
         sourceText.substring(tptEnd + 1, sourceText.length())
 
     def optDealias(tpe: Type): Type =
@@ -112,8 +113,8 @@ final class InferredTypeProvider(
     def imports: List[TextEdit] =
       printer.imports(autoImportsGen)
 
-    def printTypeAscription(tpe: Type, spaceBefore: Boolean = false): String =
-      (if spaceBefore then " : " else ": ") + printer.tpe(tpe)
+    def printTypeAscription(tpe: Type, addSpaceBefore: Boolean = false, addSpaceAfter: Boolean = false): String =
+      (if addSpaceBefore then " : " else ": ") + printer.tpe(tpe) + (if addSpaceAfter then " " else "")
 
     path.headOption match
       /* `val a = 1` or `var b = 2`
@@ -131,16 +132,19 @@ final class InferredTypeProvider(
               if next.symbol.isAnonymousFunction =>
             true
           case _ => false
+
         def baseEdit(withParens: Boolean): TextEdit =
           val keywordOffset = if isParam then 0 else 4
-          val endPos =
-            findNamePos(sourceText, vl, keywordOffset).endPos.toLsp
-          adjustOpt.foreach(adjust => endPos.setEnd(adjust.adjustedEndPos))
-          val spaceBefore = name.isOperatorName
+
+          val editRange = tpt.sourcePos.toLsp
+          val addSpaceBefore = name.isOperatorName
+          val addSpaceAfter = sourceText(vl.namePos.end) == '='
+
+          adjustOpt.foreach(adjust => editRange.setEnd(adjust.adjustedEndPos))
 
           new TextEdit(
-            endPos,
-            printTypeAscription(optDealias(tpt.typeOpt), spaceBefore) + {
+            editRange,
+            printTypeAscription(optDealias(tpt.typeOpt), addSpaceBefore, addSpaceAfter) + {
               if withParens then ")" else ""
             }
           )
@@ -163,6 +167,7 @@ final class InferredTypeProvider(
         end checkForParensAndEdit
 
         def typeNameEdit: List[TextEdit] =
+
           path match
             // lambda `map(a => ???)` apply
             case _ :: _ :: (block: untpd.Block) :: (appl: untpd.Apply) :: _
@@ -179,63 +184,46 @@ final class InferredTypeProvider(
             case _ =>
               baseEdit(withParens = false) :: Nil
 
-        def simpleType =
-          typeNameEdit ::: imports
+        def lastColon =
+          var i = tpt.startPos.start
+          while i >= vl.namePos.end && sourceText(i) != ':' do i -= 1
+          i
 
-        rhs match
-          case t: Tree[?]
-              if t.typeOpt.isErroneous && retryType && !tpt.sourcePos.span.isZeroExtent =>
-            inferredTypeEdits(
-              Some(
-                AdjustTypeOpts(
-                  removeType(vl.namePos.end, tpt.sourcePos.end - 1),
-                  tpt.sourcePos.toLsp.getEnd().nn
-                )
-              )
-            )
-          case _ => simpleType
-        end match
+        if tpt.typeOpt.isErroneous || (retryType && !tpt.sourcePos.span.isZeroExtent) then
+          val adjustedText = removeType(lastColon, tpt.sourcePos.end - 1)
+          inferredTypeEdits(
+            Some(AdjustTypeOpts(adjustedText, tpt.sourcePos.toLsp.getEnd().nn))
+          )
+        else typeNameEdit ::: imports
+
       /* `def a[T](param : Int) = param`
        *     turns into
        * `def a[T](param : Int): Int = param`
        */
-      case Some(df @ DefDef(name, paramss, tpt, rhs)) =>
+      case Some(df @ DefDef(name, paramss, tpt, rhs: Tree[?])) =>
+
         def typeNameEdit =
-          /* NOTE: In Scala 3.1.3, `List((1,2)).map((<<a>>,b) => ...)`
-           * turns into `List((1,2)).map((:Inta,b) => ...)`,
-           * because `tpt.SourcePos == df.namePos.startPos`, so we use `df.namePos.endPos` instead
-           * After dropping support for 3.1.3 this can be removed
-           */
-          val end =
-            if tpt.endPos.end > df.namePos.end then tpt.endPos.toLsp
-            else df.namePos.endPos.toLsp
+          val editRange = tpt.sourcePos.toLsp
+          val addSpaceBefore = name.isOperatorName && paramss.isEmpty
+          val addSpaceAfter = sourceText(df.namePos.end) == '='
 
-          val spaceBefore = name.isOperatorName && paramss.isEmpty
+          adjustOpt.foreach(adjust => editRange.setEnd(adjust.adjustedEndPos))
+          val edit = printTypeAscription(optDealias(tpt.typeOpt), addSpaceBefore, addSpaceAfter)
 
-          adjustOpt.foreach(adjust => end.setEnd(adjust.adjustedEndPos))
-          new TextEdit(
-            end,
-            printTypeAscription(optDealias(tpt.typeOpt), spaceBefore)
-          )
+          new TextEdit(editRange, edit)
         end typeNameEdit
 
         def lastColon =
           var i = tpt.startPos.start
-          while i >= 0 && sourceText(i) != ':' do i -= 1
+          while i >= df.namePos.end && sourceText(i) != ':' do i -= 1
           i
-        rhs match
-          case t: Tree[?]
-              if t.typeOpt.isErroneous && retryType && !tpt.sourcePos.span.isZeroExtent =>
-            inferredTypeEdits(
-              Some(
-                AdjustTypeOpts(
-                  removeType(lastColon, tpt.sourcePos.end - 1),
-                  tpt.sourcePos.toLsp.getEnd().nn
-                )
-              )
-            )
-          case _ =>
-            typeNameEdit :: imports
+
+        if tpt.typeOpt.isErroneous || (retryType && !tpt.sourcePos.span.isZeroExtent) then
+          val adjustedText = removeType(lastColon, tpt.sourcePos.end - 1)
+          inferredTypeEdits(
+            Some(AdjustTypeOpts(adjustedText, tpt.sourcePos.toLsp.getEnd().nn))
+          )
+        else typeNameEdit :: imports
 
       /* `case t =>`
        *  turns into

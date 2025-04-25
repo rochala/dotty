@@ -543,7 +543,7 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite:
          |)
          |
          |object Dependency {
-         |  def apply(org: String): Any = Dependency(org, None, None)
+         |  def apply(org: String): Dependency = Dependency(org, None, None)
          |  def apply(org: String, name: String) = Dependency(org, Some(name), None)
          |}
          |""".stripMargin
@@ -967,6 +967,56 @@ class InsertInferredTypeSuite extends BaseCodeActionSuite:
          |    val ! = 1
          |    ! : Int
          |}
+         |""".stripMargin
+    )
+
+  @Test def `repeat-sanity-check` =
+    checkEdit(
+      """|object A:
+         |  def <<foo>>: String = 125
+         |""".stripMargin,
+      """|object A:
+         |  def foo: Int = 125
+         |""".stripMargin
+    )
+
+  @Test def `repeat-sanity-check-3` =
+    checkEdit(
+      """|object A:
+         |  def <<foo>>: = 125
+         |""".stripMargin,
+      """|object A:
+         |  def foo: Int = 125
+         |""".stripMargin
+    )
+
+  @Test def `repeat-sanity-check-2` =
+    checkEdit(
+      """|object A:
+         |  def <<foo>> = 125
+         |""".stripMargin,
+      """|object A:
+         |  def foo: Int = 125
+         |""".stripMargin
+    )
+
+  @Test def `repeat-check-def` =
+    checkEdit(
+      """|object A:
+         |  def <<foo>>: Int = 125
+         |""".stripMargin,
+      """|object A:
+         |  def foo: Int = 125
+         |""".stripMargin
+    )
+
+  @Test def `repeat-check-val` =
+    checkEdit(
+      """|object A:
+         |  val <<foo>>: Int = 125
+         |""".stripMargin,
+      """|object A:
+         |  val foo: Int = 125
          |""".stripMargin
     )
 
