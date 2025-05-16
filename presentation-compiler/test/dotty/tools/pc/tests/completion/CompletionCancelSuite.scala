@@ -21,6 +21,7 @@ import scala.language.unsafeNulls
 import dotty.tools.pc.base.BaseCompletionSuite
 
 import org.junit.Test
+import org.junit.Assert
 
 class CompletionCancelSuite extends BaseCompletionSuite:
 
@@ -119,51 +120,67 @@ class CompletionCancelSuite extends BaseCompletionSuite:
          |""".stripMargin
     )
 
-  /**
-   * A cancel token to simulate infinite compilation
-   */
-  object FreezeCancelToken extends CancelToken:
-    val cancel = new CompletableFuture[lang.Boolean]()
-    var isCancelled = new AtomicBoolean(false)
-    var count = 0
-    override def onCancel(): CompletionStage[lang.Boolean] = cancel
-    override def checkCanceled(): Unit =
-      var hello = false
-      var i = 0
-      count += 1
-      if count > 2 then hello = true
-      while (hello) i += 1
-      hello = false
+  // With new assumptions we can't run this test without forking the JVM.
+  // We now expect to handle infinite compilations at the call site.
+  //
+  // This is very dangerous and potentially will make users unresponsive,
+  // and there is also no good way to handle infinite compilations.
+  //
+  // We will try to catch all of them, but right now the approach that
+  // ensures no leaks is the way to go.
+  //
+  // In previous implementations this test was working, because we
+  // didn't log, catch the infinite computations, we've just created new
+  // presentation compiler driver and went straight back to work, while
+  // this zombie thread was still stuck.
+  //
+  // /**
+  //  * A cancel token to simulate infinite compilation
+  //  */
+  // object FreezeCancelToken extends CancelToken:
+  //   val cancel = new CompletableFuture[lang.Boolean]()
+  //   var isCancelled = new AtomicBoolean(false)
+  //   var count = 0
+  //   override def onCancel(): CompletionStage[lang.Boolean] = cancel
+  //   override def checkCanceled(): Unit =
+  //     var hello = false
+  //     var i = 0
+  //     count += 1
+  //     if count > 2 then hello = true
+  //     while (hello) i += 1
+  //     hello = false
 
-  @Test def `zombie-task-detection` =
-    val query = """
-                  |object A {
-                  |  val x = asser@@
-                  |}
-               """.stripMargin
-    val (code, offset) = params(query)
-    val uri = URI.create("file:///A.scala")
-    try
-      presentationCompiler
-        .complete(
-          CompilerOffsetParams(
-            uri,
-            code,
-            offset,
-            FreezeCancelToken
-          )
-        )
-        .get()
-    catch case _: CancellationException => ()
+  // @Test def `zombie-task-detection` =
+  //   val query = """
+  //                 |object A {
+  //                 |  val x = asser@@
+  //                 |}
+  //              """.stripMargin
+  //   val (code, offset) = params(query)
+  //   val uri = URI.create("file:///A.scala")
 
-    val res = presentationCompiler
-      .complete(
-        CompilerOffsetParams(
-          uri,
-          code,
-          offset,
-          EmptyCancelToken
-        )
-      )
-      .get()
-    assert(res.getItems().asScala.nonEmpty)
+  //   Assert.assertThrows(classOf[InfiniteCompilationException], () =>
+  //     try
+  //       presentationCompiler
+  //         .complete(
+  //           CompilerOffsetParams(
+  //             uri,
+  //             code,
+  //             offset,
+  //             FreezeCancelToken
+  //           )
+  //         ).get()
+  //     catch case _: CancellationException => ()
+  //   )
+
+  //   val res = presentationCompiler
+  //     .complete(
+  //       CompilerOffsetParams(
+  //         uri,
+  //         code,
+  //         offset,
+  //         EmptyCancelToken
+  //       )
+  //     )
+  //     .get()
+  //   assert(res.getItems().asScala.nonEmpty)

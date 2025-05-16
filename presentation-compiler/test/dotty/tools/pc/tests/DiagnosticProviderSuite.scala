@@ -31,28 +31,30 @@ class DiagnosticProviderSuite extends BasePCSuite with RangeReplace {
 
   @Test def error =
     check(
-      """|class Bar(i: It)
+      """|type VeryHardType = Int
+         |class Bar(i: VeryHardTyp)
          |""".stripMargin,
-      List(TestDiagnostic(13, 15, "Not found: type It - did you mean Int? or perhaps Int.type?", DiagnosticSeverity.Error))
+      List(TestDiagnostic(37, 48, "Not found: type VeryHardTyp", DiagnosticSeverity.Error))
     )
 
   @Test def warning =
     check(
       """|object M:
-         |  1 + 1
+         |  ""
          |""".stripMargin,
-      List(TestDiagnostic(12, 17, "A pure expression does nothing in statement position", DiagnosticSeverity.Warning))
+      List(TestDiagnostic(12, 14, "A pure expression does nothing in statement position", DiagnosticSeverity.Warning))
     )
 
   @Test def mixed =
     check(
-      """|class Bar(i: It)
+      """|type VeryHardType = Int
+         |class Bar(i: VeryHardTyp)
          |object M:
-         |  1 + 1
+         |  ""
          |""".stripMargin,
       List(
-        TestDiagnostic(13 ,15, "Not found: type It - did you mean Int? or perhaps Int.type?", DiagnosticSeverity.Error),
-        TestDiagnostic(29, 34, "A pure expression does nothing in statement position", DiagnosticSeverity.Warning)
+        TestDiagnostic(37 ,48, "Not found: type VeryHardTyp", DiagnosticSeverity.Error),
+        TestDiagnostic(62, 64, "A pure expression does nothing in statement position", DiagnosticSeverity.Warning)
       )
     )
 

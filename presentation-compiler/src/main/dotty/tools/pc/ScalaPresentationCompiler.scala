@@ -14,35 +14,25 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 import scala.jdk.CollectionConverters._
 import scala.language.unsafeNulls
-import scala.meta.internal.metals.CompilerVirtualFileParams
-import scala.meta.internal.metals.EmptyCancelToken
 import scala.meta.internal.metals.EmptyReportContext
 import scala.meta.internal.metals.PcQueryContext
 import scala.meta.internal.metals.ReportContext
 import scala.meta.internal.metals.ReportLevel
 import scala.meta.internal.metals.StdReportContext
 import scala.meta.internal.mtags.CommonMtagsEnrichments.*
-import scala.meta.internal.pc.CompilerAccess
-import scala.meta.internal.pc.DefinitionResultImpl
-import scala.meta.internal.pc.EmptyCompletionList
 import scala.meta.internal.pc.EmptySymbolSearch
 import scala.meta.internal.pc.PresentationCompilerConfigImpl
 import scala.meta.pc.*
 import scala.meta.pc.{PcSymbolInformation as IPcSymbolInformation}
 
-import dotty.tools.dotc.reporting.StoreReporter
 import dotty.tools.pc.completions.CompletionProvider
-import dotty.tools.pc.InferExpectedType
 import dotty.tools.pc.completions.OverrideCompletions
 import dotty.tools.pc.buildinfo.BuildInfo
-import dotty.tools.pc.SymbolInformationProvider
-import dotty.tools.dotc.interactive.InteractiveDriver
 
 import org.eclipse.lsp4j.DocumentHighlight
 import org.eclipse.lsp4j.TextEdit
 import org.eclipse.lsp4j as l
-import dotty.tools.dotc.interfaces.CompilerCallback
-import dotty.tools.dotc.sbt.interfaces.ProgressCallback
+import l.jsonrpc.CompletableFutures
 
 
 /** Implementation of Presentation Compiler
@@ -131,7 +121,7 @@ case class ScalaPresentationCompiler(
   override def withReportsLoggerLevel(level: String): PresentationCompiler =
     copy(reportsLevel = ReportLevel.fromString(level))
 
-  val profiler = JsonWritingProfiler(folderPath)
+  val profiler = Profiler.empty // JsonWritingProfiler(folderPath)
 
   val driverSettings =
     val implicitSuggestionTimeout = List("-Ximport-suggestion-timeout", "0")
@@ -177,7 +167,7 @@ case class ScalaPresentationCompiler(
 
   def complete(params: OffsetParams): CompletableFuture[l.CompletionList] =
     val (wasCursorApplied, completionText) = CompletionProvider.applyCompletionCursor(params)
-    val inputs = CompilationInputs(params.uri.nn, completionText, LspRequest.GetTasty, params.token().nn, wasCursorApplied)
+    val inputs = CompilationInputs(params.uri.nn, completionText, LspRequest.Completion, params.token().nn, wasCursorApplied)
 
     driverAccess
       .enqueueCancellable(inputs): driver =>
@@ -228,7 +218,7 @@ case class ScalaPresentationCompiler(
 
   def shutdown(): Unit = driverAccess.shutdown()
 
-  def restart(): Unit = driverAccess.shutdownCurrentCompiler()
+  def restart(): Unit = driverAccess.restart()
 
   def diagnosticsForDebuggingPurposes(): ju.List[String] = Collections.emptyList()
 

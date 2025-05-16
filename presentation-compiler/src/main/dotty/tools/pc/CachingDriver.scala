@@ -6,13 +6,8 @@ import java.util as ju
 import dotty.tools.dotc.interactive.InteractiveDriver
 import dotty.tools.dotc.reporting.Diagnostic
 import dotty.tools.dotc.util.SourceFile
-import dotty.tools.dotc.sbt.interfaces.ProgressCallback
 
 import scala.compiletime.uninitialized
-import ju.UUID
-import ju.logging.Logger
-import ju.logging.Level
-import dotty.tools.dotc.core.Contexts.Context
 import dotty.tools.dotc.CompilationUnit
 
 /**
