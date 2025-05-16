@@ -8,6 +8,7 @@ import dotty.tools.dotc.reporting.Diagnostic
 import dotty.tools.dotc.util.SourceFile
 
 import scala.compiletime.uninitialized
+import dotty.tools.dotc.CompilationUnit
 
 /**
  * CachingDriver is a wrapper class that provides a compilation cache for InteractiveDriver.
@@ -42,14 +43,9 @@ class CachingDriver(override val settings: List[String]) extends InteractiveDriv
   override def run(uri: URI, source: SourceFile): List[Diagnostic] =
     val diags =
       if alreadyCompiled(uri, source.content) then Nil
-      else super.run(uri, source)
-    lastCompiledURI = uri
-    diags
-
-  override def run(uri: URI, sourceCode: String): List[Diagnostic] =
-    val diags =
-      if alreadyCompiled(uri, sourceCode.toCharArray().nn) then Nil
-      else super.run(uri, sourceCode)
+      else
+        val res = super.run(uri, source)
+        res
     lastCompiledURI = uri
     diags
 

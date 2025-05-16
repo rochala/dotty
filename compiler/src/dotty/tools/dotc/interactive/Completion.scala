@@ -34,6 +34,7 @@ import dotty.tools.dotc.core.Symbols
 import dotty.tools.dotc.core.Constants
 import dotty.tools.dotc.core.TypeOps
 import dotty.tools.dotc.core.StdNames
+import java.lang.Runtime.Version
 
 /**
  * One of the results of a completion query.

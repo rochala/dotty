@@ -6,10 +6,8 @@ import dotty.tools.pc.ScalaPresentationCompiler
 import org.junit.{Before, Test}
 
 import scala.language.unsafeNulls
-import scala.meta.internal.metals.CompilerOffsetParams
 import scala.meta.internal.metals.EmptyCancelToken
-import scala.meta.internal.metals.EmptyReportContext
-import scala.meta.internal.metals.PcQueryContext
+import scala.meta.internal.metals.CompilerOffsetParams
 import scala.meta.pc.OffsetParams
 import scala.concurrent.Future
 import scala.concurrent.Await
@@ -19,12 +17,35 @@ import scala.concurrent.duration.*
 import java.util.Collections
 import java.nio.file.Paths
 import java.util.concurrent.CompletableFuture
+import dotty.tools.pc.DriverAccess
+import dotty.tools.pc.CachingDriver
+import dotty.tools.dotc.CompilationUnit
+import dotty.tools.pc.base.TestResources
+import java.io.File
+import dotty.tools.pc.CompilationInputs
+import scala.meta.pc.PresentationCompilerConfig
+import scala.meta.internal.pc.PresentationCompilerConfigImpl
+import scala.meta.pc.CancelToken
+import scala.meta.internal.metals.EmptyReportContext
+import dotty.tools.pc.Profiler
+import dotty.tools.pc.util.TraceEvent
 import dotty.tools.pc.LspRequest
 
 
-class CompilerCachingSuite extends BasePCSuite:
+class EmptyProfiler() extends Profiler:
+  def reportEvent(event: TraceEvent): Unit = ()
+
+class DriverAccessSuite extends BasePCSuite:
 
   val timeout = 5.seconds
+
+
+  val defaultFlags = List("-color:never", "-classpath" /*, "-Yplain-printer","-Yprint-pos"*/) :+
+    TestResources.classpath.mkString(File.pathSeparator)
+
+    def inputs(source: String, fileName: String = "Test.scala"): CompilationInputs =
+      val uri = Paths.get(fileName).toUri()
+      CompilationInputs(uri, source, LspRequest.Unknown, EmptyCancelToken, false)
 
   private def checkCompilationCount(expected: Int): Unit =
     presentationCompiler match
@@ -42,8 +63,6 @@ class CompilerCachingSuite extends BasePCSuite:
           driver.currentCtx
         }.get(timeout.length, timeout.unit)
       case _ => throw IllegalStateException("Presentation compiler should always be of type of ScalaPresentationCompiler")
-
-  private def emptyQueryContext = PcQueryContext(None, () => "")(using EmptyReportContext)
 
   @Before
   def beforeEach: Unit =
