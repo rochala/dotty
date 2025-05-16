@@ -17,7 +17,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentLinkedQueue
 import dotty.tools.dotc.sbt.interfaces.ProgressCallback
 
-class TaskQueue(profiler: Profiler, driverSettings: List[String], reportContext: ReportContext):
+class TaskQueue(profiler: Profiler, driverSettings: List[String], reportContext: PcReportContext):
   private val logger: Logger = Logger.getLogger(getClass.getName).nn
 
   private val currentId: AtomicInteger = AtomicInteger(0)
@@ -164,12 +164,15 @@ class TaskQueue(profiler: Profiler, driverSettings: List[String], reportContext:
     val report =
       Report(
         "compiler-error",
-        s"""|occurred in the presentation compiler.
+        s"""|occurred in the Presentation Compiler.
             |
-            |presentation compiler configuration:
+            |Presentation Compiler configuration:
             |
             |action parameters:
             |${compilationInputs.show}
+            |
+            |Additional data:
+            |  ${reportContext.additionalData}
             |""".stripMargin,
         error,
         path = Some(compilationInputs.uri)

@@ -70,10 +70,10 @@ case class ScalaPresentationCompiler(
   private val forbiddenOptions = Set("-print-lines", "-print-tasty")
   private val forbiddenDoubleOptions = Set.empty[String]
 
-  given reportContext: ReportContext =
+  given reportContext: PcReportContext =
     folderPath
-      .map(StdReportContext(_, _ => buildTargetName, reportsLevel))
-      .getOrElse(EmptyReportContext)
+      .map(path => PcReportContext(StdReportContext(path, _ => buildTargetName, reportsLevel), additionalReportData))
+      .getOrElse(PcReportContext.empty)
 
   override def codeAction[T](
     params: OffsetParams,
@@ -81,10 +81,7 @@ case class ScalaPresentationCompiler(
     codeActionPayload: Optional[T]
    ): CompletableFuture[ju.List[TextEdit]] =
      (codeActionId, codeActionPayload.asScala) match
-        case (
-              CodeActionId.ConvertToNamedArguments,
-              Some(argIndices: ju.List[?])
-            ) =>
+        case (CodeActionId.ConvertToNamedArguments, Some(argIndices: ju.List[?])) =>
           val payload: ju.List[Integer] =
             argIndices.asScala.collect { case i: Integer => i.asInstanceOf[Integer] }.asJava
           convertToNamedArguments(params, payload)
@@ -404,19 +401,13 @@ case class ScalaPresentationCompiler(
 
   override def isLoaded() = true
 
-  def additionalReportData() =
-    s"""|Scala version: $scalaVersion
-        |Classpath:
-        |${classpath
-          .map(path => s"$path [${if path.exists then "exists" else "missing"} ]")
-          .mkString(", ")}
-        |Options:
-        |${options.mkString(" ")}
-        |""".stripMargin
-
-  extension (params: VirtualFileParams)
-    def toQueryContext = PcQueryContext(Some(params), additionalReportData)
-
-  def emptyQueryContext = PcQueryContext(None, additionalReportData)
+  private def additionalReportData =
+    Map(
+      "scalaVersion" -> scalaVersion,
+      "classpath" -> classpath
+         .map(path => s"$path [ ${if path.exists then "exists" else "missing"} ]")
+         .mkString(", "),
+      "options" -> options.mkString(" ")
+    )
 
 end ScalaPresentationCompiler

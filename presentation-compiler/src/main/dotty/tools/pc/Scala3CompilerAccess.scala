@@ -38,7 +38,7 @@ object CompilationInputs:
 class DriverAccess(
   config: PresentationCompilerConfig,
   driverSettings: List[String],
-  reportContext: ReportContext,
+  reportContext: PcReportContext,
   profiler: Profiler
 ):
   private val logger: Logger = Logger.getLogger(getClass.getName).nn

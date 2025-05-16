@@ -16,7 +16,7 @@ import dotty.tools.FatalError
 
 case class InfiniteCompilationException(msg: String) extends Exception
 
-class Worker(queue: TaskQueue, config: PresentationCompilerConfig, reportContext: ReportContext):
+class Worker(queue: TaskQueue, config: PresentationCompilerConfig, reportContext: PcReportContext):
   private val logger: Logger = Logger.getLogger(getClass.getName).nn
 
   private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor().nn
@@ -54,6 +54,8 @@ class Worker(queue: TaskQueue, config: PresentationCompilerConfig, reportContext
             |
             |If your code is sensitive please make sure to remove code from this report.
             |
+            |Additional data:
+            |  ${reportContext.additionalData}
             |Stacktrace:
             |  ${stacktrace}
             |
