@@ -24,6 +24,23 @@ import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.pc.utils.InteractiveEnrichments.*
 
 import org.eclipse.lsp4j.Location
+import org.slf4j.LoggerFactory
+import dotty.tools.scripting.Main.toUrl
+import scala.meta.pc.TastyInformation
+import java.{util => ju}
+import ju.Optional
+
+case class PcTastyInformation(
+    inTastyJarPath: ju.Optional[String],
+    sourcePath: ju.Optional[String],
+    symbol: String,
+    tastyJarPath: ju.Optional[String],
+    tastyPath: ju.Optional[String],
+    range: ju.Optional[org.eclipse.lsp4j.Range]
+) extends TastyInformation {
+  override def toString(): String =
+    s"PcTastyInformation(\ninTastyJarPath=$inTastyJarPath,\n sourcePath=$sourcePath,\n symbol=$symbol,\n tastyJarPath=$tastyJarPath,\n tastyPath=$tastyPath, range=$range\n)"
+}
 
 class PcDefinitionProvider(
     driver: InteractiveDriver,
@@ -31,11 +48,63 @@ class PcDefinitionProvider(
     search: SymbolSearch
 ):
 
+  val logger = LoggerFactory.getLogger(getClass.getName)
+  logger.info(s"PcDefinitionProvider initialized with params: $params")
+
   def definitions(): DefinitionResult =
     definitions(findTypeDef = false)
 
   def typeDefinitions(): DefinitionResult =
     definitions(findTypeDef = true)
+
+  def tastyInfo: TastyInformation =
+    val uri = params.uri().nn
+    val text = params.text().nn
+    val filePath = Paths.get(uri)
+    driver.run(
+      uri,
+      SourceFile.virtual(filePath.toString, text)
+    )
+    val pos = driver.sourcePosition(params)
+    val path =
+      Interactive.pathTo(driver.openedTrees(uri), pos)(using driver.currentCtx)
+
+    given ctx: Context = driver.localContext(params)
+    val res = Interactive.enclosingSourceSymbols(path, pos)
+    logger.info(s"Found symbols: ${res.mkString(", ")}")
+
+    logger.info(res.head.fullName.show)
+    logger.info(res.head.binaryFile.toString)
+    logger.info(res.head.associatedFile.toString)
+    logger.info(util.Try(res.head.associatedFile.nn.underlyingSource.get).toString)
+    logger.info(util.Try(Paths.get(res.head.associatedFile.nn.absolutePath).toURI).toString)
+
+    logger.info(util.Try(Location(res.head.associatedFile.nn.underlyingSource.get.jpath.nn.toURI.toString, res.head.sourcePos.toLsp)).toString)
+    logger.info(res.head.tastyInfo.toString)
+    logger.info(res.head.source.toString)
+    logger.info(res.head.sourcePos.toString)
+    logger.info(res.head.sourcePos.toLsp.toString)
+
+    PcTastyInformation(
+      util.Try { res.head.associatedFile.nn.absolutePath.toString }.toOption.asJava,
+      util.Try { res.head.source.path.toString }.toOption.asJava,
+      res.head.fullName.show,
+      {
+        util.Try(res.head.associatedFile.nn.underlyingSource.get.file.nn.toURI.toString) match
+          case util.Success(z) if z.endsWith(".jar") =>
+            Optional.of(z)
+          case _ => Optional.empty[String]
+      },
+      {
+        util.Try(res.head.associatedFile.nn.underlyingSource.get.file.nn.toURI.toString) match
+          case util.Success(z) if z.endsWith(".tasty") =>
+            Optional.of(z)
+          case _ => Optional.empty[String]
+      },
+      util.Try(res.head.sourcePos.toLsp).toOption.asJava
+    )
+
+  end tastyInfo
 
   private def definitions(findTypeDef: Boolean): DefinitionResult =
     val uri = params.uri().nn
@@ -45,19 +114,39 @@ class PcDefinitionProvider(
       uri,
       SourceFile.virtual(filePath.toString, text)
     )
-
     val pos = driver.sourcePosition(params)
     val path =
       Interactive.pathTo(driver.openedTrees(uri), pos)(using driver.currentCtx)
 
-    given ctx: Context = driver.localContext(params)
-    val indexedContext = IndexedContext(pos)(using ctx)
-    val result =
-      if findTypeDef then findTypeDefinitions(path, pos, indexedContext, uri)
-      else findDefinitions(path, pos, indexedContext, uri)
 
-    if result.locations().nn.isEmpty() then fallbackToUntyped(pos, uri)(using ctx)
-    else result
+    given ctx: Context = driver.localContext(params)
+    val res = Interactive.enclosingSourceSymbols(path, pos)
+    logger.info(s"Found symbols: ${res.mkString(", ")}")
+
+    try {
+      logger.info(res.head.fullName.show)
+      logger.info(res.head.binaryFile.toString)
+      logger.info(res.head.associatedFile.toString)
+      logger.info(util.Try(res.head.associatedFile.nn.underlyingSource.get).toString)
+      logger.info(util.Try(Paths.get(res.head.associatedFile.nn.absolutePath).toURI).toString)
+
+      logger.info(util.Try(Location(res.head.associatedFile.nn.underlyingSource.get.jpath.nn.toURI.toString, res.head.sourcePos.toLsp)).toString)
+      logger.info(res.head.tastyInfo.toString)
+      logger.info(res.head.source.toString)
+      logger.info(res.head.sourcePos.toString)
+      logger.info(res.head.sourcePos.toLsp.toString)
+      val sourcePos =
+        List(
+          util.Try(Location(Paths.get(res.head.associatedFile.nn.absolutePath).toURI.toString, res.head.sourcePos.toLsp)).toOption,
+          util.Try(Location(res.head.associatedFile.nn.underlyingSource.get.jpath.nn.toURI.toString, res.head.sourcePos.toLsp)).toOption,
+        )
+      val z = DefinitionResultImpl(res.head.fullName.show, sourcePos.flatten.asJava)
+      z
+    } catch {
+      case e: Exception =>
+        logger.info(s"Error finding definitions: ${e.getMessage}")
+        DefinitionResultImpl("", java.util.Collections.emptyList())
+    }
   end definitions
 
   /**
@@ -124,6 +213,7 @@ class PcDefinitionProvider(
       uri: URI,
       pos: SourcePosition
   )(using ctx: Context): DefinitionResult =
+    println(symbols)
     semanticSymbolsSorted(symbols) match
       case Nil => DefinitionResultImpl.empty
       case syms @ ((_, headSym) :: tail) =>
@@ -139,6 +229,14 @@ class PcDefinitionProvider(
       pos: SourcePosition
   )(using ctx: Context): List[Location] =
     val isLocal = symbol.source == pos.source
+    println(symbol.source)
+    println(pos.source)
+    println(symbol.defTree.source)
+    println(symbol.defTree.sourcePos)
+    println(symbol.associatedFile)
+    println(symbol.tastyInfo.get.attributes.sourceFile)
+    println(symbol.compilationUnitInfo)
+    println(symbol.fullName)
     if isLocal then
       val trees = driver.openedTrees(uri)
       val include = Include.definitions | Include.local

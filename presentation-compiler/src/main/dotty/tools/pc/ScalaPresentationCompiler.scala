@@ -367,6 +367,17 @@ case class ScalaPresentationCompiler(
       }
   end inlineValue
 
+  override def tastyInfo(params: OffsetParams): CompletableFuture[TastyInformation] = {
+    compilerAccess.withInterruptableCompiler(
+      null,
+      params.token()
+    ) { access =>
+      val driver = access.compiler()
+      PcDefinitionProvider(driver, params, search).tastyInfo
+    }(params.toQueryContext)
+
+  }
+
   override def extractMethod(
       range: RangeParams,
       extractionPos: OffsetParams

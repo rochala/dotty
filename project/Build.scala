@@ -531,7 +531,7 @@ object Build {
     "scala2-library-tasty"
   )
 
-  val enableBspAllProjects = sys.env.get("ENABLE_BSP_ALL_PROJECTS").map(_.toBoolean).getOrElse(false)
+  val enableBspAllProjects = true
 
   // Settings used when compiling dotty with a non-bootstrapped dotty
   lazy val commonBootstrappedSettings = commonDottySettings ++ Seq(
@@ -1450,7 +1450,7 @@ object Build {
       moduleName    := "scala-library",
       version       := dottyVersion,
       versionScheme := Some("semver-spec"),
-      // sbt defaults to scala 2.12.x and metals will report issues as it doesn't consider the project a scala 3 project 
+      // sbt defaults to scala 2.12.x and metals will report issues as it doesn't consider the project a scala 3 project
       // (not the actual version we use to compile the project)
       scalaVersion  := referenceVersion,
       crossPaths    := false, // org.scala-lang:scala-library doesn't have a crosspath
@@ -1869,7 +1869,7 @@ object Build {
       libraryDependencies ++= Seq(
         "org.lz4" % "lz4-java" % "1.8.0",
         "io.get-coursier" % "interface" % "1.0.18",
-        ("org.scalameta" % "mtags-interfaces" % mtagsVersion)
+        ("org.scalameta" % "mtags-interfaces" % "1.6.1-SNAPSHOT")
           .exclude("org.eclipse.lsp4j","org.eclipse.lsp4j")
           .exclude("org.eclipse.lsp4j","org.eclipse.lsp4j.jsonrpc"),
         "org.eclipse.lsp4j" % "org.eclipse.lsp4j" % "0.20.1",

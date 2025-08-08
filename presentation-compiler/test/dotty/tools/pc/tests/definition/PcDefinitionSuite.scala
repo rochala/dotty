@@ -647,3 +647,10 @@ class PcDefinitionSuite extends BasePcDefinitionSuite:
          |    export scala.collection.immutable.V/*scala/collection/immutable/Vector. Vector.scala*/@@ector
          |""".stripMargin
     )
+
+  @Test def basic125 =
+    check(
+      """|object Aaa:
+         |  val z =  NamedTu@@ple
+         |""".stripMargin
+    )
