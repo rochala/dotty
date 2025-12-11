@@ -87,7 +87,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite:
          |""".stripMargin
     )
 
-  @Test def `for-withFilter` =
+  @Test def `for-withFilter` = // ee ??
     check(
       """|
          |object Main {
@@ -142,7 +142,7 @@ class PcDefinitionSuite extends BasePcDefinitionSuite:
     check(
       """|
          |object Main {
-         |  Predef./*scala/Predef.assert(). Predef.scala*//*scala/Predef.assert(+1). Predef.scala*/@@assert
+         |  Predef./*scala/Predef.assert(). Predef.scala*//*scala/Predef.assert(+1). Predef.scala*/a@@ssert
          |}
          |""".stripMargin
     )
@@ -620,6 +620,15 @@ class PcDefinitionSuite extends BasePcDefinitionSuite:
          |""".stripMargin
     )
 
+  @Test def i72565 =
+    check(
+      """|import Test.me@@thodA
+         |object Test:
+         |  def <<methodA>>: Unit = ???
+         |
+         |""".stripMargin
+    )
+
   @Test def `i7256-2` =
     check(
       """|object Test:
@@ -662,13 +671,13 @@ class PcDefinitionSuite extends BasePcDefinitionSuite:
   @Test def `i7763-neg` =
     check(
       """|object MyItem:
-        |  def unapply(name: String): Option[Int] = ???
-        |
-        |def handle(item: String) =
-        |  item match {
-        |    case MyItem(na@@me = n2) => println(n2)
-        |  }
-        |""".stripMargin
+         |  def unapply(<<name>>: String): Option[Int] = ???
+         |
+         |def handle(item: String) =
+         |  item match {
+         |    case MyItem(na@@me = n2) => println(n2)
+         |  }
+         |""".stripMargin
     )
 
   @Test def `i7763-apply` =

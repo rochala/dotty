@@ -73,13 +73,16 @@ object Interactive {
 
   /** The closest enclosing tree with a symbol containing position `pos`, or the `EmptyTree`.
    */
-  def enclosingTree(trees: List[SourceTree], pos: SourcePosition)(using Context): Tree =
+  def enclosingTree(trees: List[SourceTree], pos: SourcePosition)(using Context): untpd.Tree =
     enclosingTree(pathTo(trees, pos))
 
   /** The closest enclosing tree with a symbol, or the `EmptyTree`.
    */
-  def enclosingTree(path: List[Tree])(using Context): Tree =
-    path.dropWhile(!_.symbol.exists).headOption.getOrElse(tpd.EmptyTree)
+  def enclosingTree(path: List[untpd.Tree])(using Context): untpd.Tree =
+    path
+      .dropWhile(t => !t.symbol.exists)
+      .headOption
+      .getOrElse(EmptyTree)
 
   /**
    * The source symbols that are the closest to `path`.
@@ -92,8 +95,25 @@ object Interactive {
    *
    * @see sourceSymbol
    */
-  def enclosingSourceSymbols(path: List[Tree], pos: SourcePosition)(using Context): List[Symbol] = {
+  def enclosingSourceSymbols(path: List[untpd.Tree], pos: SourcePosition)(using Context): List[Symbol] = {
+
+    def paramSymbols(fn: Symbol, name: Name): List[Symbol] = {
+      val classTree = fn.topLevelClass.asClass.rootTree
+      val paramSymbol =
+        for {
+          case DefDef(_, paramss, _, _) <- tpd.defPath(fn, classTree).lastOption
+          _ = println(paramss)
+          param <- paramss.flatten.find(_.name == name)
+        }
+        yield param.symbol
+      List(paramSymbol.getOrElse(fn))
+    }
+
     val syms = path match {
+      case NamedArg(name, _) :: UnApply(fn, _, _) :: _ =>
+        val funSym = fn.symbol
+        if funSym.is(Synthetic) then paramSymbols(funSym.maybeOwner.companionClass.primaryConstructor, name)
+        else paramSymbols(funSym, name)
       // For a named arg, find the target `DefDef` and jump to the param
       case NamedArg(name, _) :: Apply(fn, _) :: _ =>
         val funSym = fn.symbol
@@ -102,24 +122,17 @@ object Interactive {
           && funSym.owner.is(CaseClass))
             List(funSym.owner.info.member(name).symbol)
         else {
-          val classTree = funSym.topLevelClass.asClass.rootTree
-          val paramSymbol =
-            for {
-              case DefDef(_, paramss, _, _) <- tpd.defPath(funSym, classTree).lastOption
-              param <- paramss.flatten.find(_.name == name)
-            }
-            yield param.symbol
-          List(paramSymbol.getOrElse(fn.symbol))
+          paramSymbols(funSym, name)
         }
 
       // For constructor calls, return the `<init>` that was selected
       case _ :: (_:  New) :: (select: Select) :: _ =>
         List(select.symbol)
 
-      case (_: untpd.ImportSelector) :: (imp: Import) :: _ =>
+      case (_: untpd.ImportSelector) :: (imp: ImportOrExport) :: _ =>
         importedSymbols(imp, _.span.contains(pos.span))
 
-      case (imp: Import) :: _ =>
+      case (imp: ImportOrExport) :: _ =>
         importedSymbols(imp, _.span.contains(pos.span))
 
       case _ =>
@@ -183,6 +196,7 @@ object Interactive {
           if (tree.symbol.exists
                && tree.name != StdNames.nme.ERROR
                && !tree.symbol.is(Synthetic)
+               && !tree.symbol.is(Exported)
                && !tree.symbol.isPrimaryConstructor
                && tree.span.exists
                && !tree.span.isZeroExtent
@@ -192,9 +206,9 @@ object Interactive {
         }
         override def traverse(tree: untpd.Tree)(using Context) =
           tree match {
-            case imp: untpd.Import if include.isImports && tree.hasType =>
-              val tree = imp.asInstanceOf[tpd.Import]
-              val selections = tpd.importSelections(tree)
+            case imp: untpd.ImportOrExport if include.isImports && tree.hasType =>
+              val tree = imp.asInstanceOf[tpd.ImportOrExport]
+              val selections = tpd.importOrExportSelections(tree)
               traverse(imp.expr)
               selections.foreach(traverse)
             case utree: untpd.ValOrDefDef if tree.hasType =>
@@ -230,7 +244,9 @@ object Interactive {
                        )(using Context): List[SourceTree] = {
     val linkedSym = symbol.linkedClass
     val fullPredicate: NameTree => Boolean = tree =>
-      (  (includes.isDefinitions || !Interactive.isDefinition(tree))
+      // println("==")
+      // println(tree)
+      val z = (  (includes.isDefinitions || !Interactive.isDefinition(tree))
       && (  Interactive.matchSymbol(tree, symbol, includes)
          || ( includes.isLinkedClass
             && linkedSym.exists
@@ -239,6 +255,12 @@ object Interactive {
          )
       && predicate(tree)
       )
+      // println(z)
+      // println(tree.symbol.flagsString)
+      // println(tree.span)
+      // println(tree.sourcePos)
+      // println(tree.sourcePos.line)
+      z
     namedTrees(trees, includes, fullPredicate)
   }
 
@@ -336,7 +358,8 @@ object Interactive {
     given Context = driver.currentCtx
     val enclTree = enclosingTree(path)
     val includeOverridden = enclTree.isInstanceOf[MemberDef]
-    val symbols = enclosingSourceSymbols(path, pos)
+    val symbols = enclosingSourceSymbols(path, pos) // ++ enclTree.symbol
+
     val includeExternal = symbols.exists(!_.isLocal)
     findDefinitions(symbols, driver, includeOverridden, includeExternal)
   }
@@ -425,14 +448,16 @@ object Interactive {
    *  we have to rely on untyped trees and only when types are necessary use typed trees.
    */
   def resolveTypedOrUntypedPath(tpdPath: List[Tree], pos: SourcePosition)(using Context): List[untpd.Tree] =
-    lazy val untpdPath: List[untpd.Tree] = NavigateAST
-      .pathTo(pos.span, List(ctx.compilationUnit.untpdTree), true).collect:
+    if requiresTypedTrees(tpdPath) then tpdPath
+    else
+      NavigateAST.pathTo(pos.span, List(ctx.compilationUnit.untpdTree), true).collect:
         case untpdTree: untpd.Tree => untpdTree
 
+  def requiresTypedTrees(tpdPath: List[Tree])(using Context): Boolean =
     tpdPath match
-      case (_: Bind) :: _ => tpdPath
-      case (_: untpd.TypTree) :: _ => tpdPath
-      case _ => untpdPath
+      case (_: Bind) :: _ => true
+      case (_: untpd.TypTree) :: _ => true
+      case _ => false
 
   /**
    * Is this tree using a renaming introduced by an import statement or an alias for `this`?

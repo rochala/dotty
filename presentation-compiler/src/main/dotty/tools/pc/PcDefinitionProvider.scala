@@ -24,6 +24,14 @@ import dotty.tools.dotc.util.SourcePosition
 import dotty.tools.pc.utils.InteractiveEnrichments.*
 
 import org.eclipse.lsp4j.Location
+import dotty.tools.dotc.transform.CheckUnused.isSynthetic
+import java.nio.file.Path
+import dotty.tools.dotc.interactive.SourceTree
+import dotty.tools.dotc.interactive.Interactive.*
+import dotty.tools.dotc.core.Names.Name
+import dotty.tools.dotc.ast.tpd
+import dotty.tools.dotc.core.StdNames
+import dotty.tools.dotc.core.Flags.*
 
 class PcDefinitionProvider(
     driver: InteractiveDriver,
@@ -36,6 +44,52 @@ class PcDefinitionProvider(
 
   def typeDefinitions(): DefinitionResult =
     definitions(findTypeDef = true)
+  // FIXME MISSING AUTOIMPORT FOR FLAGS when import was missing
+
+  def contains(tree: untpd.Tree, sourcePos: SourcePosition)(using Context): Boolean = tree match
+    case select: untpd.Select =>
+      // using `nameSpan` as SourceTree for Select (especially symbolic-infix e.g. `::` of `1 :: Nil`) miscalculate positions
+      println(select.nameSpan)
+      select.nameSpan.contains(sourcePos.span)
+    case tree: untpd.Ident =>
+      tree.sourcePos.contains(sourcePos)
+    case tree: untpd.NamedDefTree =>
+      tree.namePos.contains(sourcePos)
+    case tree: NameTree =>
+      val z = SourceTree(tree, sourcePos.source)
+      z.namePos.contains(sourcePos)
+    case _: ImportOrExport => true
+
+    // TODO: check the positions for NamedArg and Import
+    case namedArg: untpd.NamedArg =>
+      sourcePos.span.end < namedArg.span.start + namedArg.name.asSimpleName.length
+
+    case app: (untpd.Apply | untpd.TypeApply) => contains(app.fun, sourcePos)
+    case _ => false
+  end contains
+
+
+  // TODO try to recover from ambigious error
+  def findDefinitions(path: List[Tree], pos: SourcePosition, driver: InteractiveDriver): List[SourceTree] = {
+    given Context = driver.currentCtx
+    val enclTree = path
+      .dropWhile(t => !t.symbol.exists && !t.isInstanceOf[NamedArg])
+      .headOption
+      .getOrElse(EmptyTree)
+
+    println(path)
+    println(path.map(_.symbol.source))
+    println(enclTree)
+    val enclTree0 = if contains(enclTree, pos) then path else Nil
+
+    val includeOverridden = enclTree.isInstanceOf[MemberDef]
+    val symbols = enclosingSourceSymbols(enclTree0, pos) // .filter(_.span.contains(pos)) // ++ enclTree.symbol
+
+    val includeExternal = symbols.exists(!_.isLocal)
+    val z = Interactive.findDefinitions(symbols, driver, includeOverridden, includeExternal)
+    z
+
+  }
 
   private def definitions(findTypeDef: Boolean): DefinitionResult =
     val uri = params.uri().nn
@@ -46,18 +100,29 @@ class PcDefinitionProvider(
       SourceFile.virtual(filePath.toString, text)
     )
 
+    given ctx: Context = driver.localContext(params)
     val pos = driver.sourcePosition(params)
     val path =
-      Interactive.pathTo(driver.openedTrees(uri), pos)(using driver.currentCtx)
+      Interactive.pathTo(driver.openedTrees(uri), pos)(using ctx)
 
-    given ctx: Context = driver.localContext(params)
-    val indexedContext = IndexedContext(pos)(using ctx)
-    val result =
-      if findTypeDef then findTypeDefinitions(path, pos, indexedContext, uri)
-      else findDefinitions(path, pos, indexedContext, uri)
+    val pathToUse = Interactive.resolveTypedOrUntypedPath(path, pos)
 
-    if result.locations().nn.isEmpty() then fallbackToUntyped(pos, uri)(using ctx)
-    else result
+    // println(Interactive.findDefinitions(path, pos, driver).map(_.tree.symbol))
+    // println(Interactive.enclosingSourceSymbols(pathToUse, pos))
+    // println("^^^^^^^^^^^^^^^^^^^^^")
+    // println()
+    // println(untpdPath.take(3))
+    // println(untpdPath.head.symbol)
+
+    val definitions = findDefinitions(path, pos, driver).toList
+    val syntheticDefinition = Interactive.enclosingTree(path).symbol.sourcePos
+    val extra = if syntheticDefinition.isSynthetic || !syntheticDefinition.exists then Nil else List(new Location(syntheticDefinition.source.file.path, syntheticDefinition.toLsp))
+    DefinitionResultImpl(
+      "",
+      (definitions.map(d => new Location(Path.of(d.namePos.source.path).toUri.toString, d.namePos.toLsp)) ++ extra)
+        .toSet.toList.asJava
+    )
+
   end definitions
 
   /**
@@ -90,7 +155,7 @@ class PcDefinitionProvider(
   ): DefinitionResult =
     import indexed.ctx
     definitionsForSymbols(
-      MetalsInteractive.enclosingSymbols(path, pos, indexed),
+      Interactive.enclosingSourceSymbols(path, pos),
       uri,
       pos
     )

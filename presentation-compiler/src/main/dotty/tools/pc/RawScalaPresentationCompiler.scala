@@ -156,6 +156,9 @@ case class RawScalaPresentationCompiler(
       completionItemPriority
     ).completions()
 
+  override def symbolSource(params: OffsetParams): ju.List[scala.meta.pc.SymbolSource] =
+    SymbolSourceProvider(driver, params).source().asJava
+
   def definition(params: OffsetParams): DefinitionResult =
     PcDefinitionProvider(driver, params, search).definitions()
 

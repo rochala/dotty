@@ -261,6 +261,47 @@ class DefinitionTest {
      .definition(m5 to m6, List(m1 to m2))
   }
 
+  @Test def goToDefinitionImport2: Unit = {
+    withSources(
+      code"""package a
+             object Foo {
+               def ${m1}foo${m2}(): Unit = ()
+             }
+             export Foo.${m3}foo${m4}
+             """,
+      code"""package b
+             import a.Foo
+             class Bar:
+               export foo.*
+
+             def test(bar: Bar) = bar.${m5}foo${m6}()
+             """
+    )
+     .definition(m1 to m2, List(m1 to m2))
+     .definition(m3 to m4, List(m1 to m2))
+     .definition(m5 to m6, List(m1 to m2))
+  }
+
+  @Test def goToDefinitionImport22: Unit = {
+    withSources(
+      code"""package a
+             object Foo {
+               def ${m1}foo${m2}(): Unit = ()
+             }
+             export Foo.${m3}foo${m4}
+             """,
+      code"""package b
+             class Bar:
+               export a.Foo.{foo as meth}
+
+             def test(bar: Bar) = bar.${m5}meth${m6}()
+             """
+    )
+     // .definition(m1 to m2, List(m1 to m2, m3 to m4))
+     // .definition(m3 to m4, List(m1 to m2, m3 to m4))
+     .definition(m5 to m6, List(m1 to m2, m3 to m4))
+  }
+
   @Test def goToDefinitionRenamedImport: Unit = {
     withSources(
       code"""package a
@@ -272,6 +313,39 @@ class DefinitionTest {
      .definition(m3 to m4, List(m1 to m2))
      .definition(m5 to m6, List(m1 to m2))
      .definition(m7 to m8, List(m1 to m2))
+  }
+
+  @Test def unapplyTest: Unit = {
+    withSources(
+      code"""package a
+             case class ${m1}Foo${m2}(str: String)""",
+      code"""package b
+             import a.Foo
+             object M:
+               def test = null match {
+                 case ${m3}Foo${m4}(str) => ???
+               }
+          """
+    )
+     .definition(m3 to m4, List(m1 to m2))
+  }
+
+  @Test def unapplyTestCustom: Unit = {
+    withSources(
+      code"""package a
+             object ${m1}MagicExtractor${m2}:
+               def unapply(str: String): Option[String] = Some(str.reverse)
+             """,
+      code"""package b
+             import a.MagicExtractor
+             object M:
+               def test = null match {
+                 case ${m3}MagicExtractor${m4}(${m5}str${m6} = str) => ???
+               }
+          """
+    )
+     .definition(m3 to m4, List(m1 to m2))
+     .definition(m5 to m6, List(m1 to m2))
   }
 
   @Test def goToDefinitionImportAlternatives: Unit = {

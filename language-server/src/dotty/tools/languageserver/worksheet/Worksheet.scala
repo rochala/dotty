@@ -46,6 +46,7 @@ object Worksheet {
                     None
                 }
               case _: Import | _: NameTree => Nil
+              case _ => ???
             }
           }
           queries.foreach { (line, code) =>

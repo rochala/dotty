@@ -2799,7 +2799,7 @@ object Build {
 
   lazy val `scala3-presentation-compiler` = project.in(file("presentation-compiler"))
     .withCommonSettings(Bootstrapped)
-    .dependsOn(`scala3-compiler-bootstrapped`, `scala3-library-bootstrapped`, `scala3-presentation-compiler-testcases` % "test->test")
+    .dependsOn(`scala3-compiler-bootstrapped-new`, `scala3-library-bootstrapped-new`, `scala3-presentation-compiler-testcases` % "test->test")
     .settings(presentationCompilerSettings)
     .settings(scala3PresentationCompilerBuildInfo)
 
@@ -2807,14 +2807,9 @@ object Build {
     Seq(
       ideTestsDependencyClasspath := {
         val testCasesLib = (`scala3-presentation-compiler-testcases` / Compile / classDirectory).value
-        val dottyLib = (`scala3-library-bootstrapped` / Compile / classDirectory).value
-        val scalaLib =
-          (`scala3-library-bootstrapped` / Compile / dependencyClasspath)
-            .value
-            .map(_.data)
-            .filter(_.getName.matches("scala-library.*\\.jar"))
-            .toList
-        testCasesLib :: dottyLib :: scalaLib
+        val dottyLib = (`scala3-library-bootstrapped-new` / Compile / classDirectory).value
+        val scalaLib = (`scala-library-bootstrapped` / Compile / classDirectory).value
+        List(testCasesLib, dottyLib, scalaLib)
         // Nil
       },
       Compile / buildInfoPackage := "dotty.tools.pc.buildinfo",
@@ -2826,7 +2821,7 @@ object Build {
       BuildInfoPlugin.buildInfoDefaultSettings
 
   lazy val presentationCompilerSettings = {
-    val mtagsVersion = "1.6.3"
+    val mtagsVersion = "1.6.3-SNAPSHOT"
     Seq(
       libraryDependencies ++= Seq(
         "org.lz4" % "lz4-java" % "1.8.0",
@@ -2834,14 +2829,14 @@ object Build {
         "org.scalameta" % "mtags-interfaces" % mtagsVersion,
         "com.google.guava" % "guava" % "33.2.1-jre"
       ),
-      libraryDependencies += ("org.scalameta" % "mtags-shared_2.13.16" % mtagsVersion % SourceDeps),
+      libraryDependencies += ("org.scalameta" % "mtags-shared_2.13.17" % mtagsVersion % SourceDeps),
       resolvers += Resolver.sonatypeCentralSnapshots,
       ivyConfigurations += SourceDeps.hide,
       transitiveClassifiers := Seq("sources"),
       scalacOptions ++= Seq("-source", "3.3"), // To avoid fatal migration warnings
       publishLocal := publishLocal.dependsOn( // It is best to publish all together. It is not rare to make changes in both compiler / presentation compiler and it can get misaligned
-        `scala3-compiler-bootstrapped` / publishLocal,
-        `scala3-library-bootstrapped` / publishLocal,
+        `scala3-compiler-bootstrapped-new` / publishLocal,
+        `scala3-library-bootstrapped-new` / publishLocal,
       ).value,
       Compile / scalacOptions ++= Seq("-Yexplicit-nulls", "-Wsafe-init"),
       Compile / sourceGenerators += Def.task {

@@ -35,6 +35,7 @@ import languageserver.worksheet.{Worksheet, WorksheetService}
 import languageserver.decompiler.{TastyDecompilerService}
 
 import lsp4j.services._
+import dotty.tools.dotc.transform.CheckUnused.isSynthetic
 
 /** An implementation of the Language Server Protocol for Dotty.
  *
@@ -327,9 +328,14 @@ class DottyLanguageServer extends LanguageServer
 
     val pos = sourcePosition(driver, uri, params.getPosition)
     val path = Interactive.pathTo(driver.openedTrees(uri), pos)
+    driver.openedTrees(uri).map(_.tree.show).foreach(println)
+
+    println(path.take(3))
 
     val definitions = Interactive.findDefinitions(path, pos, driver).toList
-    definitions.flatMap(d => location(d.namePos)).asJava
+    val syntheticDefinition = Interactive.enclosingTree(path).symbol.sourcePos
+    val extra = if syntheticDefinition.isSynthetic then Nil else location(syntheticDefinition).toList
+    (definitions.flatMap(d => location(d.namePos)) ++ extra).toSet.toList.asJava
   }
 
   override def references(params: ReferenceParams) = computeAsync { cancelToken =>

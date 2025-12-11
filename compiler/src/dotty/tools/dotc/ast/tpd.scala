@@ -1556,7 +1556,7 @@ object tpd extends Trees.Instance[Type] with TypedTreeInfo {
    * The list of select trees that resolve to the same symbols as the ones that are imported
    * by `imp`.
    */
-  def importSelections(imp: Import)(using Context): List[Select] = {
+  def importOrExportSelections(imp: ImportOrExport)(using Context): List[Select] = {
     def imported(sym: Symbol, id: untpd.Ident, rename: Option[untpd.Ident]): List[Select] = {
       // Give a zero-extent position to the qualifier to prevent it from being included several
       // times in results in the language server.

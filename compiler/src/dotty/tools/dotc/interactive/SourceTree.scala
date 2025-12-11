@@ -13,7 +13,7 @@ import util.*, util.Spans.*
  *
  * `tree` can be either an `Import` or a `NameTree`.
  */
-case class SourceTree(tree: tpd.Import | tpd.NameTree, source: SourceFile) {
+case class SourceTree(tree: tpd.ImportOrExport | tpd.NameTree, source: SourceFile) {
 
   /** The position of `tree` */
   final def pos(using Context): SourcePosition = source.atSpan(tree.span)
@@ -72,7 +72,7 @@ object SourceTree {
 
       def sourceImports(tree: tpd.Tree, sourceFile: SourceFile): List[SourceTree] = tree match {
         case PackageDef(_, stats) => stats.flatMap(sourceImports(_, sourceFile))
-        case imp: tpd.Import => SourceTree(imp, sourceFile) :: Nil
+        case imp: tpd.ImportOrExport => SourceTree(imp, sourceFile) :: Nil
         case _ => Nil
       }
 
